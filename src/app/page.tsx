@@ -177,7 +177,7 @@ export default function ActivityLessonBuilder() {
   const { saveLesson } = useMemoryBank()
 
   // Differentiation handlers for inline menu
-  const handleAddDifferentiation = useCallback((type: string, data: any) => {
+  const handleAddDifferentiation = useCallback((type: string, data: unknown) => {
     console.log(`🎯 Adding differentiation: ${type}`, data)
     
     // Add to applied differentiation state
@@ -225,7 +225,7 @@ export default function ActivityLessonBuilder() {
     }
   }, [appliedDifferentiation, originalLessonContent, parseActivityContent, formState.isSubMode, formState.lessonTopic, formState.gradeLevel, formState.subject])
 
-  const insertDifferentiationIntoContent = (content: string, differentiations: Record<string, any>) => {
+  const insertDifferentiationIntoContent = (content: string, differentiations: Record<string, unknown>) => {
     let modifiedContent = content
     
     // Insert differentiation adaptations into the lesson content
@@ -237,7 +237,7 @@ export default function ActivityLessonBuilder() {
     return modifiedContent
   }
 
-  const formatDifferentiationForLesson = (type: string, data: any) => {
+  const formatDifferentiationForLesson = (type: string, data: unknown) => {
     let content = ''
     
     if (type === 'esl_adaptations') {
@@ -729,7 +729,7 @@ export default function ActivityLessonBuilder() {
     
     try {
       // Check if user has Google access token
-      let accessToken = localStorage.getItem('google_access_token')
+      const accessToken = localStorage.getItem('google_access_token')
       
       if (!accessToken) {
         // Redirect to Google OAuth

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { useAuth } from '../contexts/AuthContext'
 import AuthModal from './auth/AuthModal'
 import UserMenu from './auth/UserMenu'
@@ -30,22 +31,22 @@ const Navigation: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">LP</span>
                 </div>
                 <span className="text-xl font-semibold text-gray-900">Lesson Plan Builder</span>
-              </a>
+              </Link>
             </div>
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-6">
-              <a 
+              <Link 
                 href="/" 
                 className="text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Activity Builder
-              </a>
+              </Link>
               {user && (
                 <a 
                   href="/memory-bank" 

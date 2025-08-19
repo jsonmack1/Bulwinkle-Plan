@@ -11,7 +11,10 @@
       "Bash(taskkill:*)",
       "Bash(npx kill-port:*)",
       "Bash(npx eslint:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "additionalDirectories": [
