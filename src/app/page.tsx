@@ -1191,80 +1191,79 @@ export default function ActivityLessonBuilder() {
         <div className="relative min-h-screen z-10">
 
           {/* Dynamic Hero Section */}
-          <div className="flex items-center justify-center min-h-screen -mt-20 p-8">
-            <div className="text-center max-w-5xl mx-auto px-4">
+          <div className="flex items-center justify-center min-h-screen-mobile -mt-16 sm:-mt-20 px-4 py-8 sm:p-8">
+            <div className="text-center w-full max-w-4xl mx-auto">
               
               {/* Centered Dynamic Main Title */}
-              <h1 className={`text-5xl font-bold mb-4 bg-gradient-to-r ${
+              <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight bg-gradient-to-r ${
                 formState.isSubMode 
                   ? 'from-green-600 to-emerald-600' 
                   : 'from-blue-600 to-indigo-600'
-              } bg-clip-text text-transparent`} style={{ fontFamily: 'Arial, sans-serif' }}>
+              } bg-clip-text text-transparent px-4 text-render-optimized`}>
                 {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Create Engaging Activities in Minutes'}
               </h1>
               
               {/* Simplified, User-Focused Subtitle */}
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto pb-1" style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 text-render-optimized">
                 {formState.isSubMode 
                   ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
                   : 'Turn hours of lesson planning into minutes. Create lesson plans your students will love.'
                 }
               </p>
               
-              {/* Centered Main CTA Button */}
-              <div className="mb-12">
+              {/* Mobile-Optimized Main CTA Button */}
+              <div className="mb-8 sm:mb-12 px-4">
                 <button
                   onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                  className={`${
+                  className={`w-full sm:w-auto ${
                     formState.isSubMode 
                       ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
-                  } text-white text-2xl px-12 py-5 rounded-2xl font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform hover:scale-105 flex items-center justify-center mx-auto`}
-                  style={{ fontFamily: 'Arial, sans-serif' }}
+                  } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 sm:hover:scale-105 flex items-center justify-center mx-auto touch-manipulation min-h-touch rounded-2xl text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 py-4 sm:py-5`}
                 >
-                  <span className="mr-3 text-3xl">{formState.isSubMode ? '🚀' : '⭐'}</span>
-                  {formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}
+                  <span className="mr-2 sm:mr-3 text-xl sm:text-2xl lg:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
+                  <span className="text-center leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
                 </button>
               </div>
 
-              {/* Simplified Feature Cards */}
-              <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              {/* Mobile-Optimized Feature Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto px-4">
                 {formState.isSubMode ? (
-                  // Sub Mode Features - Simplified
+                  // Sub Mode Features - Mobile Optimized
                   <>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-green-100">
-                      <div className="text-3xl mb-3">✅</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">No Prep Required</h3>
-                      <p className="text-gray-600 text-sm">Just print and go. Everything you need is ready to use.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✅</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">No Prep Required</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Just print and go. Everything you need is ready to use.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-green-100">
-                      <div className="text-3xl mb-3">📝</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Step-by-Step Scripts</h3>
-                      <p className="text-gray-600 text-sm">Clear instructions that any substitute can follow perfectly.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📝</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Step-by-Step Scripts</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Clear instructions that any substitute can follow perfectly.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-green-100">
-                      <div className="text-3xl mb-3">🎯</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Any Subject</h3>
-                      <p className="text-gray-600 text-sm">Works for K-12, any topic, any time of year.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🎯</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Any Subject</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Works for K-12, any topic, any time of year.</p>
                     </div>
                   </>
                 ) : (
-                  // Teacher Mode Features - Simplified
+                  // Teacher Mode Features - Mobile Optimized
                   <>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-100">
-                      <div className="text-3xl mb-3">✨</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Rich Activities</h3>
-                      <p className="text-gray-600 text-sm">Engaging lessons that get students excited to learn.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✨</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-100">
-                      <div className="text-3xl mb-3">🤝</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Teaching Support</h3>
-                      <p className="text-gray-600 text-sm">Helpful tips and scripts to guide you through each lesson.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🤝</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-100">
-                      <div className="text-3xl mb-3">📚</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">Standards-Aligned</h3>
-                      <p className="text-gray-600 text-sm">Activities that meet your curriculum requirements.</p>
+                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📚</div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
+                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
                     </div>
                   </>
                 )}
@@ -1317,19 +1316,39 @@ export default function ActivityLessonBuilder() {
       )}
 
 
-      {/* ENHANCED PREVIEW MODAL WITH REGENERATE */}
+      {/* MOBILE-OPTIMIZED PREVIEW MODAL */}
       {formState.showPreview && parsedContent && (
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[95vh] flex flex-col mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 backdrop-blur-sm z-50 touch-manipulation">
+          <div className="h-full w-full bg-white flex flex-col overflow-hidden sm:h-auto sm:max-h-[95vh] sm:w-auto sm:max-w-7xl sm:mx-4 sm:my-6 sm:rounded-lg sm:shadow-2xl sm:relative sm:top-1/2 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:-translate-y-1/2">
             
-            {/* Enhanced Header with Top Action Bar */}
+            {/* Mobile-Optimized Header */}
             <div className="bg-white border-b border-gray-200 print:hidden">
               
-              {/* Top Action Bar */}
-              <div className="flex justify-between items-center p-4 border-b border-gray-100">
-                {/* Left: Action Buttons */}
-                <div className="flex items-center space-x-3">
-                  {/* Differentiation Button - Premium Feature */}
+              {/* Mobile Header - Enhanced */}
+              <div className="block sm:hidden sticky top-0 bg-white z-20 border-b border-gray-100">
+                {/* Mobile Top Bar - Close and Title with Better Info */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-gray-900 truncate">
+                      {formState.isSubMode ? 'Substitute Plan' : 'Lesson Plan'}
+                    </h2>
+                    <p className="text-xs text-gray-600 truncate mt-0.5">
+                      {formState.gradeLevel} • {formState.subject} • {formState.duration}min
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => dispatch({ type: 'SET_SHOW_PREVIEW', payload: false })}
+                    className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-600 transition-colors flex-shrink-0 touch-manipulation"
+                    aria-label="Close preview"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {/* Mobile Action Buttons - Horizontal Scroll with Touch-Friendly Design */}
+                <div className="flex space-x-3 px-4 pb-3 overflow-x-auto scrollbar-hide">
                   <button
                     onClick={() => {
                       if (!formState.generatedActivity) {
@@ -1348,13 +1367,13 @@ export default function ActivityLessonBuilder() {
                       }
                     }}
                     disabled={isLoadingDifferentiation || !formState.generatedActivity}
-                    className={`${(isLoadingDifferentiation || !formState.generatedActivity) 
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                      : isPremium 
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl' 
-                        : 'bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 hover:from-amber-500 hover:via-orange-600 hover:to-pink-600 text-white animate-pulse shadow-lg hover:shadow-xl border-2 border-amber-300/50'
-                    } px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 text-sm relative overflow-hidden`}
-                    style={{ fontFamily: 'Arial, sans-serif' }}
+                    className={`flex-shrink-0 min-h-touch px-4 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 text-sm ${
+                      (isLoadingDifferentiation || !formState.generatedActivity) 
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                        : isPremium 
+                          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' 
+                          : 'bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 text-white animate-pulse shadow-md'
+                    }`}
                   >
                     {isLoadingDifferentiation ? (
                       <>
@@ -1363,7 +1382,113 @@ export default function ActivityLessonBuilder() {
                       </>
                     ) : (
                       <>
-                        <span>{showInlineDifferentiation ? 'Hide Differentiation' : 'Differentiate'}</span>
+                        <span>{showInlineDifferentiation ? 'Hide Diff' : 'Differentiate'}</span>
+                        {!isPremium && <span className="text-xs">✨</span>}
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={toggleYouTubeVideos}
+                    className={`flex-shrink-0 min-h-touch px-4 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 text-sm ${
+                      isPremium 
+                        ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md' 
+                        : 'bg-gradient-to-r from-red-400 via-orange-500 to-pink-500 text-white animate-pulse shadow-md'
+                    }`}
+                  >
+                    <span>🎬</span>
+                    <span>{showYouTubeVideos ? 'Hide Videos' : 'Add Videos'}</span>
+                    {!isPremium && <span className="text-xs">✨</span>}
+                  </button>
+                  
+                  {/* Mode Toggle - Mobile */}
+                  <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2 flex-shrink-0">
+                    <span className={`text-xs font-medium ${
+                      !formState.isSubMode ? 'text-blue-600' : 'text-gray-500'
+                    }`}>
+                      👩‍🏫
+                    </span>
+                    <button
+                      onClick={() => dispatch({ type: 'TOGGLE_MODE' })}
+                      className={`relative w-10 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+                        formState.isSubMode ? 'bg-green-500' : 'bg-blue-500'
+                      }`}
+                    >
+                      <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                        formState.isSubMode ? 'transform translate-x-4' : ''
+                      }`}></div>
+                    </button>
+                    <span className={`text-xs font-medium ${
+                      formState.isSubMode ? 'text-green-600' : 'text-gray-500'
+                    }`}>
+                      🚀
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Desktop Header */}
+              <div className="hidden sm:block">
+                <div className="flex justify-between items-center p-4 border-b border-gray-100">
+                  {/* Left: Action Buttons */}
+                  <div className="flex items-center space-x-3">
+                    {/* Differentiation Button - Premium Feature */}
+                    <button
+                      onClick={() => {
+                        if (!formState.generatedActivity) {
+                          alert('Please generate an activity first before adding differentiation.')
+                          return
+                        }
+                        if (canUseDifferentiation) {
+                          if (showInlineDifferentiation) {
+                            setShowInlineDifferentiation(false)
+                            setDifferentiationData(null)
+                          } else {
+                            loadInlineDifferentiation()
+                          }
+                        } else {
+                          setShowPremiumLock(true)
+                        }
+                      }}
+                      disabled={isLoadingDifferentiation || !formState.generatedActivity}
+                      className={`${(isLoadingDifferentiation || !formState.generatedActivity) 
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                        : isPremium 
+                          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl' 
+                          : 'bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 hover:from-amber-500 hover:via-orange-600 hover:to-pink-600 text-white animate-pulse shadow-lg hover:shadow-xl border-2 border-amber-300/50'
+                      } px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 text-sm relative overflow-hidden`}
+                    >
+                      {isLoadingDifferentiation ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></div>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{showInlineDifferentiation ? 'Hide Differentiation' : 'Differentiate'}</span>
+                          {!isPremium && (
+                            <>
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
+                              <span className="ml-1 bg-white bg-opacity-25 px-1.5 py-0.5 rounded-full text-xs font-black shadow-sm">
+                                ✨ PRO
+                              </span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </button>
+
+                    {/* YouTube Videos Button - Premium Feature */}
+                    <button
+                      onClick={toggleYouTubeVideos}
+                      className={`${isPremium 
+                        ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shadow-lg hover:shadow-xl' 
+                        : 'bg-gradient-to-r from-red-400 via-orange-500 to-pink-500 hover:from-red-500 hover:via-orange-600 hover:to-pink-600 text-white animate-pulse shadow-lg hover:shadow-xl border-2 border-red-300/50'
+                      } px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 text-sm relative overflow-hidden`}
+                    >
+                      <>
+                        <span className="text-lg">🎬</span>
+                        <span>{showYouTubeVideos ? 'Hide Videos' : 'Add Videos'}</span>
                         {!isPremium && (
                           <>
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
@@ -1373,32 +1498,8 @@ export default function ActivityLessonBuilder() {
                           </>
                         )}
                       </>
-                    )}
-                  </button>
-
-                  {/* YouTube Videos Button - Premium Feature */}
-                  <button
-                    onClick={toggleYouTubeVideos}
-                    className={`${isPremium 
-                      ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shadow-lg hover:shadow-xl' 
-                      : 'bg-gradient-to-r from-red-400 via-orange-500 to-pink-500 hover:from-red-500 hover:via-orange-600 hover:to-pink-600 text-white animate-pulse shadow-lg hover:shadow-xl border-2 border-red-300/50'
-                    } px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 text-sm relative overflow-hidden`}
-                    style={{ fontFamily: 'Arial, sans-serif' }}
-                  >
-                    <>
-                      <span className="text-lg">🎬</span>
-                      <span>{showYouTubeVideos ? 'Hide Videos' : 'Add Videos'}</span>
-                      {!isPremium && (
-                        <>
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
-                          <span className="ml-1 bg-white bg-opacity-25 px-1.5 py-0.5 rounded-full text-xs font-black shadow-sm">
-                            ✨ PRO
-                          </span>
-                        </>
-                      )}
-                    </>
-                  </button>
-                </div>
+                    </button>
+                  </div>
 
                 {/* Center: Sub Mode Toggle */}
                 <div className="flex items-center space-x-3">
@@ -1624,6 +1725,7 @@ export default function ActivityLessonBuilder() {
                 </div>
               </div>
             </div>
+            </div>
 
             {/* Main Content - Split Screen or Standard */}
             {((showInlineDifferentiation && (differentiationSuggestions || differentiationData)) || showYouTubeVideos) && (
@@ -1722,43 +1824,50 @@ export default function ActivityLessonBuilder() {
                   </div>
                 )}
                 
-                {/* Main Content Panel */}
-                <div className="bg-white overflow-y-auto p-6" style={{ fontFamily: 'Arial, sans-serif' }}>
-                  {/* Premium Features Banner */}
+                {/* Mobile-Optimized Main Content Panel */}
+                <div className="bg-white overflow-y-auto px-4 py-4 sm:p-6 text-render-optimized">
+                  {/* Premium Features Banner - Mobile Optimized */}
                   {(showInlineDifferentiation || showYouTubeVideos) && (
-                    <div className="mb-4 space-y-2">
+                    <div className="mb-4 space-y-3">
                       {showInlineDifferentiation && (
                         <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                          <div className="flex items-center text-purple-800 text-sm">
-                            <span className="mr-2">🎯</span>
-                            <span className="font-medium">Differentiation Active</span>
-                            <span className="ml-2 text-purple-600">Select adaptations from the left panel to enhance your lesson</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center text-purple-800 text-sm space-y-1 sm:space-y-0">
+                            <div className="flex items-center">
+                              <span className="mr-2 text-base">🎯</span>
+                              <span className="font-medium">Differentiation Active</span>
+                            </div>
+                            <span className="text-purple-600 sm:ml-2 leading-relaxed">Select adaptations from the side panel to enhance your lesson</span>
                           </div>
                         </div>
                       )}
                       {showYouTubeVideos && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                          <div className="flex items-center text-red-800 text-sm">
-                            <span className="mr-2">🎬</span>
-                            <span className="font-medium">Video Integration Active</span>
-                            <span className="ml-2 text-red-600">Add educational videos from the side panel to support your lesson</span>
-                            {selectedVideos.length > 0 && (
-                              <span className="ml-2 bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs font-bold">
-                                {selectedVideos.length} selected
-                              </span>
-                            )}
+                          <div className="flex flex-col sm:flex-row sm:items-center text-red-800 text-sm space-y-2 sm:space-y-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <span className="mr-2 text-base">🎬</span>
+                                <span className="font-medium">Video Integration Active</span>
+                              </div>
+                              {selectedVideos.length > 0 && (
+                                <span className="bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs font-bold flex-shrink-0">
+                                  {selectedVideos.length} selected
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-red-600 sm:ml-2 leading-relaxed">Add educational videos from the side panel to support your lesson</span>
                           </div>
                         </div>
                       )}
                     </div>
                   )}
                   
-                  <div id="lesson-content">
+                  {/* Mobile-Optimized Lesson Content */}
+                  <div id="lesson-content" className="w-full max-w-none mobile-content mobile-no-stretch">
                     {formState.aiProcessing ? (
                       <Suspense fallback={
-                        <div className="text-center py-12">
-                          <div className="text-6xl mb-4 animate-bounce">🎯</div>
-                          <div className="text-xl font-semibold text-gray-700 mb-2">Loading enhanced progress...</div>
+                        <div className="text-center py-8 sm:py-12">
+                          <div className="text-4xl sm:text-6xl mb-4 animate-bounce">🎯</div>
+                          <div className="text-lg sm:text-xl font-semibold text-gray-700 mb-2 px-4">Loading enhanced progress...</div>
                         </div>
                       }>
                         <EnhancedLoadingProgress
@@ -1769,8 +1878,16 @@ export default function ActivityLessonBuilder() {
                         />
                       </Suspense>
                     ) : (
-                      <Suspense fallback={<div className="animate-pulse">Loading...</div>}>
-                        {formState.generatedActivity && <PremiumMathContent content={formState.generatedActivity} />}
+                      <Suspense fallback={
+                        <div className="animate-pulse text-center py-8">
+                          <div className="text-lg text-gray-600">Loading lesson content...</div>
+                        </div>
+                      }>
+                        {formState.generatedActivity && (
+                          <div className="lesson-content-wrapper">
+                            <PremiumMathContent content={formState.generatedActivity} />
+                          </div>
+                        )}
                       </Suspense>
                     )}
                   </div>
@@ -1779,14 +1896,14 @@ export default function ActivityLessonBuilder() {
             )}
             
             {!((showInlineDifferentiation && (differentiationSuggestions || differentiationData)) || showYouTubeVideos) && (
-              // Standard single-panel layout
-              <div className="flex-1 overflow-y-auto p-6" style={{ fontFamily: 'Arial, sans-serif' }}>
-                <div id="lesson-content">
+              // Mobile-Optimized Standard single-panel layout
+              <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 text-render-optimized">
+                <div id="lesson-content" className="w-full max-w-none mobile-content mobile-no-stretch">
                   {formState.aiProcessing ? (
                     <Suspense fallback={
-                      <div className="text-center py-12">
-                        <div className="text-6xl mb-4 animate-bounce">🎯</div>
-                        <div className="text-xl font-semibold text-gray-700 mb-2">Loading enhanced progress...</div>
+                      <div className="text-center py-8 sm:py-12">
+                        <div className="text-4xl sm:text-6xl mb-4 animate-bounce">🎯</div>
+                        <div className="text-lg sm:text-xl font-semibold text-gray-700 mb-2 px-4">Loading enhanced progress...</div>
                       </div>
                     }>
                       <EnhancedLoadingProgress
@@ -1797,8 +1914,16 @@ export default function ActivityLessonBuilder() {
                       />
                     </Suspense>
                   ) : (
-                    <Suspense fallback={<div className="animate-pulse">Loading...</div>}>
-                      {formState.generatedActivity && <PremiumMathContent content={formState.generatedActivity} />}
+                    <Suspense fallback={
+                      <div className="animate-pulse text-center py-8">
+                        <div className="text-lg text-gray-600">Loading lesson content...</div>
+                      </div>
+                    }>
+                      {formState.generatedActivity && (
+                        <div className="lesson-content-wrapper">
+                          <PremiumMathContent content={formState.generatedActivity} />
+                        </div>
+                      )}
                     </Suspense>
                   )}
                 </div>
