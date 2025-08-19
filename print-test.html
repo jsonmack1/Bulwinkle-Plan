@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Format Test - Lesson Plan Builder</title>
+    <style>
+        /* Screen styles */
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        /* Navigation and UI elements */
+        .navigation { 
+            background: #3b82f6; 
+            color: white; 
+            padding: 1rem; 
+            margin-bottom: 20px;
+        }
+        
+        .workspace-header { 
+            background: linear-gradient(to right, #8b5cf6, #3b82f6); 
+            color: white; 
+            padding: 1rem;
+        }
+        
+        .differentiation-menu { 
+            background: #f9f9f9; 
+            padding: 20px; 
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        button { 
+            background: #3b82f6; 
+            color: white; 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 4px; 
+            margin: 5px;
+        }
+        
+        .fixed { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            background: #ffeb3b; 
+            padding: 10px; 
+            z-index: 1000;
+        }
+        
+        /* Print styles */
+        @media print {
+          /* Hide navigation and all UI controls */
+          nav, .navigation, .workspace-header, .differentiation-menu { display: none !important; }
+          
+          /* Hide all buttons, forms, and interactive elements */
+          button, input, select, textarea, form { display: none !important; }
+          
+          /* Hide mode toggles, alerts, and notifications */
+          .fixed { display: none !important; }
+          .sticky { position: static !important; }
+          
+          /* Hide background decorations */
+          .absolute, .bg-gradient-to-br, .bg-gradient-to-r, .backdrop-blur-sm { display: none !important; }
+          
+          /* Ensure only lesson content is visible */
+          body { 
+            background: white !important; 
+            color: black !important;
+            font-size: 12pt !important;
+            line-height: 1.4 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Show only the main lesson content */
+          #lesson-content { 
+            display: block !important;
+            visibility: visible !important;
+            position: static !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            background: white !important;
+          }
+          
+          /* Optimize text for print */
+          .text-white, .text-blue-600, .text-purple-600, .text-indigo-600 { 
+            color: #000 !important; 
+          }
+          
+          /* Remove shadows and effects */
+          .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+          .rounded-lg, .rounded-md { border-radius: 0 !important; }
+          
+          /* Page break handling */
+          h1, h2, h3 { page-break-after: avoid !important; }
+          .no-break { page-break-inside: avoid !important; }
+          
+          /* Clean borders */
+          .border-purple-200, .border-blue-200, .border-indigo-200 { 
+            border-color: #ccc !important; 
+          }
+          
+          /* Differentiation addition styling */
+          .differentiation-addition {
+            border: 1px solid #ccc !important;
+            background: #f9f9f9 !important;
+            margin: 10px 0 !important;
+            padding: 10px !important;
+            border-radius: 4px !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Typography improvements */
+          h1 { font-size: 18pt !important; margin-bottom: 12pt !important; }
+          h2 { font-size: 16pt !important; margin-bottom: 10pt !important; }
+          h3 { font-size: 14pt !important; margin-bottom: 8pt !important; }
+          h4 { font-size: 12pt !important; margin-bottom: 6pt !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed notification that should be hidden in print -->
+    <div class="fixed">🔔 This fixed notification should be hidden when printing</div>
+    
+    <!-- Navigation that should be hidden in print -->
+    <div class="navigation">
+        <h1>Lesson Plan Builder Navigation</h1>
+        <button>Home</button>
+        <button>Create</button>
+        <button>Settings</button>
+    </div>
+    
+    <!-- Workspace header that should be hidden in print -->
+    <div class="workspace-header">
+        <h2>🎯 Differentiation Workspace</h2>
+        <button>Print</button>
+        <button>Share</button>
+        <button>Close</button>
+    </div>
+    
+    <!-- Differentiation menu that should be hidden in print -->
+    <div class="differentiation-menu">
+        <h3>Differentiation Options</h3>
+        <button>Add Support</button>
+        <button>Add Challenge</button>
+        <button>Add ELL Support</button>
+    </div>
+    
+    <!-- Main lesson content - THIS should be the only thing visible when printing -->
+    <div id="lesson-content">
+        <h1>Cosmic Scale Solar Safari</h1>
+        <h2>Learning Objectives</h2>
+        <p>Students will:</p>
+        <ul>
+            <li>Create and use a scale model to demonstrate relative distances between planets</li>
+            <li>Compare and contrast characteristics of inner and outer planets using evidence-based reasoning</li>
+        </ul>
+        
+        <h2>Materials Needed</h2>
+        <ul>
+            <li>Roll of paper or string</li>
+            <li>Markers</li>
+            <li>Measuring tape</li>
+            <li>Index cards</li>
+            <li>Basic art supplies</li>
+        </ul>
+        
+        <h2>Activity Instructions</h2>
+        <h3>Opening Hook (7 minutes)</h3>
+        <p>Begin with a "Walk the Solar System" demonstration where one step equals 10 million miles, helping students grasp the vast distances involved.</p>
+        
+        <!-- Sample differentiation addition -->
+        <div class="differentiation-addition no-break">
+            <h4>🎯 ELL Support: Visual Vocabulary</h4>
+            <p>Provide picture cards for key vocabulary: orbit, revolution, solar system. Include translated labels in students' native languages.</p>
+            <button>Remove</button>
+        </div>
+        
+        <h3>Main Activity (32 minutes)</h3>
+        <h4>Phase 1: Explore (14 minutes)</h4>
+        <ul>
+            <li>Students create a scaled model of the Solar System using paper/string</li>
+            <li>Mark planetary positions using provided scale (1 inch = 10 million miles)</li>
+            <li>Label each planet with basic characteristics on index cards</li>
+        </ul>
+        
+        <!-- Another differentiation addition -->
+        <div class="differentiation-addition no-break">
+            <h4>🧠 Challenge Extension: Calculate Gravity</h4>
+            <p>Advanced students can calculate and compare gravitational forces on different planets using the formula F = ma.</p>
+            <button>Remove</button>
+        </div>
+        
+        <h2>Assessment Ideas</h2>
+        <ul>
+            <li>Monitor accuracy of scale models</li>
+            <li>Listen for evidence-based explanations during discussions</li>
+            <li>Check completed CER responses for understanding</li>
+        </ul>
+        
+        <h2>Teaching Tips</h2>
+        <ul>
+            <li>Use hallway space for full-scale modeling</li>
+            <li>Emphasize the importance of precise measurements</li>
+            <li>Guide students to connect distance patterns to planetary characteristics</li>
+        </ul>
+    </div>
+    
+    <!-- More UI elements that should be hidden -->
+    <div style="margin-top: 40px; text-align: center;">
+        <button style="background: #10b981;">Save Lesson</button>
+        <button style="background: #f59e0b;">Share</button>
+        <button style="background: #ef4444;">Delete</button>
+    </div>
+    
+    <script>
+        // Add a print button for testing
+        const printButton = document.createElement('button');
+        printButton.textContent = 'Test Print';
+        printButton.style.position = 'fixed';
+        printButton.style.bottom = '20px';
+        printButton.style.right = '20px';
+        printButton.style.padding = '10px 20px';
+        printButton.style.background = '#22c55e';
+        printButton.style.color = 'white';
+        printButton.style.border = 'none';
+        printButton.style.borderRadius = '8px';
+        printButton.style.cursor = 'pointer';
+        printButton.style.zIndex = '9999';
+        printButton.onclick = () => window.print();
+        document.body.appendChild(printButton);
+    </script>
+</body>
+</html>

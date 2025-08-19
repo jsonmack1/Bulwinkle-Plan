@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Differentiation Workspace Print Test</title>
+    <style>
+        /* Base styles to simulate the differentiation workspace */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        /* Simulate the fixed layout of differentiation workspace */
+        .fixed {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 40;
+            display: flex;
+        }
+        
+        /* Left panel - differentiation menu */
+        .differentiation-menu {
+            width: 320px;
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* Right panel */
+        .flex-1 {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Workspace header */
+        .workspace-header {
+            background: linear-gradient(to right, #8b5cf6, #3b82f6);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Print content wrapper */
+        .print-content {
+            flex: 1;
+            background: white;
+            overflow-y: auto;
+        }
+        
+        /* Lesson content */
+        .print-lesson-content {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Differentiation addition */
+        .differentiation-addition {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            background: rgba(139, 92, 246, 0.1);
+            position: relative;
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 4px;
+        }
+        
+        /* Activity name styling */
+        .activity-name {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        /* Print styles - ENHANCED VERSION */
+        @media print {
+          /* Reset body and root styles */
+          body {
+            background: white !important;
+            color: black !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Hide specific UI elements - targeted approach */
+          .differentiation-menu,
+          .workspace-header,
+          nav,
+          .navigation,
+          .fixed,
+          .sticky,
+          button,
+          input,
+          select,
+          textarea,
+          form,
+          .bg-gradient-to-br,
+          .bg-gradient-to-r,
+          .backdrop-blur-sm,
+          .absolute {
+            display: none !important;
+          }
+          
+          /* Ensure the main container structure is visible */
+          .print-content {
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            color: black !important;
+            padding: 20px !important;
+            margin: 0 !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+          
+          /* Ensure lesson content container is visible */
+          .print-content .flex-1,
+          .print-content .max-w-4xl,
+          .print-content .p-6,
+          .print-content > div {
+            display: block !important;
+            visibility: visible !important;
+            position: static !important;
+            overflow: visible !important;
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          /* Make all content within print-content visible */
+          .print-content,
+          .print-content *,
+          .print-content h1,
+          .print-content h2,
+          .print-content h3,
+          .print-content h4,
+          .print-content h5,
+          .print-content h6,
+          .print-content p,
+          .print-content div,
+          .print-content ul,
+          .print-content li,
+          .print-content strong {
+            visibility: visible !important;
+            display: block !important;
+            color: black !important;
+          }
+          
+          /* Lesson content specific visibility */
+          .print-lesson-content {
+            display: block !important;
+            visibility: visible !important;
+            position: static !important;
+            overflow: visible !important;
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            color: black !important;
+          }
+          
+          /* Make all content within the lesson editor visible */
+          .print-lesson-content,
+          .print-lesson-content *,
+          .print-lesson-content div,
+          .print-lesson-content h1,
+          .print-lesson-content h2,
+          .print-lesson-content h3,
+          .print-lesson-content h4,
+          .print-lesson-content p,
+          .print-lesson-content ul,
+          .print-lesson-content li,
+          .print-lesson-content strong {
+            visibility: visible !important;
+            display: block !important;
+            color: black !important;
+          }
+          
+          /* Inline elements */
+          .print-content span,
+          .print-content strong,
+          .print-content em,
+          .print-lesson-content span,
+          .print-lesson-content strong,
+          .print-lesson-content em {
+            display: inline !important;
+          }
+          
+          /* List elements */
+          .print-content ul,
+          .print-content ol,
+          .print-lesson-content ul,
+          .print-lesson-content ol {
+            display: block !important;
+            list-style: disc !important;
+            padding-left: 20px !important;
+          }
+          
+          .print-content li,
+          .print-lesson-content li {
+            display: list-item !important;
+            margin-bottom: 4px !important;
+          }
+          
+          /* Typography */
+          .print-content h1, .print-lesson-content h1 { font-size: 18pt !important; margin-bottom: 12pt !important; }
+          .print-content h2, .print-lesson-content h2 { font-size: 16pt !important; margin-bottom: 10pt !important; }
+          .print-content h3, .print-lesson-content h3 { font-size: 14pt !important; margin-bottom: 8pt !important; }
+          .print-content h4, .print-lesson-content h4 { font-size: 12pt !important; margin-bottom: 6pt !important; }
+          
+          .print-content p, .print-lesson-content p {
+            margin-bottom: 8px !important;
+          }
+          
+          /* Activity name styling */
+          .activity-name {
+            background-color: #f0f8ff !important;
+            border: 2px solid #4a90e2 !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+            margin: 16px 0 !important;
+            text-align: center !important;
+            font-size: 1.2em !important;
+            font-weight: bold !important;
+            page-break-inside: avoid !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+          
+          /* Differentiation addition styling */
+          .differentiation-addition {
+            border: 1px solid #ccc !important;
+            background: #f9f9f9 !important;
+            margin: 10px 0 !important;
+            padding: 10px !important;
+            border-radius: 4px !important;
+            page-break-inside: avoid !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+          
+          /* Page breaks */
+          .no-break { page-break-inside: avoid !important; }
+          h1, h2, h3 { page-break-after: avoid !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simulate the full differentiation workspace layout -->
+    <div class="fixed">
+        <!-- Left Panel - Differentiation Menu (should be hidden in print) -->
+        <div class="differentiation-menu">
+            <h3>🎯 Differentiation Options</h3>
+            <button>Add Below Grade Support</button>
+            <button>Add Above Grade Challenge</button>
+            <button>Add ELL Support</button>
+            <button>Add IEP Adaptations</button>
+            <div style="margin-top: 20px;">
+                <h4>Current Additions:</h4>
+                <div style="background: #e5e7eb; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                    ✅ ELL Visual Supports
+                </div>
+                <div style="background: #e5e7eb; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                    ✅ Advanced Math Extension
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Lesson Content -->
+        <div class="flex-1">
+            <!-- Header (should be hidden in print) -->
+            <div class="workspace-header">
+                <div>
+                    <h2>🎯 Differentiation Workspace</h2>
+                    <p style="margin: 0; opacity: 0.8;">Solar System - 5th Grade Science • 2 adaptations added</p>
+                </div>
+                <div>
+                    <button onclick="window.print()">🖨️ Print</button>
+                    <button>📤 Share</button>
+                    <button>✖️ Close</button>
+                </div>
+            </div>
+
+            <!-- Lesson Content Wrapper (this should be the ONLY thing that prints) -->
+            <div class="print-content">
+                <div class="print-lesson-content">
+                    
+                    <!-- Header Section -->
+                    <div style="margin-bottom: 24px; border-bottom: 2px solid #ccc; padding-bottom: 16px;">
+                        <h1 style="text-align: center; margin-bottom: 8px;">Lesson Activity Plan</h1>
+                        <div style="text-align: center; font-size: 1.1em;">
+                            <strong>Grade:</strong> 5th Grade | <strong>Subject:</strong> Science | <strong>Topic:</strong> Solar System
+                        </div>
+                        <div style="text-align: center;">
+                            <strong>Duration:</strong> 45 minutes | <strong>Date:</strong> August 18, 2025
+                        </div>
+                    </div>
+
+                    <!-- Activity Name -->
+                    <div class="activity-name">
+                        🎯 ACTIVITY: Cosmic Scale Solar Safari
+                    </div>
+
+                    <!-- Learning Objectives -->
+                    <h2>Learning Objectives</h2>
+                    <p>Students will:</p>
+                    <ul>
+                        <li>Create and use a scale model to demonstrate relative distances between planets</li>
+                        <li>Compare and contrast characteristics of inner and outer planets using evidence-based reasoning</li>
+                    </ul>
+
+                    <!-- Materials -->
+                    <h2>Materials Needed</h2>
+                    <ul>
+                        <li>Roll of paper or string</li>
+                        <li>Markers</li>
+                        <li>Measuring tape</li>
+                        <li>Index cards</li>
+                        <li>Basic art supplies</li>
+                    </ul>
+
+                    <!-- Differentiation Addition #1 -->
+                    <div class="differentiation-addition no-break">
+                        <h4>🌍 ELL Support: Visual Vocabulary Cards</h4>
+                        <p>Provide picture cards for key vocabulary: orbit, revolution, solar system. Include translated labels in students' native languages to support comprehension.</p>
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #d1d5db; font-size: 0.85em; color: #6b7280;">
+                            Added to materials • 2:30 PM
+                        </div>
+                        <button style="position: absolute; top: 8px; right: 8px; background: #dc2626; font-size: 0.8em;">Remove</button>
+                    </div>
+
+                    <!-- Activity Instructions -->
+                    <h2>Activity Instructions</h2>
+                    
+                    <h3>Opening Hook (7 minutes)</h3>
+                    <p>Begin with a "Walk the Solar System" demonstration where one step equals 10 million miles, helping students grasp the vast distances involved.</p>
+
+                    <h3>Main Activity (32 minutes)</h3>
+                    
+                    <h4>Phase 1: Explore (14 minutes)</h4>
+                    <ul>
+                        <li>Students create a scaled model of the Solar System using paper/string</li>
+                        <li>Mark planetary positions using provided scale (1 inch = 10 million miles)</li>
+                        <li>Label each planet with basic characteristics on index cards</li>
+                    </ul>
+
+                    <!-- Differentiation Addition #2 -->
+                    <div class="differentiation-addition no-break">
+                        <h4>🧠 Advanced Extension: Gravitational Force Calculations</h4>
+                        <p>Challenge advanced students to calculate and compare gravitational forces on different planets using the formula F = ma. Provide planet mass data and have them determine how their weight would change.</p>
+                        <strong>Additional Materials:</strong> Scientific calculators, planet data sheets
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #d1d5db; font-size: 0.85em; color: #6b7280;">
+                            Added to instructions • 2:35 PM
+                        </div>
+                        <button style="position: absolute; top: 8px; right: 8px; background: #dc2626; font-size: 0.8em;">Remove</button>
+                    </div>
+
+                    <h4>Phase 2: Apply Understanding (12 minutes)</h4>
+                    <p>Students work in pairs to:</p>
+                    <ul>
+                        <li>Measure distances between planets</li>
+                        <li>Record observations about spacing patterns</li>
+                        <li>Form claims about planet distribution</li>
+                    </ul>
+
+                    <h4>Phase 3: Connect & Extend (7 minutes)</h4>
+                    <p>Students consider:</p>
+                    <ul>
+                        <li>Why inner planets are different from outer planets</li>
+                        <li>How distance from the Sun affects planetary characteristics</li>
+                    </ul>
+
+                    <!-- Assessment */
+                    <h2>Assessment Ideas</h2>
+                    <ul>
+                        <li>Monitor accuracy of scale models</li>
+                        <li>Listen for evidence-based explanations during discussions</li>
+                        <li>Check completed CER responses for understanding</li>
+                    </ul>
+
+                    <!-- Teaching Tips -->
+                    <h2>Teaching Tips</h2>
+                    <ul>
+                        <li>Use hallway space for full-scale modeling</li>
+                        <li>Emphasize the importance of precise measurements</li>
+                        <li>Guide students to connect distance patterns to planetary characteristics</li>
+                    </ul>
+
+                    <!-- Summary -->
+                    <div style="margin-top: 32px; padding: 16px; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 8px; border: 1px solid #d1d5db;">
+                        <h4 style="font-weight: 600; color: #1d4ed8; margin-bottom: 8px; display: flex; align-items: center;">
+                            <span style="margin-right: 8px;">✨</span>
+                            Differentiation Summary
+                        </h4>
+                        <div style="font-size: 0.9em; color: #3730a3;">
+                            <p><strong>2</strong> differentiation(s) added to this lesson</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                <span style="background: #d1d5db; color: #374151; padding: 4px 8px; border-radius: 16px; font-size: 0.8em;">ELL Visual Supports</span>
+                                <span style="background: #d1d5db; color: #374151; padding: 4px 8px; border-radius: 16px; font-size: 0.8em;">Advanced Math Extension</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test instructions -->
+    <div style="position: fixed; bottom: 20px; right: 20px; background: #22c55e; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div style="font-weight: bold; margin-bottom: 4px;">Print Test Instructions:</div>
+        <div style="font-size: 0.9em;">
+            1. Click Print button above<br>
+            2. Check print preview<br>
+            3. Verify only lesson content shows<br>
+            4. UI elements should be hidden
+        </div>
+    </div>
+</body>
+</html>

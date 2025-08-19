@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(npx eslint:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "additionalDirectories": [
+      "C:\\c\\Users\\jmack\\Desktop"
+    ]
+  }
+}
