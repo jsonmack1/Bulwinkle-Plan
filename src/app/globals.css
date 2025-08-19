@@ -3,6 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Mobile-first responsive variables */
+  --mobile-padding: 1rem;
+  --tablet-padding: 1.5rem;
+  --desktop-padding: 2rem;
+  --touch-target-min: 44px;
+  --header-height-mobile: 64px;
+  --header-height-desktop: 80px;
 }
 
 @theme inline {
@@ -19,15 +26,51 @@
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Prevent text size adjustments on mobile */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  /* Improve font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Remove default margin */
+  margin: 0;
+  padding: 0;
+  /* Prevent horizontal overflow */
+  overflow-x: hidden;
 }
 
-/* Mathematical content styling */
+/* Responsive mathematical content styling */
 .math-content {
   line-height: 1.6;
+  /* Mobile-first responsive text sizing */
+  font-size: 0.9rem;
+}
+
+@media (min-width: 640px) {
+  .math-content {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .math-content {
+    font-size: 1.1rem;
+  }
 }
 
 .math-content .activity-name {
@@ -52,11 +95,98 @@ body {
   @apply bg-slate-50 border-slate-200 rounded-lg p-3;
 }
 
-/* MathJax styling adjustments */
+/* MathJax responsive styling adjustments */
 mjx-container {
   @apply my-1;
+  /* Prevent overflow on mobile */
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
 mjx-container[display="true"] {
-  @apply my-4;
+  @apply my-2 sm:my-4;
+  /* Scale math expressions on mobile */
+  font-size: 0.9em;
+}
+
+@media (min-width: 640px) {
+  mjx-container[display="true"] {
+    font-size: 1em;
+  }
+}
+
+/* Mobile-friendly touch targets */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  @apply flex items-center justify-center;
+}
+
+/* Responsive container utilities */
+.mobile-container {
+  @apply px-4 mx-auto;
+  max-width: 100%;
+}
+
+.tablet-container {
+  @apply px-6 mx-auto;
+  max-width: 768px;
+}
+
+.desktop-container {
+  @apply px-8 mx-auto;
+  max-width: 1200px;
+}
+
+/* Safe area support for mobile devices */
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Responsive modal adjustments */
+.modal-mobile {
+  @apply fixed inset-0 z-50;
+  padding: var(--mobile-padding);
+}
+
+@media (min-width: 768px) {
+  .modal-mobile {
+    @apply flex items-center justify-center;
+    padding: var(--tablet-padding);
+  }
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Focus styles for accessibility */
+.focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+  
+  .print-break {
+    page-break-before: always;
+  }
 }

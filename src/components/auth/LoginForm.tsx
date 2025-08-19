@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { LoginCredentials } from '../../types/auth'
+import { cn } from '../../lib/utils'
+import { useDeviceDetection } from '../ui/ResponsiveLayout'
 
 interface LoginFormProps {
   onSwitchToSignup: () => void
@@ -9,10 +12,12 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
   const { login, loading, error, clearError } = useAuth()
+  const { type: deviceType, isTouch } = useDeviceDetection()
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: ''
   })
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,10 +64,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className={cn(
+      "bg-white w-full max-w-md",
+      deviceType === 'mobile' 
+        ? "rounded-t-3xl px-6 pt-8 pb-6" 
+        : "rounded-xl p-6 shadow-xl"
+    )}>
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h2>
-        <p className="text-gray-600">Sign in to access your Memory Bank and premium features</p>
+        <h2 className={cn(
+          "font-bold text-gray-900 mb-2",
+          deviceType === 'mobile' ? "text-xl" : "text-2xl"
+        )}>Welcome Back!</h2>
+        <p className={cn(
+          "text-gray-600",
+          deviceType === 'mobile' ? "text-sm" : "text-base"
+        )}>Sign in to access your Memory Bank and premium features</p>
       </div>
 
       {error && (
@@ -71,9 +87,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className={cn(
+        deviceType === 'mobile' ? "space-y-5" : "space-y-4"
+      )}>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
             Email
           </label>
           <input
@@ -83,31 +101,65 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
             value={credentials.email}
             onChange={handleInputChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 placeholder:italic placeholder:font-light"
-            placeholder="e.g., teacher@school.edu"
+            autoComplete="email"
+            inputMode="email"
+            className={cn(
+              "w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-colors",
+              deviceType === 'mobile' 
+                ? "px-4 py-4 text-base min-h-touch" 
+                : "px-3 py-2 text-sm",
+              isTouch && "touch-manipulation"
+            )}
+            placeholder="teacher@school.edu"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={credentials.password}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 placeholder:italic placeholder:font-light"
-            placeholder="e.g., your secure password"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={credentials.password}
+              onChange={handleInputChange}
+              required
+              autoComplete="current-password"
+              className={cn(
+                "w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 transition-colors pr-12",
+                deviceType === 'mobile' 
+                  ? "px-4 py-4 text-base min-h-touch" 
+                  : "px-3 py-2 text-sm",
+                isTouch && "touch-manipulation"
+              )}
+              placeholder="Enter your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors",
+                deviceType === 'mobile' && "min-h-touch min-w-touch flex items-center justify-center"
+              )}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className={cn(
+            "w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm",
+            deviceType === 'mobile' 
+              ? "py-4 text-base min-h-touch mt-6" 
+              : "py-3 text-sm mt-4",
+            isTouch && "touch-manipulation active:scale-98"
+          )}
         >
           {loading ? (
             <div className="flex items-center justify-center space-x-2">
@@ -134,18 +186,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
         <button
           onClick={handleDemoLogin}
           disabled={loading}
-          className="w-full mt-4 bg-green-100 text-green-800 py-2 px-4 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className={cn(
+            "w-full bg-green-100 text-green-800 rounded-lg hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium",
+            deviceType === 'mobile' 
+              ? "py-4 text-base min-h-touch mt-4" 
+              : "py-3 text-sm mt-3",
+            isTouch && "touch-manipulation active:scale-98"
+          )}
         >
           🎭 Try Demo Account
         </button>
       </div>
 
       {/* Switch to Signup */}
-      <div className="mt-6 text-center text-sm">
+      <div className={cn(
+        "text-center",
+        deviceType === 'mobile' ? "mt-8 text-sm" : "mt-6 text-sm"
+      )}>
         <span className="text-gray-600">Don't have an account? </span>
         <button
           onClick={onSwitchToSignup}
-          className="text-blue-600 hover:text-blue-500 font-medium"
+          className={cn(
+            "text-blue-600 hover:text-blue-500 font-medium transition-colors",
+            deviceType === 'mobile' && "min-h-touch min-w-touch inline-flex items-center justify-center",
+            isTouch && "touch-manipulation"
+          )}
         >
           Create one now
         </button>
