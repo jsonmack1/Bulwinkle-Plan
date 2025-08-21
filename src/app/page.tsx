@@ -1901,10 +1901,37 @@ export default function ActivityLessonBuilder() {
                       }>
                         {formState.generatedActivity && (
                           <div className="lesson-content-wrapper">
-                            <PremiumMathContent 
-                              content={formState.generatedActivity} 
-                              selectedVideos={selectedVideos}
-                            />
+                            {/* Mobile-Friendly Action Bar - Top */}
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 px-2 sm:px-0">
+                              <GoogleDriveButton
+                                lessonData={{
+                                  subject: formState.subject,
+                                  gradeLevel: formState.gradeLevel,
+                                  topic: formState.lessonTopic,
+                                  duration: formState.duration,
+                                  activityType: formState.activityType === 'other' ? formState.customActivityType : formState.activityType,
+                                  isSubMode: formState.isSubMode
+                                }}
+                                lessonContentId="lesson-content"
+                                className="flex-1 sm:flex-initial min-h-touch text-sm sm:text-base"
+                              />
+                              
+                              {/* Print Button */}
+                              <button
+                                onClick={() => window.print()}
+                                className="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md text-sm sm:text-base bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 hover:text-gray-800 min-h-touch"
+                              >
+                                <Printer size={16} />
+                                <span>Print</span>
+                              </button>
+                            </div>
+                            
+                            <div id="lesson-content">
+                              <PremiumMathContent 
+                                content={formState.generatedActivity} 
+                                selectedVideos={selectedVideos}
+                              />
+                            </div>
                           </div>
                         )}
                       </Suspense>
@@ -1940,10 +1967,37 @@ export default function ActivityLessonBuilder() {
                     }>
                       {formState.generatedActivity && (
                         <div className="lesson-content-wrapper">
-                          <PremiumMathContent 
-                            content={formState.generatedActivity} 
-                            selectedVideos={selectedVideos}
-                          />
+                          {/* Mobile-Friendly Action Bar - Top */}
+                          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 px-2 sm:px-0">
+                            <GoogleDriveButton
+                              lessonData={{
+                                subject: formState.subject,
+                                gradeLevel: formState.gradeLevel,
+                                topic: formState.lessonTopic,
+                                duration: formState.duration,
+                                activityType: formState.activityType === 'other' ? formState.customActivityType : formState.activityType,
+                                isSubMode: formState.isSubMode
+                              }}
+                              lessonContentId="lesson-content"
+                              className="flex-1 sm:flex-initial min-h-touch text-sm sm:text-base"
+                            />
+                            
+                            {/* Print Button */}
+                            <button
+                              onClick={() => window.print()}
+                              className="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md text-sm sm:text-base bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 hover:text-gray-800 min-h-touch"
+                            >
+                              <Printer size={16} />
+                              <span>Print</span>
+                            </button>
+                          </div>
+                          
+                          <div id="lesson-content">
+                            <PremiumMathContent 
+                              content={formState.generatedActivity} 
+                              selectedVideos={selectedVideos}
+                            />
+                          </div>
                         </div>
                       )}
                     </Suspense>
