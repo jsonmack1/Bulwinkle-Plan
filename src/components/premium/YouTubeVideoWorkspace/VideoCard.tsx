@@ -139,6 +139,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 </div>
               )}
               
+              {/* Plus Button for Instant Add - Top Right (Compact) */}
+              {canAddVideo && !isSelected && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSelect(video.id)
+                  }}
+                  className="absolute top-1 right-1 bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110 z-10"
+                  title="Add video to lesson plan"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              )}
+              
+              {/* Checkmark for Selected Videos - Top Right (Compact) */}
+              {isSelected && (
+                <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-1.5 shadow-lg z-10">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+              
               {/* Duration Overlay */}
               <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-semibold">
                 {formatDuration(video.durationSeconds)}
@@ -167,7 +192,35 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 <span>{video.channelTitle}</span>
                 <span>•</span>
                 <span className="text-blue-600 font-medium">{video.relevanceScore}% match</span>
+                {video.intelligentMetadata && (
+                  <>
+                    <span>•</span>
+                    <span className="text-green-600 font-medium" title={`Educational confidence: ${video.intelligentMetadata.confidenceScore}%`}>
+                      🧠 {video.intelligentMetadata.confidenceScore}%
+                    </span>
+                  </>
+                )}
               </div>
+              
+              {/* Intelligent Search Indicators */}
+              {video.intelligentMetadata && video.intelligentMetadata.educationalIndicators.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {video.intelligentMetadata.educationalIndicators.slice(0, 2).map((indicator, index) => (
+                    <span 
+                      key={index}
+                      className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+                      title={indicator}
+                    >
+                      {indicator.length > 15 ? `${indicator.substring(0, 15)}...` : indicator}
+                    </span>
+                  ))}
+                  {video.intelligentMetadata.educationalIndicators.length > 2 && (
+                    <span className="text-xs text-gray-500">
+                      +{video.intelligentMetadata.educationalIndicators.length - 2} more
+                    </span>
+                  )}
+                </div>
+              )}
               
               <button
                 onClick={(e) => {
@@ -231,6 +284,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
           ) : (
             <div className="w-full h-40 bg-gray-200 rounded flex items-center justify-center">
               <span className="text-gray-400 text-2xl">📹</span>
+            </div>
+          )}
+          
+          {/* Plus Button for Instant Add - Top Right */}
+          {canAddVideo && !isSelected && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onSelect(video.id)
+              }}
+              className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110 z-10"
+              title="Add video to lesson plan"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          )}
+          
+          {/* Checkmark for Selected Videos - Top Right */}
+          {isSelected && (
+            <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-2 shadow-lg z-10">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
             </div>
           )}
           
@@ -299,6 +377,15 @@ const VideoCard: React.FC<VideoCardProps> = ({
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
               📊 {video.relevanceScore}% match
             </span>
+            
+            {video.intelligentMetadata && (
+              <span 
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"
+                title={`Educational confidence based on: ${video.intelligentMetadata.educationalIndicators.join(', ')}`}
+              >
+                🧠 {video.intelligentMetadata.confidenceScore}% AI confidence
+              </span>
+            )}
           </div>
 
           {/* Expandable Video Details */}
@@ -315,6 +402,36 @@ const VideoCard: React.FC<VideoCardProps> = ({
             
             {showDetails && (
               <div className="px-3 pb-3 space-y-3 border-t border-gray-200">
+                {/* Intelligent Search Analysis */}
+                {video.intelligentMetadata && (
+                  <div>
+                    <h5 className="text-xs font-medium text-gray-900 mb-1">🧠 AI Analysis</h5>
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-600 bg-green-50 p-2 rounded border border-green-200">
+                        <span className="font-medium">Search Term:</span> {video.intelligentMetadata.searchTerm}
+                      </p>
+                      <p className="text-xs text-gray-600 bg-green-50 p-2 rounded border border-green-200">
+                        {video.intelligentMetadata.analysisReason}
+                      </p>
+                      {video.intelligentMetadata.educationalIndicators.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-700 mb-1">Educational Indicators:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {video.intelligentMetadata.educationalIndicators.map((indicator, index) => (
+                              <span 
+                                key={index}
+                                className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded"
+                              >
+                                {indicator}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Relevancy Explanation */}
                 {video.relevancyReason && (
                   <div>

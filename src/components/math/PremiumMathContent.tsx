@@ -19,6 +19,15 @@ interface PremiumMathContentProps {
     smartSubscripts?: boolean
     professionalSpacing?: boolean
   }
+  /** Selected videos to display in the lesson plan */
+  selectedVideos?: Array<{
+    id: string
+    title: string
+    channelTitle: string
+    thumbnailUrl: string
+    url?: string
+    durationSeconds: number
+  }>
 }
 
 /**
@@ -34,7 +43,8 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     enhanceFractions: true,
     smartSubscripts: true,
     professionalSpacing: true
-  }
+  },
+  selectedVideos = []
 }) => {
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -230,6 +240,13 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     forPrint ? 'print-mode' : ''
   ].filter(Boolean).join(' ')
 
+  // Helper function to format duration
+  const formatDuration = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
+
   return (
     <div className={containerClasses}>
       <div 
@@ -237,6 +254,33 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         className="math-content-container"
         dangerouslySetInnerHTML={{ __html: processedContent }}
       />
+      
+      {/* Videos Section */}
+      {selectedVideos && selectedVideos.length > 0 && (
+        <div className="videos-section">
+          <h2>📹 Educational Videos</h2>
+          <p>The following videos support this lesson:</p>
+          <div className="videos-list">
+            {selectedVideos.map((video, index) => (
+              <div key={video.id} className="video-item">
+                <div className="video-header">
+                  <span className="video-number">{index + 1}.</span>
+                  <strong>{video.title}</strong>
+                </div>
+                <div className="video-details">
+                  <div className="video-meta">
+                    <span className="channel">By: {video.channelTitle}</span>
+                    <span className="duration">Duration: {formatDuration(video.durationSeconds)}</span>
+                  </div>
+                  <div className="video-url">
+                    URL: {video.url || `https://youtube.com/watch?v=${video.id}`}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       <style jsx>{`
         .premium-math-content {
@@ -356,6 +400,67 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
           color: #6b7280;
         }
 
+        /* Videos Section Styles */
+        .premium-math-content .videos-section {
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 2px solid #e5e7eb;
+          page-break-inside: avoid;
+        }
+
+        .premium-math-content .videos-section h2 {
+          color: #1f2937;
+          margin-bottom: 0.75rem;
+        }
+
+        .premium-math-content .videos-list {
+          margin: 1rem 0;
+        }
+
+        .premium-math-content .video-item {
+          margin-bottom: 1rem;
+          padding: 0.75rem;
+          background: #f9fafb;
+          border-left: 4px solid #6366f1;
+          border-radius: 0.375rem;
+          page-break-inside: avoid;
+        }
+
+        .premium-math-content .video-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .premium-math-content .video-number {
+          font-weight: 600;
+          color: #6366f1;
+          flex-shrink: 0;
+        }
+
+        .premium-math-content .video-details {
+          font-size: 0.9rem;
+          color: #6b7280;
+        }
+
+        .premium-math-content .video-meta {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 0.25rem;
+          flex-wrap: wrap;
+        }
+
+        .premium-math-content .video-url {
+          font-family: monospace;
+          font-size: 0.85rem;
+          word-break: break-all;
+          background: #f3f4f6;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          margin-top: 0.5rem;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
           .premium-math-content {
@@ -445,6 +550,28 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
           .premium-math-content ul,
           .premium-math-content ol {
             margin: 0.5em 0 !important;
+          }
+
+          /* Print styles for videos section */
+          .premium-math-content .videos-section {
+            border-top: 2px solid #000 !important;
+            margin-top: 1.5em !important;
+            padding-top: 1em !important;
+            page-break-inside: avoid;
+          }
+
+          .premium-math-content .video-item {
+            background: #f9f9f9 !important;
+            border: 1px solid #000 !important;
+            border-left: 4px solid #000 !important;
+            margin-bottom: 0.75em !important;
+            page-break-inside: avoid;
+          }
+
+          .premium-math-content .video-url {
+            background: #f5f5f5 !important;
+            border: 1px solid #ccc !important;
+            font-size: 0.8em !important;
           }
         }
 

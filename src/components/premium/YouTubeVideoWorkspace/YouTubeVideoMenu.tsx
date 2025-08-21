@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import VideoCard from './VideoCard'
-import { YouTubeVideo } from '../../../types/youtube'
+import IntelligentSearchFeedback from './IntelligentSearchFeedback'
+import { YouTubeVideo, IntelligentSearchResponse } from '../../../types/youtube'
 import { useSubscription } from '../../../lib/subscription-mock'
 
 interface YouTubeVideoMenuProps {
@@ -35,6 +36,7 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
   const [hasSearched, setHasSearched] = useState(false)
   const [enableMultipleSelection, setEnableMultipleSelection] = useState(true)
   const [tempSelectedIds, setTempSelectedIds] = useState<Set<string>>(new Set())
+  const [intelligentSearchData, setIntelligentSearchData] = useState<IntelligentSearchResponse | null>(null)
   
   // Generate smart search query from lesson context  
   const generateSearchQuery = useCallback(() => {
@@ -60,7 +62,7 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
     ]
   }, [topic, subject])
 
-  // Embedded YouTube search - calls real YouTube Data API v3
+  // Intelligent YouTube search with contextual filtering and fallback logic
   const searchYouTube = useCallback(async (query: string) => {
     if (!query.trim()) return
     
@@ -68,17 +70,27 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
     setError(null)
     
     try {
-      console.log('🔍 Embedded YouTube search for:', query)
+      console.log('🧠 Starting intelligent YouTube search for:', query)
+      console.log('📚 Context:', { subject, gradeLevel, topic, duration })
       
-      // Call our API that connects to real YouTube Data API v3
-      const response = await fetch('/api/premium/youtube-videos', {
+      // Call the intelligent search API
+      const response = await fetch('/api/premium/youtube-search-intelligent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           query: query.trim(),
-          maxResults: 10
+          subject,
+          gradeLevel,
+          topic,
+          duration,
+          maxResults: 12,
+          userPreferences: {
+            minConfidenceThreshold: isPremium ? 60 : 70, // Premium users get more results
+            preferredChannels: [],
+            excludedChannels: []
+          }
         }),
       })
 
@@ -87,31 +99,57 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
       if (data.success) {
         setVideos(data.videos || [])
         setHasSearched(true)
-        console.log('✅ Embedded YouTube search completed:', data.videos?.length || 0, 'real videos found')
-        console.log('📺 Source:', data.source || 'YouTube Data API v3')
         
-        // DEBUG: Log video data to trace duration issue
+        const intelligentData = data.intelligentSearch
+        setIntelligentSearchData(intelligentData || null)
+        
+        console.log('✅ Intelligent YouTube search completed:', {
+          videosFound: data.videos?.length || 0,
+          searchStrategy: intelligentData?.searchStrategy,
+          averageConfidence: intelligentData?.averageConfidence,
+          fallbackTriggered: intelligentData?.fallbackTriggered,
+          searchTermsUsed: intelligentData?.searchTermsUsed
+        })
+        
+        // Show intelligent search feedback to users
+        if (intelligentData) {
+          if (intelligentData.fallbackTriggered) {
+            console.log('🔄 Fallback search was triggered:', intelligentData.searchTermsUsed.join(', '))
+          }
+          
+          if (intelligentData.feedback.filteredOutCount > 0) {
+            console.log('🛡️ Filtered out', intelligentData.feedback.filteredOutCount, 'inappropriate videos')
+          }
+          
+          // Show suggestions if confidence is low
+          if (intelligentData.averageConfidence < 70) {
+            console.warn('⚠️ Low confidence results:', intelligentData.suggestions)
+          }
+        }
+        
+        // DEBUG: Log intelligent video data
         if (data.videos && data.videos.length > 0) {
-          console.log('🎬 First video data sample:', {
+          console.log('🎯 First intelligent video sample:', {
             id: data.videos[0].id,
             title: data.videos[0].title,
             duration: data.videos[0].duration,
-            durationSeconds: data.videos[0].durationSeconds,
-            fullVideoObject: data.videos[0]
+            confidenceScore: data.videos[0].intelligentMetadata?.confidenceScore,
+            educationalIndicators: data.videos[0].intelligentMetadata?.educationalIndicators,
+            relevanceScore: data.videos[0].relevanceScore
           })
         }
       } else {
-        setError(data.error || 'Search failed')
+        setError(data.error || 'Intelligent search failed')
         setVideos([])
       }
     } catch (error) {
-      console.error('Embedded YouTube search error:', error)
-      setError('Failed to search videos. Please try again.')
+      console.error('❌ Intelligent YouTube search error:', error)
+      setError('Failed to search videos with intelligent analysis. Please try again.')
       setVideos([])
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [subject, gradeLevel, topic, duration, isPremium])
 
   // Handle search form submission  
   const handleSearch = useCallback((e: React.FormEvent) => {
@@ -370,6 +408,14 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
         {/* Premium Search Results */}
         {videos.length > 0 && (
           <div className="p-6 space-y-4">
+            {/* Intelligent Search Feedback */}
+            {intelligentSearchData && (
+              <IntelligentSearchFeedback 
+                searchData={intelligentSearchData}
+                query={searchQuery}
+              />
+            )}
+            
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold text-gray-900 flex items-center">
@@ -377,9 +423,19 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
                     <span className="text-blue-600 text-sm">📺</span>
                   </div>
                   Search Results
+                  {intelligentSearchData && (
+                    <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                      🧠 AI Enhanced
+                    </span>
+                  )}
                 </h4>
                 <div className="text-sm text-slate-600 mt-1 ml-9">
                   {videos.length} video{videos.length !== 1 ? 's' : ''} found
+                  {intelligentSearchData && (
+                    <span className="ml-2 text-gray-500">
+                      • {intelligentSearchData.totalResultsAnalyzed} analyzed
+                    </span>
+                  )}
                   {enableMultipleSelection && tempSelectedIds.size > 0 && (
                     <span className="ml-2 text-indigo-600 font-medium">
                       • {tempSelectedIds.size} selected

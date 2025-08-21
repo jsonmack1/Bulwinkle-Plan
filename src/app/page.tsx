@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useReducer, Suspense, lazy } from 'react'
 import { ChevronDown, Printer, Share } from 'lucide-react'
 import { formReducer, initialFormState, FormAction } from '../utils/formReducer'
+import GoogleDriveButton from '../components/GoogleDriveButton'
 import { useActivityGeneration } from '../hooks/useActivityGeneration'
 import { useSubscription } from '../lib/subscription-mock'
 import { useMemoryBank } from '../lib/memoryBank'
@@ -1161,7 +1162,7 @@ export default function ActivityLessonBuilder() {
       </div>
       
       {/* Mode Toggle - Always visible */}
-      <div className="fixed top-6 right-6 z-30">
+      <div className="fixed top-20 sm:top-6 right-6 z-30">
         <div className="flex items-center space-x-4 bg-white rounded-full px-3 py-2 shadow-lg border border-gray-200">
           <span className={`text-sm font-medium transition-colors ${
             !formState.isSubMode ? 'text-blue-600' : 'text-gray-500'
@@ -1191,7 +1192,7 @@ export default function ActivityLessonBuilder() {
         <div className="relative min-h-screen z-10">
 
           {/* Dynamic Hero Section */}
-          <div className="flex items-center justify-center min-h-screen-mobile -mt-16 sm:-mt-20 px-4 py-8 sm:p-8">
+          <div className="flex items-center justify-center min-h-screen-mobile pt-24 sm:pt-28 px-4 py-8 sm:p-8">
             <div className="text-center w-full max-w-4xl mx-auto">
               
               {/* Centered Dynamic Main Title */}
@@ -1231,17 +1232,17 @@ export default function ActivityLessonBuilder() {
                 {formState.isSubMode ? (
                   // Sub Mode Features - Mobile Optimized
                   <>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✅</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">No Prep Required</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Just print and go. Everything you need is ready to use.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📝</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Step-by-Step Scripts</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Clear instructions that any substitute can follow perfectly.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-green-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🎯</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Any Subject</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Works for K-12, any topic, any time of year.</p>
@@ -1250,17 +1251,17 @@ export default function ActivityLessonBuilder() {
                 ) : (
                   // Teacher Mode Features - Mobile Optimized
                   <>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✨</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🤝</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6 shadow-mobile sm:shadow-lg border-2 border-blue-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📚</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
@@ -1603,6 +1604,21 @@ export default function ActivityLessonBuilder() {
                     <Printer size={16} />
                     <span>Print</span>
                   </button>
+                  
+                  {/* Google Drive Export Button */}
+                  {formState.generatedActivity && (
+                    <GoogleDriveButton
+                      lessonData={{
+                        topic: formState.lessonTopic,
+                        grade: formState.gradeLevel,
+                        subject: formState.subject,
+                        duration: formState.duration,
+                        content: formState.generatedActivity
+                      }}
+                      lessonContentId="lesson-content"
+                      className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-800"
+                    />
+                  )}
 
                   {/* Share Dropdown */}
                   <div className="relative share-dropdown-container">
@@ -1841,20 +1857,20 @@ export default function ActivityLessonBuilder() {
                         </div>
                       )}
                       {showYouTubeVideos && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center text-red-800 text-sm space-y-2 sm:space-y-0">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center text-gray-700 text-sm space-y-2 sm:space-y-0">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center">
                                 <span className="mr-2 text-base">🎬</span>
                                 <span className="font-medium">Video Integration Active</span>
                               </div>
                               {selectedVideos.length > 0 && (
-                                <span className="bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs font-bold flex-shrink-0">
+                                <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-bold flex-shrink-0">
                                   {selectedVideos.length} selected
                                 </span>
                               )}
                             </div>
-                            <span className="text-red-600 sm:ml-2 leading-relaxed">Add educational videos from the side panel to support your lesson</span>
+                            <span className="text-gray-600 sm:ml-2 leading-relaxed">Add educational videos from the side panel to support your lesson</span>
                           </div>
                         </div>
                       )}
@@ -1885,7 +1901,10 @@ export default function ActivityLessonBuilder() {
                       }>
                         {formState.generatedActivity && (
                           <div className="lesson-content-wrapper">
-                            <PremiumMathContent content={formState.generatedActivity} />
+                            <PremiumMathContent 
+                              content={formState.generatedActivity} 
+                              selectedVideos={selectedVideos}
+                            />
                           </div>
                         )}
                       </Suspense>
@@ -1921,7 +1940,10 @@ export default function ActivityLessonBuilder() {
                     }>
                       {formState.generatedActivity && (
                         <div className="lesson-content-wrapper">
-                          <PremiumMathContent content={formState.generatedActivity} />
+                          <PremiumMathContent 
+                            content={formState.generatedActivity} 
+                            selectedVideos={selectedVideos}
+                          />
                         </div>
                       )}
                     </Suspense>

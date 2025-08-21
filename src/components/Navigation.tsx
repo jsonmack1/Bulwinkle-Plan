@@ -56,7 +56,7 @@ const Navigation: React.FC = () => {
                   <span className="text-white font-bold text-sm sm:text-base">LP</span>
                 </div>
                 <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  {deviceType === 'mobile' ? 'LPB' : 'Lesson Plan Builder'}
+                  {deviceType === 'mobile' ? 'Peabody' : 'Peabody'}
                 </span>
               </Link>
             </div>
@@ -69,7 +69,7 @@ const Navigation: React.FC = () => {
               >
                 <span className="flex items-center space-x-2">
                   <Home size={18} />
-                  <span>Activity Builder</span>
+                  <span>Home</span>
                 </span>
               </Link>
               {user && (
@@ -145,7 +145,7 @@ const Navigation: React.FC = () => {
               className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors min-h-touch"
             >
               <Home size={20} />
-              <span className="font-medium">Activity Builder</span>
+              <span className="font-medium">Home</span>
             </Link>
             
             {user && (

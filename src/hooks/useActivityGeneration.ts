@@ -271,13 +271,20 @@ export const useActivityGeneration = () => {
     console.log('🚀 Sending activity data:', activityData)
     
     try {
+      // Create an AbortController for timeout handling
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+      
       const response = await fetch('/api/generate-activity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(activityData)
+        body: JSON.stringify(activityData),
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
 
       console.log('📡 Response status:', response.status)
 
@@ -377,8 +384,18 @@ export const useActivityGeneration = () => {
       throw enhancedError
 
     } catch (networkError) {
-      // Handle network/fetch errors
-      if (networkError instanceof TypeError && networkError.message.includes('fetch')) {
+      // Handle different types of network/fetch errors
+      if (networkError.name === 'AbortError') {
+        const enhancedError = new Error('The lesson generation request timed out. This usually happens during high demand. Please try again.') as Error & {
+          type: string;
+          retryable: boolean;
+          userFriendly: boolean;
+        }
+        enhancedError.type = 'timeout_error'
+        enhancedError.retryable = true
+        enhancedError.userFriendly = true
+        throw enhancedError
+      } else if (networkError instanceof TypeError && networkError.message.includes('fetch')) {
         const enhancedError = new Error('Unable to connect to the lesson generation service. Please check your internet connection and try again.') as Error & {
           type: string;
           retryable: boolean;

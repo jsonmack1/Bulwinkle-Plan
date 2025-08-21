@@ -15,26 +15,37 @@ export interface YouTubeVideo {
   likeCount?: number
   dislikeCount?: number
   url: string
-  embedUrl: string
+  embedUrl?: string
   shortUrl?: string // Short youtu.be format URL
   relevanceScore: number // AI-calculated score 0-100
   relevancyReason?: string // Explanation of why this video is relevant
   suggestedTimestamps?: string[] // Key learning moments with timestamps
   safetyAnalysis: VideoSafetyAnalysis
   tags?: string[]
-  categoryId: string
+  categoryId?: string
   defaultAudioLanguage?: string
-  isLiveBroadcast: boolean
+  isLiveBroadcast?: boolean
+  // Intelligent search metadata
+  intelligentMetadata?: IntelligentSearchMetadata
+}
+
+export interface IntelligentSearchMetadata {
+  confidenceScore: number // 0-100 confidence in educational relevance
+  searchTerm: string // The search term that found this video
+  educationalIndicators: string[] // Reasons why this video was selected
+  analysisReason: string // Detailed explanation of the selection
+  fallbackSearch?: boolean // Whether this came from a fallback search
+  contextualRelevance?: number // 0-100 relevance to the specific context
 }
 
 export interface VideoSafetyAnalysis {
-  isEducational: boolean
-  hasInappropriateContent: boolean
+  isEducational?: boolean
+  hasInappropriateContent?: boolean
   ageAppropriate: boolean
   contentWarnings: string[]
   educationalValue: number // 0-100 score
   safetyScore: number // 0-100 overall safety score
-  moderationFlags: {
+  moderationFlags?: {
     violence: boolean
     profanity: boolean
     mature: boolean
@@ -57,11 +68,33 @@ export interface YouTubeSearchRequest {
 export interface YouTubeSearchResponse {
   success: boolean
   videos: YouTubeVideo[]
-  totalResults: number
-  searchQueries: string[]
-  isPremium: boolean
-  limitedResults: boolean
+  totalResults?: number
+  searchQueries?: string[]
+  isPremium?: boolean
+  limitedResults?: boolean
   error?: string
+  // Intelligent search metadata
+  intelligentSearch?: IntelligentSearchResponse
+}
+
+export interface IntelligentSearchResponse {
+  searchStrategy: string // 'primary-only' | 'fallback-enhanced' | 'mock-intelligent'
+  searchTermsUsed: string[] // All search terms that were tried
+  averageConfidence: number // Average confidence score of results
+  totalResultsAnalyzed: number // Total videos analyzed before filtering
+  fallbackTriggered: boolean // Whether fallback search was needed
+  feedback: {
+    primarySearchResults: number
+    fallbackSearchResults: number
+    filteredOutCount: number
+    reasonsFiltered: string[]
+  }
+  suggestions: string // Recommendations for improving search
+  performance: {
+    successRate: number // Overall success rate of the search system
+    averageConfidence: number // Historical average confidence
+    fallbackRate: number // How often fallback is triggered
+  }
 }
 
 export interface VideoSelectionState {

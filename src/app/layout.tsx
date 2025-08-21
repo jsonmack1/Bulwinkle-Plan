@@ -19,14 +19,6 @@ export const metadata: Metadata = {
   description: "Professional lesson planning tool for educators. Create, customize, and manage educational activities with AI-powered assistance.",
   keywords: "lesson plans, education, teaching, activities, classroom management",
   authors: [{ name: "Lesson Plan Builder Team" }],
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-    viewportFit: 'cover'
-  },
-  themeColor: '#3b82f6',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

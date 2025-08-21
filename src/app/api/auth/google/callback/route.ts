@@ -9,31 +9,38 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       // User denied access or other OAuth error
-      return NextResponse.redirect(new URL('/?google_auth=denied', request.url))
+      const callbackUrl = new URL('/auth-callback', request.url)
+      callbackUrl.searchParams.set('error', 'access_denied')
+      return NextResponse.redirect(callbackUrl)
     }
 
     if (!code) {
-      return NextResponse.redirect(new URL('/?google_auth=error', request.url))
+      const callbackUrl = new URL('/auth-callback', request.url)
+      callbackUrl.searchParams.set('error', 'no_code')
+      return NextResponse.redirect(callbackUrl)
     }
 
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code)
 
     if (!tokens.access_token) {
-      return NextResponse.redirect(new URL('/?google_auth=no_token', request.url))
+      const callbackUrl = new URL('/auth-callback', request.url)
+      callbackUrl.searchParams.set('error', 'no_token')
+      return NextResponse.redirect(callbackUrl)
     }
 
-    // Create response with redirect and set tokens in URL params for client-side storage
-    const redirectUrl = new URL('/', request.url)
-    redirectUrl.searchParams.set('google_auth', 'success')
-    redirectUrl.searchParams.set('access_token', tokens.access_token)
+    // Create a redirect to a callback page that will handle postMessage
+    const callbackUrl = new URL('/auth-callback', request.url)
+    callbackUrl.searchParams.set('access_token', tokens.access_token)
     if (tokens.refresh_token) {
-      redirectUrl.searchParams.set('refresh_token', tokens.refresh_token)
+      callbackUrl.searchParams.set('refresh_token', tokens.refresh_token)
     }
 
-    return NextResponse.redirect(redirectUrl)
+    return NextResponse.redirect(callbackUrl)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
-    return NextResponse.redirect(new URL('/?google_auth=callback_error', request.url))
+    const callbackUrl = new URL('/auth-callback', request.url)
+    callbackUrl.searchParams.set('error', 'callback_error')
+    return NextResponse.redirect(callbackUrl)
   }
 }
