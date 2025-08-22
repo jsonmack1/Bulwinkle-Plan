@@ -7,7 +7,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useDeviceDetection } from './ui/ResponsiveLayout'
 import { cn } from '../lib/utils'
 import AuthModal from './auth/AuthModal'
-import UserMenu from './auth/UserMenu'\nimport { useSubscription } from '../lib/subscription-mock'
+import UserMenu from './auth/UserMenu'
+import { useSubscription } from '../lib/subscription-mock'
 
 interface NavigationProps {
   isSubMode?: boolean
@@ -16,7 +17,8 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode }) => {
   const { user, loading } = useAuth()
-  const { type: deviceType, isTouch } = useDeviceDetection()\n  const { subscription } = useSubscription()
+  const { type: deviceType, isTouch } = useDeviceDetection()
+  const { subscription } = useSubscription()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean
