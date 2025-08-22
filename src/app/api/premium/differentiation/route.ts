@@ -99,7 +99,28 @@ export async function POST(request: NextRequest) {
   try {
     const data: DifferentiationRequest = await request.json();
     
-    if (!process.env.ANTHROPIC_API_KEY) {
+    // Check for API availability - use fallback if environment loading fails
+    const envKey = process.env.ANTHROPIC_API_KEY;
+    const isValidKey = envKey && envKey.length > 20 && envKey.startsWith('sk-ant-');
+    const anthropicKey = isValidKey ? envKey : null;
+    
+    if (!anthropicKey) {
+      console.error('❌ No valid Anthropic API key found');
+      return NextResponse.json(
+        { error: 'API configuration error. Please check your environment variables.' },
+        { status: 500 }
+      );
+    }
+    
+    console.log('🔑 Differentiation API Key check:', {
+      fromEnv: envKey?.substring(0, 10) + '...',
+      envKeyLength: envKey?.length || 0,
+      isValid: isValidKey,
+      final: anthropicKey.substring(0, 10) + '...',
+      finalLength: anthropicKey.length
+    });
+    
+    if (!anthropicKey) {
       return NextResponse.json(
         { error: 'ANTHROPIC_API_KEY environment variable is required' }, 
         { status: 500 }
@@ -259,7 +280,7 @@ Each adaptation should maintain the core learning objectives while addressing sp
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': anthropicKey,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({

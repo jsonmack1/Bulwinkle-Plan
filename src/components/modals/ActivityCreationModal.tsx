@@ -78,7 +78,7 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
   
   return (
     <div className={cn(
-      "fixed inset-0 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 backdrop-blur-sm z-50 touch-manipulation",
+      "fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm z-50 touch-manipulation",
       deviceType === 'mobile' 
         ? "flex items-end justify-center p-0 pb-safe" 
         : "flex items-center justify-center p-4 sm:p-6"
@@ -247,7 +247,6 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
                 <option value="Social Studies">Social Studies</option>
                 <option value="Art">Art</option>
                 <option value="Music">Music</option>
-                <option value="Physical Education">Physical Education</option>
                 <option value="World Language">World Language</option>
                 <option value="Health">Health</option>
                 <option value="Computer Science">Computer Science</option>

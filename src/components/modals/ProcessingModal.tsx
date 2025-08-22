@@ -7,7 +7,7 @@ interface ProcessingModalProps {
 
 const ProcessingModal: React.FC<ProcessingModalProps> = ({ isSubMode, showPreview }) => {
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl">
         <div className="text-center py-8">
           

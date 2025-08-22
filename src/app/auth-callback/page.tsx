@@ -21,8 +21,8 @@ export default function AuthCallback() {
         // Send success with tokens to parent window
         window.opener.postMessage({
           type: 'GOOGLE_AUTH_SUCCESS',
-          access_token: accessToken,
-          refresh_token: refreshToken
+          accessToken: accessToken,
+          refreshToken: refreshToken
         }, window.location.origin)
       } else {
         // Send generic error

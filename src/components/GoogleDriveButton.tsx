@@ -1,11 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Upload, CloudUpload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
-import { LessonPlanData } from '../lib/google/drive'
+import { FileDown, Download, ExternalLink } from 'lucide-react'
+
+interface LessonData {
+  topic: string
+  grade: string
+  subject: string
+  duration: string
+  activityType?: string
+  isSubMode?: boolean
+}
 
 interface GoogleDriveButtonProps {
-  lessonData: LessonPlanData
+  lessonData: LessonData
   lessonContentId: string
   className?: string
 }
@@ -13,12 +21,11 @@ interface GoogleDriveButtonProps {
 interface UploadState {
   status: 'idle' | 'authenticating' | 'uploading' | 'success' | 'error'
   message?: string
-  driveLink?: string
+  link?: string
 }
 
 export function GoogleDriveButton({ lessonData, lessonContentId, className = '' }: GoogleDriveButtonProps) {
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' })
-
 
   const handleExport = async () => {
     try {
@@ -32,219 +39,199 @@ export function GoogleDriveButton({ lessonData, lessonContentId, className = '' 
 
       const htmlContent = contentElement.innerHTML
 
-      // Check if user has stored tokens from previous authentication
-      let accessToken = localStorage.getItem('google_access_token')
+      // Step 1: Check Google authentication status
+      const authResponse = await fetch('/api/google-drive/auth-status')
+      let accessToken = null
 
+      if (authResponse.ok) {
+        const authData = await authResponse.json()
+        if (authData.authenticated && authData.accessToken) {
+          accessToken = authData.accessToken
+        }
+      }
+
+      // Step 2: If not authenticated, initiate OAuth flow
       if (!accessToken) {
-        // Need to authenticate
+        setUploadState({ status: 'authenticating', message: 'Please authorize Google Drive access...' })
+        
         const authUrlResponse = await fetch('/api/auth/google')
+        if (!authUrlResponse.ok) {
+          throw new Error('Failed to get Google authorization URL')
+        }
+        
         const authUrlData = await authUrlResponse.json()
         
-        if (!authUrlData.success) {
-          throw new Error('Failed to get authentication URL')
-        }
-
-        // Open authentication window
-        const authWindow = window.open(
+        // Open popup for Google OAuth
+        const popup = window.open(
           authUrlData.url,
           'google-auth',
-          'width=500,height=600,scrollbars=yes,resizable=yes'
+          'width=600,height=600,scrollbars=yes,resizable=yes'
         )
+        
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups and try again.')
+        }
 
         // Wait for authentication to complete
-        accessToken = await new Promise<string>((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('Authentication timed out'))
-          }, 300000) // 5 minute timeout
+        accessToken = await new Promise((resolve, reject) => {
+          const checkClosed = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkClosed)
+              reject(new Error('Authentication cancelled'))
+            }
+          }, 1000)
 
-          // Listen for messages from the popup window
-          const messageHandler = (event: MessageEvent) => {
+          window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return
             
             if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-              clearTimeout(timeout)
-              window.removeEventListener('message', messageHandler)
-              
-              const { access_token, refresh_token } = event.data
-              
-              // Store tokens in localStorage for future use
-              localStorage.setItem('google_access_token', access_token)
-              if (refresh_token) {
-                localStorage.setItem('google_refresh_token', refresh_token)
-              }
-              
-              resolve(access_token)
+              clearInterval(checkClosed)
+              popup.close()
+              resolve(event.data.accessToken)
             } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-              clearTimeout(timeout)
-              window.removeEventListener('message', messageHandler)
+              clearInterval(checkClosed)
+              popup.close()
               reject(new Error(event.data.error || 'Authentication failed'))
             }
-          }
-
-          window.addEventListener('message', messageHandler)
-
-          // Also check if popup was closed without authentication
-          const checkClosed = () => {
-            if (authWindow?.closed) {
-              clearTimeout(timeout)
-              window.removeEventListener('message', messageHandler)
-              reject(new Error('Authentication window was closed'))
-            } else {
-              setTimeout(checkClosed, 1000)
-            }
-          }
-          checkClosed()
+          })
         })
       }
 
-      setUploadState({ status: 'uploading', message: 'Creating DOCX and uploading to Google Drive...' })
+      // Step 3: Upload to Google Drive
+      setUploadState({ status: 'uploading', message: 'Saving to Google Drive...' })
 
-      // Upload to Google Drive
       const uploadResponse = await fetch('/api/google-drive/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          lessonData,
+          lessonData: {
+            topic: lessonData.topic,
+            grade: lessonData.grade,
+            subject: lessonData.subject,
+            duration: lessonData.duration,
+            content: htmlContent
+          },
           htmlContent,
-          format: 'docx',
+          format: 'docx', // You can make this configurable
           accessToken
         })
       })
 
-      let uploadResult
       if (!uploadResponse.ok) {
-        // For error responses, try to get text first
-        let errorText = ''
+        let errorInfo = ''
         try {
-          errorText = await uploadResponse.text()
-          console.error('Server error response:', errorText)
-        } catch (e) {
-          console.error('Could not read error response')
+          const errorData = await uploadResponse.json()
+          errorInfo = errorData.message || errorData.error || 'Unknown server error'
+        } catch {
+          errorInfo = await uploadResponse.text().catch(() => 'Server error')
         }
-        throw new Error(`Server error: ${uploadResponse.status} ${uploadResponse.statusText}${errorText ? ` - ${errorText}` : ''}`)
+        throw new Error(`Upload failed (${uploadResponse.status}): ${errorInfo}`)
       }
 
-      try {
-        uploadResult = await uploadResponse.json()
-      } catch (jsonError) {
-        console.error('Failed to parse JSON response:', jsonError)
-        throw new Error(`Invalid server response: ${uploadResponse.status} ${uploadResponse.statusText}`)
-      }
+      const result = await uploadResponse.json()
 
-      setUploadState({
-        status: 'success',
-        message: `Successfully saved to Google Drive!`,
-        driveLink: uploadResult.webViewLink
+      setUploadState({ 
+        status: 'success', 
+        message: 'Successfully saved to Google Drive!',
+        link: result.webViewLink
       })
-
-      // Auto-hide success message after 5 seconds
-      setTimeout(() => {
-        setUploadState({ status: 'idle' })
-      }, 5000)
 
     } catch (error) {
       console.error('Google Drive export error:', error)
-      setUploadState({
-        status: 'error',
-        message: error instanceof Error ? error.message : 'Export failed. Please try again.'
+      setUploadState({ 
+        status: 'error', 
+        message: error instanceof Error ? error.message : 'Export failed'
       })
-
-      // Auto-hide error message after 8 seconds
-      setTimeout(() => {
-        setUploadState({ status: 'idle' })
-      }, 8000)
-    }
-  }
-
-  const getButtonContent = () => {
-    switch (uploadState.status) {
-      case 'authenticating':
-        return (
-          <>
-            <Loader2 size={16} className="animate-spin" />
-            <span>Authenticating...</span>
-          </>
-        )
-      case 'uploading':
-        return (
-          <>
-            <Loader2 size={16} className="animate-spin" />
-            <span>Uploading...</span>
-          </>
-        )
-      case 'success':
-        return (
-          <>
-            <CheckCircle size={16} className="text-green-600" />
-            <span>Saved!</span>
-          </>
-        )
-      case 'error':
-        return (
-          <>
-            <AlertCircle size={16} className="text-red-600" />
-            <span>Try Again</span>
-          </>
-        )
-      default:
-        return (
-          <>
-            <CloudUpload size={16} />
-            <span>Save to Drive</span>
-          </>
-        )
     }
   }
 
   const getButtonClass = () => {
-    const baseClass = `${className} px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md text-sm relative`
+    const baseClass = `px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md text-sm ${className}`
     
-    switch (uploadState.status) {
-      case 'success':
-        return `${baseClass} bg-green-100 hover:bg-green-200 border border-green-300 text-green-700 hover:text-green-800`
-      case 'error':
-        return `${baseClass} bg-red-100 hover:bg-red-200 border border-red-300 text-red-700 hover:text-red-800`
-      case 'authenticating':
-      case 'uploading':
-        return `${baseClass} bg-blue-100 border border-blue-300 text-blue-700 cursor-not-allowed`
-      default:
-        return `${baseClass} bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700 hover:text-blue-800`
+    if (uploadState.status === 'authenticating' || uploadState.status === 'uploading') {
+      return `${baseClass} bg-gray-400 text-gray-600 cursor-not-allowed`
+    } else if (uploadState.status === 'success') {
+      return `${baseClass} bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md`
+    } else if (uploadState.status === 'error') {
+      return `${baseClass} bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md`
+    } else {
+      return `${baseClass} bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md`
     }
   }
 
-  const isDisabled = uploadState.status === 'authenticating' || uploadState.status === 'uploading'
+  const getButtonContent = () => {
+    if (uploadState.status === 'authenticating') {
+      return (
+        <>
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent"></div>
+          <span>Connecting...</span>
+        </>
+      )
+    } else if (uploadState.status === 'uploading') {
+      return (
+        <>
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent"></div>
+          <span>Uploading...</span>
+        </>
+      )
+    } else if (uploadState.status === 'success') {
+      return (
+        <>
+          <ExternalLink size={16} />
+          <span>Saved to Drive!</span>
+        </>
+      )
+    } else if (uploadState.status === 'error') {
+      return (
+        <>
+          <FileDown size={16} />
+          <span>Retry Upload</span>
+        </>
+      )
+    } else {
+      return (
+        <>
+          <FileDown size={16} />
+          <span>Save to Google Drive</span>
+        </>
+      )
+    }
+  }
 
   return (
-    <div className="relative">
+    <div className="flex flex-col">
       <button
-        onClick={() => !isDisabled && handleExport()}
+        onClick={handleExport}
+        disabled={uploadState.status === 'uploading' || uploadState.status === 'authenticating'}
         className={getButtonClass()}
-        disabled={isDisabled}
         style={{ fontFamily: 'Arial, sans-serif' }}
       >
         {getButtonContent()}
       </button>
-
+      
       {uploadState.message && (
-        <div className={`absolute top-full left-0 mt-1 px-3 py-2 rounded-lg text-xs z-20 whitespace-nowrap ${
+        <div className={`mt-2 p-2 rounded text-xs ${
           uploadState.status === 'success' 
-            ? 'bg-green-100 text-green-800 border border-green-200'
+            ? 'bg-green-100 text-green-800 border border-green-200' 
             : uploadState.status === 'error'
             ? 'bg-red-100 text-red-800 border border-red-200'
             : 'bg-blue-100 text-blue-800 border border-blue-200'
         }`}>
           {uploadState.message}
-          {uploadState.driveLink && (
-            <a 
-              href={uploadState.driveLink} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="ml-2 underline hover:no-underline"
-            >
-              Open
-            </a>
+          {uploadState.status === 'success' && uploadState.link && (
+            <div className="mt-1">
+              <a 
+                href={uploadState.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-green-700 hover:text-green-900 underline text-xs"
+              >
+                <ExternalLink size={12} className="mr-1" />
+                Open in Google Drive
+              </a>
+            </div>
           )}
         </div>
       )}

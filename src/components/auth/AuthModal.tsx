@@ -46,7 +46,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className={cn(
-      "fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 bg-opacity-95 z-50 animate-fade-in",
+      "fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-opacity-95 z-50 animate-fade-in",
       deviceType === 'mobile' 
         ? "p-4 flex items-end sm:items-center justify-center" 
         : "flex items-center justify-center p-6",

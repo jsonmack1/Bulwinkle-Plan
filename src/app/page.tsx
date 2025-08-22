@@ -1086,7 +1086,10 @@ export default function ActivityLessonBuilder() {
         }
       `}</style>
 
-      <Navigation />
+      <Navigation 
+        isSubMode={formState.isSubMode}
+        onToggleMode={(isSubMode) => dispatch({ type: 'SET_IS_SUB_MODE', payload: isSubMode })}
+      />
       
       {/* Enhanced Error/Status Notification */}
       {formState.error && (
@@ -1138,97 +1141,158 @@ export default function ActivityLessonBuilder() {
       
       {/* API Status Indicator */}
       {formState.aiProcessing && !formState.error && (
-        <div className="fixed top-0 left-0 right-0 z-40 bg-blue-50 border-b border-blue-200 px-4 py-3">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-gray-50 border-b border-gray-200 px-4 py-3">
           <div className="max-w-7xl mx-auto flex items-center space-x-3">
             <div className="flex-shrink-0">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-blue-800">Generating Your Lesson Plan</h3>
-              <p className="text-sm text-blue-700">Our AI is creating a personalized lesson plan. This may take a moment during high-demand periods...</p>
+              <h3 className="text-sm font-medium text-gray-800">Generating Your Lesson Plan</h3>
+              <p className="text-sm text-gray-700">Our AI is creating a personalized lesson plan. This may take a moment during high-demand periods...</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden relative" style={{ paddingTop: formState.error || formState.aiProcessing ? '80px' : '0' }}>
-      {/* Cheerful Abstract Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/3 -left-1/3 w-2/3 h-2/3 bg-gradient-to-br from-blue-200/30 via-sky-100/20 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-1/3 -right-1/3 w-2/3 h-2/3 bg-gradient-to-tl from-indigo-200/30 via-purple-100/20 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-gradient-to-r from-purple-200/25 to-pink-200/25 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-l from-cyan-200/25 to-blue-200/25 rounded-full blur-2xl"></div>
-        <div className="absolute top-2/3 left-1/6 w-64 h-64 bg-gradient-to-br from-emerald-100/30 to-teal-100/20 rounded-full blur-xl"></div>
-      </div>
+      <div className="overflow-hidden relative" style={{ 
+        paddingTop: formState.error || formState.aiProcessing ? '80px' : '0'
+      }}>
       
-      {/* Mode Toggle - Always visible */}
-      <div className="fixed top-20 sm:top-6 right-6 z-30">
-        <div className="flex items-center space-x-4 bg-white rounded-full px-3 py-2 shadow-lg border border-gray-200">
-          <span className={`text-sm font-medium transition-colors ${
-            !formState.isSubMode ? 'text-blue-600' : 'text-gray-500'
-          }`}>
-            👩‍🏫 Teacher
-          </span>
-          <button
-            onClick={() => dispatch({ type: 'TOGGLE_MODE' })}
-            className={`relative w-14 h-7 rounded-full transition-colors duration-200 focus:outline-none ${
-              formState.isSubMode ? 'bg-green-500' : 'bg-blue-500'
-            }`}
-          >
-            <div className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ${
-              formState.isSubMode ? 'transform translate-x-7' : ''
-            }`}></div>
-          </button>
-          <span className={`text-sm font-medium transition-colors ${
-            formState.isSubMode ? 'text-green-600' : 'text-gray-500'
-          }`}>
-            🚀 Sub Mode
-          </span>
-        </div>
-      </div>
 
       {/* Landing Page / Form Interface */}
       {!formState.aiProcessing && !formState.showPreview && (
-        <div className="relative min-h-screen z-10">
+        <div className="relative z-10" style={{
+          backgroundImage: 'url(/classroom-background.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 20%',
+          backgroundRepeat: 'no-repeat'
+        }}>
+          {/* Subtle overlay for better text readability - behind content only */}
+          <div className="absolute inset-0 bg-white/60 pointer-events-none -z-10"></div>
 
           {/* Dynamic Hero Section */}
-          <div className="flex items-center justify-center min-h-screen-mobile pt-24 sm:pt-28 px-4 py-8 sm:p-8">
-            <div className="text-center w-full max-w-4xl mx-auto">
+          <div className="relative pt-24 sm:pt-28 px-4 py-8 sm:p-8 pb-24 sm:pb-28 z-10">
+            <div className="w-full max-w-7xl mx-auto relative z-10">
               
-              {/* Centered Dynamic Main Title */}
-              <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight bg-gradient-to-r ${
-                formState.isSubMode 
-                  ? 'from-green-600 to-emerald-600' 
-                  : 'from-blue-600 to-indigo-600'
-              } bg-clip-text text-transparent px-4 text-render-optimized`}>
-                {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Create Engaging Activities in Minutes'}
-              </h1>
-              
-              {/* Simplified, User-Focused Subtitle */}
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 text-render-optimized">
-                {formState.isSubMode 
-                  ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
-                  : 'Turn hours of lesson planning into minutes. Create lesson plans your students will love.'
-                }
-              </p>
-              
-              {/* Mobile-Optimized Main CTA Button */}
-              <div className="mb-8 sm:mb-12 px-4">
-                <button
-                  onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                  className={`w-full sm:w-auto ${
+              {/* Desktop Hero Layout - Left Text, Right CTA */}
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 lg:h-[50vh] lg:items-center mb-8">
+                {/* Left Column - Header and Subtext */}
+                <div className="flex flex-col justify-center space-y-3 pl-8">
+                  {/* Main Title - Left Half */}
+                  <h1 className={`font-bebas text-left text-[80px] xl:text-[100px] font-normal leading-[0.9] bg-gradient-to-r ${
                     formState.isSubMode 
-                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
-                  } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 sm:hover:scale-105 flex items-center justify-center mx-auto touch-manipulation min-h-touch rounded-2xl text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 py-4 sm:py-5`}
-                >
-                  <span className="mr-2 sm:mr-3 text-xl sm:text-2xl lg:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
-                  <span className="text-center leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
-                </button>
+                      ? 'from-green-600 to-emerald-600' 
+                      : 'from-blue-600 to-indigo-600'
+                  } bg-clip-text text-transparent text-render-optimized`}>
+                    {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Lesson Plans in Minutes'}
+                  </h1>
+                  
+                  {/* Subtitle - Below headline in left half */}
+                  <p className="text-left text-[20px] xl:text-[30px] text-gray-600 leading-[1.1] text-render-optimized font-normal" style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
+                    {formState.isSubMode 
+                      ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
+                      : 'Turn hours of lesson planning into minutes. Create engaging activites your students will love!'
+                    }
+                  </p>
+                </div>
+                
+                {/* Right Column - CTA Button */}
+                <div className="flex flex-col items-center justify-center">
+                  <button
+                    onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
+                    className={`${
+                      formState.isSubMode 
+                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
+                    } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6`}
+                  >
+                    <span className="mr-3 text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
+                    <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
+                  </button>
+                  
+                  {/* Feature Cards - Bottom portion, below CTA */}
+                  <div className="mt-12 grid grid-cols-3 gap-6 max-w-4xl">
+                    {formState.isSubMode ? (
+                      // Sub Mode Features
+                      <>
+                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
+                          <div className="text-3xl mb-3">✅</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">No Prep Required</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Just print and go. Everything you need is ready to use.</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
+                          <div className="text-3xl mb-3">📝</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Step-by-Step Scripts</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Clear instructions that any substitute can follow perfectly.</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
+                          <div className="text-3xl mb-3">🎯</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Any Subject</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Works for K-12, any topic, any time of year.</p>
+                        </div>
+                      </>
+                    ) : (
+                      // Teacher Mode Features
+                      <>
+                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
+                          <div className="text-3xl mb-3">✨</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
+                          <div className="text-3xl mb-3">🤝</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
+                        </div>
+                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
+                          <div className="text-3xl mb-3">📚</div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
+                          <p className="text-gray-600 text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Mobile/Tablet Layout - Stacked */}
+              <div className="lg:hidden">
+                {/* Main Title - Mobile Optimized */}
+                <h1 className={`font-bebas text-center sm:text-left text-4xl sm:text-6xl md:text-7xl font-normal mb-4 leading-tight bg-gradient-to-r ${
+                  formState.isSubMode 
+                    ? 'from-green-600 to-emerald-600' 
+                    : 'from-blue-600 to-indigo-600'
+                } bg-clip-text text-transparent px-4 text-render-optimized`}>
+                  {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Lesson Plans in Minutes'}
+                </h1>
+                
+                {/* Subtitle - Mobile Optimized */}
+                <p className="text-center sm:text-left text-lg sm:text-2xl md:text-3xl text-gray-600 leading-relaxed px-4 text-render-optimized font-normal mb-8" style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
+                  {formState.isSubMode 
+                    ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
+                    : 'Turn hours of lesson planning into minutes. Create engaging activites your students will love!'
+                  }
+                </p>
+                
+                {/* CTA Button - Mobile Optimized */}
+                <div className="px-4 mb-12">
+                  <button
+                    onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
+                    className={`w-full ${
+                      formState.isSubMode 
+                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
+                    } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]`}
+                  >
+                    <span className="mr-3 text-2xl sm:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
+                    <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Mobile-Optimized Feature Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto px-4">
+              {/* Mobile/Tablet Feature Cards */}
+              <div className="lg:hidden flex justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl px-4">
                 {formState.isSubMode ? (
                   // Sub Mode Features - Mobile Optimized
                   <>
@@ -1251,29 +1315,115 @@ export default function ActivityLessonBuilder() {
                 ) : (
                   // Teacher Mode Features - Mobile Optimized
                   <>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✨</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🤝</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
                     </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
+                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left sm:col-span-2 lg:col-span-1">
                       <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📚</div>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
                       <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
                     </div>
                   </>
                 )}
+                </div>
               </div>
               
             </div>
           </div>
         </div>
       )}
+
+      {/* Beige Ribbon Section with YouTube Video */}
+      <div className="relative bg-amber-50 py-8 sm:py-12 md:py-16 overflow-hidden">
+        {/* Dotted Circle Pattern Background */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-8 left-12 w-4 h-4 border-2 border-dotted border-amber-200 rounded-full"></div>
+          <div className="absolute top-20 right-16 w-6 h-6 border-2 border-dotted border-amber-300 rounded-full"></div>
+          <div className="absolute bottom-12 left-1/4 w-3 h-3 border-2 border-dotted border-amber-200 rounded-full"></div>
+          <div className="absolute bottom-8 right-1/3 w-5 h-5 border-2 border-dotted border-amber-300 rounded-full"></div>
+          <div className="absolute top-1/2 left-8 w-4 h-4 border-2 border-dotted border-amber-200 rounded-full"></div>
+          <div className="absolute top-1/3 right-8 w-3 h-3 border-2 border-dotted border-amber-300 rounded-full"></div>
+        </div>
+        
+        <div className="relative max-w-6xl mx-auto px-4 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 sm:mb-8">See How It Works</h2>
+          
+          {/* YouTube Video Placeholder */}
+          <div className="relative max-w-4xl mx-auto">
+            <div className="aspect-video bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex items-center justify-center">
+              <div className="text-center text-gray-600">
+                <div className="text-6xl mb-4">▶️</div>
+                <p className="text-xl font-semibold">YouTube Video Placeholder</p>
+                <p className="text-sm mt-2">Video embed will be placed here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* White Bottom Ribbon with Blue Gradient and Newsletter Form */}
+      <div className="relative bg-white">
+        {/* Blue Gradient at Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-blue-600 to-transparent opacity-20"></div>
+        
+        <div className="relative max-w-4xl mx-auto px-4 py-8 sm:py-12 md:py-16 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Stay Updated with Exciting Announcements!</h2>
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">Be the first to know about new features, educational resources, and special offers.</p>
+          
+          <form 
+            className="max-w-md mx-auto flex flex-col sm:flex-row gap-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const email = formData.get('email') as string;
+              
+              try {
+                // Send email to jason@jmackcreative.com
+                const response = await fetch('/api/newsletter-signup', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ email }),
+                });
+                
+                if (response.ok) {
+                  alert('Thank you for subscribing! You\'ll be the first to know about exciting updates.');
+                  (e.target as HTMLFormElement).reset();
+                } else {
+                  alert('There was an error subscribing. Please try again.');
+                }
+              } catch (error) {
+                console.error('Newsletter signup error:', error);
+                alert('There was an error subscribing. Please try again.');
+              }
+            }}
+          >
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email address"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base min-h-[48px]"
+              required
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[48px] touch-manipulation"
+            >
+              Subscribe
+            </button>
+          </form>
+          
+          <p className="text-xs text-gray-500 mt-4">We respect your privacy. Unsubscribe at any time.</p>
+        </div>
+      </div>
 
       {/* Activity Creation Modal */}
       {formState.showActivityCreation && (
@@ -1319,8 +1469,17 @@ export default function ActivityLessonBuilder() {
 
       {/* MOBILE-OPTIMIZED PREVIEW MODAL */}
       {formState.showPreview && parsedContent && (
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 backdrop-blur-sm z-50 touch-manipulation">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm z-50 touch-manipulation">
           <div className="h-full w-full bg-white flex flex-col overflow-hidden sm:h-auto sm:max-h-[95vh] sm:w-auto sm:max-w-7xl sm:mx-4 sm:my-6 sm:rounded-lg sm:shadow-2xl sm:relative sm:top-1/2 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:-translate-y-1/2">
+            
+            {/* Desktop Logo - Bottom Right Corner */}
+            <div className="hidden sm:block absolute bottom-4 right-4 z-10">
+              <img 
+                src="/peabody-logo-new.svg" 
+                alt="Peabody" 
+                className="h-10 w-auto opacity-70"
+              />
+            </div>
             
             {/* Mobile-Optimized Header */}
             <div className="bg-white border-b border-gray-200 print:hidden">
@@ -1405,7 +1564,7 @@ export default function ActivityLessonBuilder() {
                   {/* Mode Toggle - Mobile */}
                   <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2 flex-shrink-0">
                     <span className={`text-xs font-medium ${
-                      !formState.isSubMode ? 'text-blue-600' : 'text-gray-500'
+                      !formState.isSubMode ? 'text-gray-600' : 'text-gray-500'
                     }`}>
                       👩‍🏫
                     </span>
@@ -1504,8 +1663,8 @@ export default function ActivityLessonBuilder() {
 
                 {/* Center: Sub Mode Toggle */}
                 <div className="flex items-center space-x-3">
-                  <span className={`text-sm font-medium transition-colors ${
-                    !formState.isSubMode ? 'text-blue-600' : 'text-gray-500'
+                  <span className={`text-sm font-bold transition-colors ${
+                    !formState.isSubMode ? 'text-gray-600' : 'text-gray-500'
                   }`}>
                     👩‍🏫 Teacher
                   </span>
@@ -1519,7 +1678,7 @@ export default function ActivityLessonBuilder() {
                       formState.isSubMode ? 'transform translate-x-6' : ''
                     }`}></div>
                   </button>
-                  <span className={`text-sm font-medium transition-colors ${
+                  <span className={`text-sm font-bold transition-colors ${
                     formState.isSubMode ? 'text-green-600' : 'text-gray-500'
                   }`}>
                     🚀 Sub Mode
@@ -1624,7 +1783,7 @@ export default function ActivityLessonBuilder() {
                   <div className="relative share-dropdown-container">
                     <button
                       onClick={() => setShowShareDropdown(!showShareDropdown)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md flex items-center space-x-2"
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm hover:shadow-md flex items-center space-x-2"
                       style={{ fontFamily: 'Arial, sans-serif' }}
                     >
                       <Share size={16} />
@@ -1716,14 +1875,14 @@ export default function ActivityLessonBuilder() {
                             dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })
                             // Keep form data intact - don't reset
                           }}
-                          className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg px-3 py-1.5 transition-all duration-200 flex items-center space-x-2 group cursor-pointer hover:shadow-sm"
+                          className="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 transition-all duration-200 flex items-center space-x-2 group cursor-pointer hover:shadow-sm"
                           style={{ fontFamily: 'Arial, sans-serif' }}
                         >
                           <span className="text-base">{activityDisplay.icon}</span>
-                          <span className="font-medium text-blue-900 text-sm group-hover:text-blue-700">
+                          <span className="font-medium text-gray-900 text-sm group-hover:text-gray-700">
                             Activity Type: {activityDisplay.label}
                           </span>
-                          <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✏️ Edit</span>
+                          <span className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs">✏️ Edit</span>
                         </button>
                       )
                     })()}
@@ -1901,31 +2060,6 @@ export default function ActivityLessonBuilder() {
                       }>
                         {formState.generatedActivity && (
                           <div className="lesson-content-wrapper">
-                            {/* Mobile-Friendly Action Bar - Top */}
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 px-2 sm:px-0">
-                              <GoogleDriveButton
-                                lessonData={{
-                                  subject: formState.subject,
-                                  gradeLevel: formState.gradeLevel,
-                                  topic: formState.lessonTopic,
-                                  duration: formState.duration,
-                                  activityType: formState.activityType === 'other' ? formState.customActivityType : formState.activityType,
-                                  isSubMode: formState.isSubMode
-                                }}
-                                lessonContentId="lesson-content"
-                                className="flex-1 sm:flex-initial min-h-touch text-sm sm:text-base"
-                              />
-                              
-                              {/* Print Button */}
-                              <button
-                                onClick={() => window.print()}
-                                className="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md text-sm sm:text-base bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 hover:text-gray-800 min-h-touch"
-                              >
-                                <Printer size={16} />
-                                <span>Print</span>
-                              </button>
-                            </div>
-                            
                             <div id="lesson-content">
                               <PremiumMathContent 
                                 content={formState.generatedActivity} 
@@ -1967,31 +2101,6 @@ export default function ActivityLessonBuilder() {
                     }>
                       {formState.generatedActivity && (
                         <div className="lesson-content-wrapper">
-                          {/* Mobile-Friendly Action Bar - Top */}
-                          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 px-2 sm:px-0">
-                            <GoogleDriveButton
-                              lessonData={{
-                                subject: formState.subject,
-                                gradeLevel: formState.gradeLevel,
-                                topic: formState.lessonTopic,
-                                duration: formState.duration,
-                                activityType: formState.activityType === 'other' ? formState.customActivityType : formState.activityType,
-                                isSubMode: formState.isSubMode
-                              }}
-                              lessonContentId="lesson-content"
-                              className="flex-1 sm:flex-initial min-h-touch text-sm sm:text-base"
-                            />
-                            
-                            {/* Print Button */}
-                            <button
-                              onClick={() => window.print()}
-                              className="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md text-sm sm:text-base bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 hover:text-gray-800 min-h-touch"
-                            >
-                              <Printer size={16} />
-                              <span>Print</span>
-                            </button>
-                          </div>
-                          
                           <div id="lesson-content">
                             <PremiumMathContent 
                               content={formState.generatedActivity} 
@@ -2029,7 +2138,7 @@ const processActivityContent = (content: string): string => {
   
   return content
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/ACTIVITY NAME: (.*?)(?=\n|$)/gi, '<div class="activity-name font-bold text-lg text-blue-700 border-l-4 border-blue-500 pl-3 mb-4">🎯 ACTIVITY: $1</div>')
-    .replace(/Activity Name: (.*?)(?=\n|$)/gi, '<div class="activity-name font-bold text-lg text-blue-700 border-l-4 border-blue-500 pl-3 mb-4">🎯 ACTIVITY: $1</div>')
-    .replace(/^\*\*([^*]+ACTIVITY[^*]*)\*\*$/gm, '<div class="activity-name font-bold text-lg text-blue-700 border-l-4 border-blue-500 pl-3 mb-4">🎯 $1</div>')
+    .replace(/ACTIVITY NAME: (.*?)(?=\n|$)/gi, '<div class="activity-name font-bold text-lg text-gray-700 border-l-4 border-gray-500 pl-3 mb-4">🎯 ACTIVITY: $1</div>')
+    .replace(/Activity Name: (.*?)(?=\n|$)/gi, '<div class="activity-name font-bold text-lg text-gray-700 border-l-4 border-gray-500 pl-3 mb-4">🎯 ACTIVITY: $1</div>')
+    .replace(/^\*\*([^*]+ACTIVITY[^*]*)\*\*$/gm, '<div class="activity-name font-bold text-lg text-gray-700 border-l-4 border-gray-500 pl-3 mb-4">🎯 $1</div>')
 }

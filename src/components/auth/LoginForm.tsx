@@ -71,6 +71,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
         : "rounded-xl p-6 shadow-xl"
     )}>
       <div className="text-center mb-6">
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/peabody-logo.svg" 
+            alt="Peabody" 
+            className="h-12 w-auto"
+          />
+        </div>
         <h2 className={cn(
           "font-bold text-gray-900 mb-2",
           deviceType === 'mobile' ? "text-xl" : "text-2xl"

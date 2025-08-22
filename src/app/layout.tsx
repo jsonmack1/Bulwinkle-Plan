@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import "../styles/animations.css";
 import { AuthProvider } from "../contexts/AuthContext";
@@ -14,15 +14,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas-neue",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
-  title: "Lesson Plan Builder - Create Engaging Educational Activities",
+  title: "Peabody Lesson Plan Builder - Create Engaging Educational Activities",
   description: "Professional lesson planning tool for educators. Create, customize, and manage educational activities with AI-powered assistance.",
-  keywords: "lesson plans, education, teaching, activities, classroom management",
-  authors: [{ name: "Lesson Plan Builder Team" }],
+  keywords: "lesson plans, education, teaching, activities, classroom management, peabody",
+  authors: [{ name: "Peabody College" }],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Lesson Plan Builder'
+    title: 'Peabody Lesson Plans'
   },
   formatDetection: {
     telephone: false
@@ -58,7 +64,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full text-render-optimized bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} antialiased min-h-full text-render-optimized bg-background text-foreground`}
       >
         <AuthProvider>
           <div className="flex flex-col min-h-screen-mobile relative">

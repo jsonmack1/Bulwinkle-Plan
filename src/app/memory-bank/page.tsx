@@ -15,7 +15,6 @@ import { PremiumAccessControl, UsageAnalytics as UsageTracker } from '../../lib/
 import { TeacherFeedback } from '../../types/memoryBank'
 import { useAuth } from '../../contexts/AuthContext'
 import { useMemoryBank } from '../../lib/memoryBank'
-import Navigation from '../../components/Navigation'
 
 // Mock data for demonstration - real implementation will use database
 const mockActivities: ActivityNode[] = [
@@ -46,6 +45,7 @@ export default function MemoryBankPage() {
   const { isPremium, isHydrated } = useSubscription()
   const { getAllLessons } = useMemoryBank()
   const [activities, setActivities] = useState<ActivityNode[]>([])
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<ActivityNode | null>(null)
   const [showPremiumLock, setShowPremiumLock] = useState(false)
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
@@ -368,46 +368,56 @@ export default function MemoryBankPage() {
 
   return (
     <>
-      <Navigation />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-25 to-orange-25" style={{ background: 'linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fef2c7 100%)' }}>
+      {/* Custom Header for Memory Bank */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          {/* Breadcrumb */}
-          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
-            <Link href="/" className="hover:text-blue-600 transition-colors">
-              🏠 Activity Builder
-            </Link>
-            <span>›</span>
-            <span className="text-blue-600 font-medium">💎 Memory Bank</span>
-          </nav>
-
-          {/* Title & Premium Badge */}
+          {/* Header Layout: Logo Left, Title Center, Navigation Right */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-3xl font-bold text-gray-900">Memory Bank</h1>
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
-                <span>💎</span>
-                <span>Premium</span>
-              </div>
+            {/* Left: Logo */}
+            <div className="flex-shrink-0">
+              <img 
+                src="/peabody-logo-new.svg" 
+                alt="Peabody" 
+                className="h-20 sm:h-24 w-auto"
+              />
             </div>
             
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
-              <div className="flex items-center space-x-1">
-                <span>📊</span>
-                <span>{activities.length} Activities</span>
+            {/* Center: Title and Premium Badge */}
+            <div className="flex flex-col items-center flex-1 mx-8">
+              <div className="flex items-center space-x-3">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Memory Bank</h1>
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                  <span>💎</span>
+                  <span className="hidden sm:inline">Premium</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <span>⭐</span>
-                <span>{activities.filter(a => a.isFavorite).length} Favorites</span>
+              <p className="text-gray-600 mt-2 text-center max-w-2xl">
+                Search, browse, and reuse your previously generated lesson activities. Build on your successful lessons and save time with your personal teaching library.
+              </p>
+            </div>
+            
+            {/* Right: Navigation and Stats */}
+            <div className="flex flex-col items-end space-y-2 flex-shrink-0">
+              <nav className="flex items-center space-x-2 text-sm text-gray-600">
+                <Link href="/" className="hover:text-blue-600 transition-colors">
+                  🏠 Activity Builder
+                </Link>
+                <span>›</span>
+                <span className="text-blue-600 font-medium">💎 Memory Bank</span>
+              </nav>
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <span>📊</span>
+                  <span>{activities.length} Activities</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>⭐</span>
+                  <span>{activities.filter(a => a.isFavorite).length} Favorites</span>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Subtitle */}
-          <p className="text-gray-600 mt-2">
-            Search, browse, and reuse your previously generated lesson activities. Build on your successful lessons and save time with your personal teaching library.
-          </p>
         </div>
       </div>
 

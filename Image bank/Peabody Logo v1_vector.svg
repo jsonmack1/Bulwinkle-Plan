@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1366 768">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 240px;
+      }
+
+      .cls-2 {
+        font-size: 300px;
+      }
+
+      .cls-3 {
+        font-size: 325px;
+      }
+
+      .cls-4 {
+        fill: #e22020;
+      }
+
+      .cls-5 {
+        fill: #ffce00;
+      }
+
+      .cls-6 {
+        font-family: ZillaSlab-Regular, 'Zilla Slab';
+      }
+
+      .cls-7 {
+        font-size: 350px;
+      }
+
+      .cls-8 {
+        fill: #2737cc;
+      }
+    </style>
+  </defs>
+  <!-- Generator: Adobe Illustrator 28.7.1, SVG Export Plug-In . SVG Version: 1.2.0 Build 142)  -->
+  <g>
+    <g id="Layer_1">
+      <text class="cls-6" transform="translate(216.71 531.8)"><tspan class="cls-7" x="0" y="0">p</tspan><tspan class="cls-1" x="192.5" y="0">ea</tspan><tspan class="cls-2" x="421.21" y="0">b</tspan><tspan class="cls-1" x="581.41" y="0">o</tspan><tspan class="cls-3" x="704.52" y="0">d</tspan><tspan class="cls-1" x="882.95" y="0">y</tspan></text>
+      <circle class="cls-5" cx="857.11" cy="308.04" r="60.01"/>
+      <circle class="cls-4" cx="472.09" cy="312.28" r="59.45"/>
+      <circle class="cls-8" cx="666.09" cy="165.02" r="60.01"/>
+    </g>
+  </g>
+</svg>

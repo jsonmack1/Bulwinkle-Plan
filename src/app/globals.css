@@ -17,6 +17,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-bebas: var(--font-bebas-neue);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,7 +75,7 @@ body {
 }
 
 .math-content .activity-name {
-  @apply font-bold text-lg text-blue-700 border-l-4 border-blue-500 pl-3 mb-4 bg-blue-50 py-2 rounded-r;
+  @apply font-bold text-lg text-gray-700 border-l-4 border-gray-500 pl-3 mb-4 bg-gray-50 py-2 rounded-r;
 }
 
 /* Enhanced styling for mathematical expressions */
@@ -172,7 +173,7 @@ mjx-container[display="true"] {
 
 /* Focus styles for accessibility */
 .focus-visible {
-  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+  @apply outline-none ring-2 ring-gray-500 ring-offset-2;
 }
 
 /* Mobile layout distortion fixes */

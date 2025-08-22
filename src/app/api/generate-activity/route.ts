@@ -1340,7 +1340,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for API availability - if no key or credits low, use intelligent fallback
-    if (!process.env.ANTHROPIC_API_KEY) {
+    const envKey = process.env.ANTHROPIC_API_KEY;
+    const isValidKey = envKey && envKey.length > 20 && envKey.startsWith('sk-ant-');
+    const anthropicKey = isValidKey ? envKey : null;
+    
+    if (!anthropicKey) {
+      console.error('❌ No valid Anthropic API key found');
+      return NextResponse.json(
+        { error: 'API configuration error. Please check your environment variables.' },
+        { status: 500 }
+      );
+    }
+    console.log('🔑 API Key check:', {
+      fromEnv: envKey?.substring(0, 10) + '...',
+      envKeyLength: envKey?.length || 0,
+      isValid: isValidKey,
+      final: anthropicKey.substring(0, 10) + '...',
+      finalLength: anthropicKey.length
+    });
+    if (!anthropicKey) {
       console.warn('⚠️ Missing ANTHROPIC_API_KEY - using intelligent fallback system')
       return generateIntelligentFallbackActivity(activityData)
     }
@@ -1412,8 +1430,8 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`📡 Attempting API call ${retryCount + 1}/${maxRetries + 1}`);
         
-        // Check API key
-        if (!process.env.ANTHROPIC_API_KEY) {
+        // Use the API key from earlier check
+        if (!anthropicKey) {
           throw new Error('Missing ANTHROPIC_API_KEY environment variable');
         }
         
@@ -1423,7 +1441,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'x-api-key': anthropicKey,
             'anthropic-version': '2023-06-01'
           },
           body: JSON.stringify({

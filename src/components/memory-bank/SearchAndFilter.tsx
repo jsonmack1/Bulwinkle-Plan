@@ -92,7 +92,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
 
       {/* Smart Suggestions - Only show when search is empty */}
       {!filters.searchTerm && smartSuggestions.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-4">
+        <div className="bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg p-3 mb-4">
           <h4 className="font-medium text-gray-900 mb-2 flex items-center">
             <span className="mr-1">💡</span>
             Quick Finds
@@ -184,7 +184,6 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 <option value="Social Studies">🌍 Social Studies</option>
                 <option value="Art">🎨 Art</option>
                 <option value="Music">🎵 Music</option>
-                <option value="Physical Education">⚽ Physical Education</option>
                 <option value="Computer Science">💻 Computer Science</option>
                 <option value="World Language">🌐 World Language</option>
                 <option value="Health">🏥 Health</option>

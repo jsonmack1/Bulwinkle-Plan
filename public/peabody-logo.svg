@@ -1,0 +1,15 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue circle above 'p' -->
+  <circle cx="25" cy="15" r="8" fill="#4F46E5"/>
+  
+  <!-- Red circle above 'a' -->
+  <circle cx="75" cy="15" r="8" fill="#DC2626"/>
+  
+  <!-- Yellow circle above 'o' -->
+  <circle cx="125" cy="15" r="8" fill="#EAB308"/>
+  
+  <!-- Text "peabody" -->
+  <text x="0" y="65" font-family="Arial, sans-serif" font-size="32" font-weight="400" fill="#000000">
+    peabody
+  </text>
+</svg>

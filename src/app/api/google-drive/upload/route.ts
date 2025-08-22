@@ -167,11 +167,21 @@ async function generateEnhancedDocxFile(htmlContent: string, lessonData: LessonP
 }
 
 export async function POST(request: NextRequest) {
+  console.log('Google Drive upload route called')
+  
   try {
     const body = await request.json()
+    console.log('Request body parsed successfully')
+    
     const { lessonData, htmlContent, format, accessToken } = body
 
     if (!lessonData || !htmlContent || !format || !accessToken) {
+      console.error('Missing required fields:', { 
+        hasLessonData: !!lessonData, 
+        hasHtmlContent: !!htmlContent, 
+        hasFormat: !!format, 
+        hasAccessToken: !!accessToken 
+      })
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -290,22 +300,44 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       errorMessage = error.message
       errorDetails = error.stack || ''
+    } else if (typeof error === 'string') {
+      errorMessage = error
+    } else {
+      errorMessage = 'Unexpected error type'
+      errorDetails = JSON.stringify(error)
     }
     
     console.error('Error details:', {
       message: errorMessage,
       stack: errorDetails,
-      lessonData,
-      format
+      errorType: typeof error
     })
     
-    return NextResponse.json(
-      { 
-        error: 'Upload failed', 
-        message: errorMessage,
-        details: errorDetails
-      },
-      { status: 500 }
-    )
+    // Ensure we always return a valid JSON response
+    try {
+      return NextResponse.json(
+        { 
+          error: 'Upload failed', 
+          message: errorMessage,
+          details: errorDetails.substring(0, 1000) // Limit details length
+        },
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    } catch (responseError) {
+      console.error('Failed to create error response:', responseError)
+      // Return a minimal error response if JSON creation fails
+      return new Response(
+        JSON.stringify({ error: 'Internal server error', message: 'Failed to create error response' }),
+        { 
+          status: 500, 
+          headers: { 'Content-Type': 'application/json' } 
+        }
+      )
+    }
   }
 }

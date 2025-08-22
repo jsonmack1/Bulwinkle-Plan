@@ -9,7 +9,12 @@ import { cn } from '../lib/utils'
 import AuthModal from './auth/AuthModal'
 import UserMenu from './auth/UserMenu'
 
-const Navigation: React.FC = () => {
+interface NavigationProps {
+  isSubMode?: boolean
+  onToggleMode?: (isSubMode: boolean) => void
+}
+
+const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode }) => {
   const { user, loading } = useAuth()
   const { type: deviceType, isTouch } = useDeviceDetection()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -44,7 +49,7 @@ const Navigation: React.FC = () => {
         isTouch && "touch-manipulation tap-highlight-transparent"
       )}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 lg:h-20">
+          <div className="flex items-center h-24 lg:h-28">
             {/* Logo/Brand */}
             <div className="flex items-center flex-shrink-0">
               <Link 
@@ -52,17 +57,19 @@ const Navigation: React.FC = () => {
                 className="flex items-center space-x-2 sm:space-x-3"
                 onClick={closeMobileMenu}
               >
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-sm sm:text-base">LP</span>
-                </div>
+                <img 
+                  src="/peabody-logo-new.svg" 
+                  alt="Peabody" 
+                  className="h-20 sm:h-24 w-auto flex-shrink-0"
+                />
                 <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  {deviceType === 'mobile' ? 'Peabody' : 'Peabody'}
+                  {deviceType === 'mobile' ? 'Lesson Plans' : 'Lesson Plan Builder'}
                 </span>
               </Link>
             </div>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            {/* Desktop Navigation Links - Memory Bank on left */}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8 ml-6 lg:ml-8">
               <Link 
                 href="/" 
                 className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
@@ -83,8 +90,8 @@ const Navigation: React.FC = () => {
               )}
             </div>
 
-            {/* Desktop Auth Section */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Desktop Auth Section - On right with space for toggle */}
+            <div className="hidden md:flex items-center space-x-4 ml-auto">
               {loading ? (
                 <div className="w-8 h-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
               ) : user ? (
@@ -106,6 +113,36 @@ const Navigation: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Teacher/Sub Mode Toggle - Fixed in header */}
+            {onToggleMode && (
+              <div className="hidden md:flex items-center ml-6">
+                <div className="bg-white rounded-full p-1 shadow-md border border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => onToggleMode(false)}
+                      className={`px-3 py-1 rounded-full text-sm font-bold transition-all duration-200 ${
+                        !isSubMode 
+                          ? 'bg-blue-600 text-white shadow-sm' 
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Teacher
+                    </button>
+                    <button
+                      onClick={() => onToggleMode(true)}
+                      className={`px-3 py-1 rounded-full text-sm font-bold transition-all duration-200 ${
+                        isSubMode 
+                          ? 'bg-blue-600 text-white shadow-sm' 
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Sub
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Mobile menu button and auth */}
             <div className="md:hidden flex items-center space-x-3">
