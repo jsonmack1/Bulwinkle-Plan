@@ -15,6 +15,7 @@ import { PremiumAccessControl, UsageAnalytics as UsageTracker } from '../../lib/
 import { TeacherFeedback } from '../../types/memoryBank'
 import { useAuth } from '../../contexts/AuthContext'
 import { useMemoryBank } from '../../lib/memoryBank'
+import Navigation from '../../components/Navigation'
 
 // Mock data for demonstration - real implementation will use database
 const mockActivities: ActivityNode[] = [
