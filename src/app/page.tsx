@@ -1184,7 +1184,7 @@ export default function ActivityLessonBuilder() {
                       ? 'from-green-600 to-emerald-600' 
                       : 'from-blue-600 to-indigo-600'
                   } bg-clip-text text-transparent text-render-optimized`}>
-                    {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Lesson Plans in Minutes'}
+                    {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Activities in Minutes'}
                   </h1>
                   
                   {/* Subtitle - Below headline in left half */}
@@ -1258,12 +1258,12 @@ export default function ActivityLessonBuilder() {
               {/* Mobile/Tablet Layout - Stacked */}
               <div className="lg:hidden">
                 {/* Main Title - Mobile Optimized */}
-                <h1 className={`font-bebas text-center sm:text-left text-4xl sm:text-6xl md:text-7xl font-normal mb-4 leading-tight bg-gradient-to-r ${
+                <h1 className={`font-bebas text-center sm:text-left text-7xl sm:text-8xl md:text-9xl font-normal mb-4 leading-tight bg-gradient-to-r ${
                   formState.isSubMode 
                     ? 'from-green-600 to-emerald-600' 
                     : 'from-blue-600 to-indigo-600'
                 } bg-clip-text text-transparent px-4 text-render-optimized`}>
-                  {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Lesson Plans in Minutes'}
+                  {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Activities in Minutes'}
                 </h1>
                 
                 {/* Subtitle - Mobile Optimized */}
