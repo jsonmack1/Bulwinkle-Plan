@@ -52,8 +52,45 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
   const processedContent = useMemo(() => {
     if (!content) return 'No content available'
 
-    // Process with professional math processor
-    let processed = ProfessionalMathProcessor.processContent(content, processingOptions)
+    console.log('📝 Starting fresh math processing...')
+    
+    let processed = content
+    
+    // STEP 1: Clean any existing math tags to start fresh
+    processed = processed.replace(/\[math\]|\[\/math\]|\[display\]|\[\/display\]/g, '')
+    console.log('🧹 Cleaned existing math tags')
+    
+    // STEP 2: Handle LaTeX fractions - wrap them properly
+    processed = processed.replace(/\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, (match, num, den) => {
+      const result = '[math]\\frac{' + num + '}{' + den + '}[/math]'
+      console.log('🔄 Wrapping fraction:', match, '→', result)
+      return result
+    })
+    
+    // STEP 3: Handle Greek letters
+    const greekLetters = ['\\\\theta', '\\\\pi', '\\\\alpha', '\\\\beta', '\\\\gamma', '\\\\delta', '\\\\phi', '\\\\omega']
+    greekLetters.forEach(letter => {
+      const pattern = new RegExp(letter + '\\\\b', 'g')
+      processed = processed.replace(pattern, (match) => {
+        const result = '[math]' + match + '[/math]'
+        console.log('🔄 Wrapping Greek letter:', match, '→', result)
+        return result
+      })
+    })
+    
+    // STEP 4: Handle degree symbols
+    processed = processed.replace(/(\d+)°/g, '[math]$1^{\\circ}[/math]')
+    
+    // STEP 5: Handle other math symbols
+    processed = processed.replace(/\\sin|\\cos|\\tan|\\sqrt\{[^}]+\}/g, (match) => {
+      return '[math]' + match + '[/math]'
+    })
+
+    console.log('📝 Content after math wrapping:', processed.substring(0, 200))
+
+    // Process with professional math processor AFTER our initial wrapping
+    processed = ProfessionalMathProcessor.processContent(processed, processingOptions)
+    console.log('📝 Content after ProfessionalMathProcessor:', processed.substring(0, 200))
 
     // Process activity names first (before headers)
     processed = processed
@@ -136,7 +173,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     return processed
   }, [content, processingOptions])
 
-  // KaTeX rendering for mathematical expressions
+  // KaTeX rendering with proper DOM manipulation
   useEffect(() => {
     if (!contentRef.current) return
 
@@ -157,35 +194,45 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
             "\\NN": "\\mathbb{N}",
             "\\QQ": "\\mathbb{Q}",
             "\\CC": "\\mathbb{C}",
-            "\\frac": "\\frac{#1}{#2}",
-            "\\ce": "\\text{#1}"
+            "\\degree": "^{\\circ}",
+            "\\degrees": "^{\\circ}"
           }
         }
+
+        console.log('🎯 Starting KaTeX rendering...')
 
         // Find and render inline math expressions [math]...[/math]
         const inlineMathRegex = /\[math\](.*?)\[\/math\]/g
         let inlineMatch
-        const inlineMatches: Array<{match: string, latex: string, index: number}> = []
+        const inlineMatches: Array<{match: string, latex: string}> = []
         
         while ((inlineMatch = inlineMathRegex.exec(container.innerHTML)) !== null) {
           inlineMatches.push({
             match: inlineMatch[0],
-            latex: inlineMatch[1],
-            index: inlineMatch.index
+            latex: inlineMatch[1]
           })
         }
 
         // Process matches in reverse order to maintain correct indices
         inlineMatches.reverse().forEach(({match, latex}) => {
           try {
-            const katexHTML = katex.renderToString(latex, {
+            // Clean the latex - remove any stray tags
+            const cleanLatex = latex.trim()
+              .replace(/\[\/display\]/g, '')
+              .replace(/\[display\]/g, '')
+              .replace(/\[\/math\]/g, '')
+              .replace(/\[math\]/g, '')
+            
+            console.log('🎯 Rendering inline math:', cleanLatex)
+            
+            const katexHTML = katex.renderToString(cleanLatex, {
               ...katexOptions,
               displayMode: false
             })
             container.innerHTML = container.innerHTML.replace(match, katexHTML)
+            console.log('✅ Inline math rendered successfully')
           } catch (error) {
             console.warn('KaTeX inline rendering error:', error)
-            // Keep original text on error
             container.innerHTML = container.innerHTML.replace(match, `<span class="math-error">${latex}</span>`)
           }
         })
@@ -193,39 +240,47 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         // Find and render display math expressions [display]...[/display]
         const displayMathRegex = /\[display\](.*?)\[\/display\]/g
         let displayMatch
-        const displayMatches: Array<{match: string, latex: string, index: number}> = []
+        const displayMatches: Array<{match: string, latex: string}> = []
         
         while ((displayMatch = displayMathRegex.exec(container.innerHTML)) !== null) {
           displayMatches.push({
             match: displayMatch[0],
-            latex: displayMatch[1],
-            index: displayMatch.index
+            latex: displayMatch[1]
           })
         }
 
         // Process display matches in reverse order
         displayMatches.reverse().forEach(({match, latex}) => {
           try {
-            const katexHTML = katex.renderToString(latex, {
+            // Clean the latex
+            const cleanLatex = latex.trim()
+              .replace(/\[\/display\]/g, '')
+              .replace(/\[display\]/g, '')
+              .replace(/\[\/math\]/g, '')
+              .replace(/\[math\]/g, '')
+            
+            console.log('🎯 Rendering display math:', cleanLatex)
+            
+            const katexHTML = katex.renderToString(cleanLatex, {
               ...katexOptions,
               displayMode: true
             })
             container.innerHTML = container.innerHTML.replace(match, `<div class="katex-display">${katexHTML}</div>`)
+            console.log('✅ Display math rendered successfully')
           } catch (error) {
             console.warn('KaTeX display rendering error:', error)
-            // Keep original text on error
             container.innerHTML = container.innerHTML.replace(match, `<div class="math-error">${latex}</div>`)
           }
         })
 
-        console.log('✅ KaTeX rendered successfully')
+        console.log('✅ KaTeX rendering complete')
       } catch (error) {
         console.error('❌ KaTeX rendering error:', error)
       }
     }
 
     // Small delay to ensure DOM is updated
-    const timeoutId = setTimeout(renderMathWithKaTeX, 50)
+    const timeoutId = setTimeout(renderMathWithKaTeX, 100)
     
     return () => {
       clearTimeout(timeoutId)
@@ -392,12 +447,6 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
           border-radius: 3px;
           font-family: monospace;
           font-size: 0.9em;
-        }
-
-        /* Time Indicators */
-        .premium-math-content :global(p:contains("minutes")) {
-          font-weight: 500;
-          color: #6b7280;
         }
 
         /* Videos Section Styles */

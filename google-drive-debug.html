@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Export Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #dc2626;
+        }
+        .debug-title {
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        .log-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .step {
+            margin: 8px 0;
+            padding: 8px;
+            background: #f3f4f6;
+            border-radius: 3px;
+        }
+        .step.success { border-left: 4px solid #16a34a; }
+        .step.error { border-left: 4px solid #dc2626; }
+        .step.info { border-left: 4px solid #2563eb; }
+        
+        button {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Google Drive Export Debug Tool</h1>
+    <p>Use this to diagnose the 500 error with Google Drive exports.</p>
+
+    <div class="debug-section">
+        <div class="debug-title">📋 Current Issue Analysis</div>
+        <div class="step info">
+            ❌ <strong>Error:</strong> Server error response: "" (Empty 500 response)
+        </div>
+        <div class="step info">
+            🔍 <strong>Root Cause:</strong> GoogleDriveButton calls /api/google-drive/upload but you mentioned "Google Docs export"
+        </div>
+        <div class="step info">
+            🧐 <strong>Investigation:</strong> Added comprehensive logging to identify exact failure point
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">🛠 Enhanced Error Handling Added</div>
+        <div class="step success">✅ Added comprehensive request body validation</div>
+        <div class="step success">✅ Added Google OAuth credentials verification</div>
+        <div class="step success">✅ Added access token format validation</div>
+        <div class="step success">✅ Added Google Drive service initialization error handling</div>
+        <div class="step success">✅ Added file generation error handling (PDF/DOCX)</div>
+        <div class="step success">✅ Added detailed console logging at each step</div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">📊 Test Button</div>
+        <button onclick="testGoogleDriveExport()" id="testBtn">Test Google Drive Export</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">📝 Expected Console Output</div>
+        <div class="log-output">🚀 Google Drive upload endpoint called
+📋 Request method: POST
+📋 Request URL: /api/google-drive/upload
+📋 Raw request body length: 2847
+✅ Successfully parsed request body
+Request data: {
+  hasLessonData: true,
+  hasHtmlContent: true,
+  format: docx,
+  hasAccessToken: true
+}
+🔐 Checking Google OAuth credentials...
+✅ Google OAuth credentials found
+✅ Valid format requested: docx
+✅ Access token format looks valid
+🔧 Creating Google Drive service...
+✅ Google Drive service created successfully
+📄 Generating file content for format: docx
+📄 Generating DOCX file...
+✅ DOCX generation completed, buffer size: 15247
+Attempting to upload to Google Drive...
+Upload successful: { fileId: '1abc123...', webViewLink: 'https://...' }
+Returning successful response: { success: true, fileId: '...', webViewLink: '...' }</div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">🚨 Potential Error Points & Solutions</div>
+        
+        <div class="step error">
+            <strong>Error Point 1:</strong> Empty request body
+            <br><strong>Solution:</strong> Now validates raw body before JSON parsing
+        </div>
+        
+        <div class="step error">
+            <strong>Error Point 2:</strong> Missing Google OAuth credentials
+            <br><strong>Solution:</strong> Checks GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET env vars
+        </div>
+        
+        <div class="step error">
+            <strong>Error Point 3:</strong> Invalid access token
+            <br><strong>Solution:</strong> Validates token format and length
+        </div>
+        
+        <div class="step error">
+            <strong>Error Point 4:</strong> Google API service initialization failure
+            <br><strong>Solution:</strong> Wraps createDriveService in try-catch with specific error handling
+        </div>
+        
+        <div class="step error">
+            <strong>Error Point 5:</strong> File generation failure (PDF/DOCX)
+            <br><strong>Solution:</strong> Separate error handling for PDF and DOCX generation
+        </div>
+        
+        <div class="step error">
+            <strong>Error Point 6:</strong> Google Drive upload failure
+            <br><strong>Solution:</strong> Enhanced upload error handling with detailed error messages
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">🔧 Next Steps</div>
+        <div class="step info">
+            1. <strong>Try the export again</strong> - check the browser console for detailed logs
+        </div>
+        <div class="step info">
+            2. <strong>Check server logs</strong> - look for the 🚀, ✅, and ❌ emoji indicators
+        </div>
+        <div class="step info">
+            3. <strong>Verify environment variables</strong> - ensure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set
+        </div>
+        <div class="step info">
+            4. <strong>Check Google OAuth token</strong> - verify the access token is valid and not expired
+        </div>
+        <div class="step info">
+            5. <strong>Test with simple content</strong> - try exporting a minimal lesson plan first
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <div class="debug-title">🔄 If Issue Persists</div>
+        <div class="step info">
+            The enhanced error handling will now show exactly where the failure occurs:
+            <ul>
+                <li>Request body parsing issues</li>
+                <li>Missing environment variables</li>
+                <li>Invalid access tokens</li>
+                <li>Google API authentication problems</li>
+                <li>File generation errors</li>
+                <li>Google Drive upload failures</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testGoogleDriveExport() {
+            const testBtn = document.getElementById('testBtn')
+            const results = document.getElementById('testResults')
+            
+            testBtn.disabled = true
+            testBtn.textContent = 'Testing...'
+            
+            try {
+                // This is just a UI test - the actual testing happens in your app
+                results.innerHTML = `
+                    <div class="step info" style="margin-top: 10px;">
+                        🧪 <strong>Test Instructions:</strong>
+                        <br>1. Go to your lesson plan app
+                        <br>2. Generate a lesson plan
+                        <br>3. Click "Save to Drive"
+                        <br>4. Open browser console (F12)
+                        <br>5. Check for the detailed logs with emoji indicators
+                        <br>6. The exact error point will be clearly identified
+                    </div>
+                `
+            } catch (error) {
+                results.innerHTML = `<div class="step error">Test Error: ${error.message}</div>`
+            }
+            
+            testBtn.disabled = false
+            testBtn.textContent = 'Test Google Drive Export'
+        }
+    </script>
+
+</body>
+</html>

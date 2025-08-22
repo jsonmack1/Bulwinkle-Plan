@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specific Issue Tests</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .issue-test {
+            margin: 25px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .issue-title {
+            font-weight: bold;
+            color: #dc2626;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        .raw-content {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-size: 0.85em;
+            white-space: pre-wrap;
+            border-left: 4px solid #6b7280;
+        }
+        .fix-applied {
+            background: #dcfce7;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #16a34a;
+            margin: 10px 0;
+        }
+        .expected-result {
+            background: #dbeafe;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #2563eb;
+            margin: 10px 0;
+        }
+        .console-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Specific Issue Fixes</h1>
+    <p>These tests address the exact rendering problems you identified.</p>
+
+    <div class="issue-test">
+        <div class="issue-title">❌ Issue 1: Theta Equation Not Rendering</div>
+        <div class="raw-content">Problem: θ = π/4 gives coordinates (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2})</div>
+        
+        <div class="fix-applied">
+            <strong>✅ Fix Applied:</strong>
+            <ul>
+                <li><strong>Step 4C:</strong> Added standalone math expression detection for "θ = π/4"</li>
+                <li><strong>Step 4C:</strong> Added coordinate pair detection for "(\frac{...}, \frac{...})"</li>
+                <li><strong>Improved Fractions:</strong> Better nested fraction handling</li>
+            </ul>
+        </div>
+        
+        <div class="expected-result">
+            <strong>Expected Result:</strong> All parts should render as mathematical notation - θ, π, and fractions with proper formatting
+        </div>
+        
+        <div class="console-output">Expected Console Messages:
+🔄 Converting standalone math expression: θ = π/4 → [math]θ = π/4[/math]
+🔄 Converting coordinate expression: (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}) → [math](\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2})[/math]
+🔄 Converting complex fraction: \frac{\sqrt{2}}{2} → [math]\frac{\sqrt{2}}{2}[/math]</div>
+    </div>
+
+    <div class="issue-test">
+        <div class="issue-title">❌ Issue 2: Mixed Text and Theta</div>
+        <div class="raw-content">Problem: \text{How does changing }θ\text{ affect the period of }sin(θ)?</div>
+        
+        <div class="fix-applied">
+            <strong>✅ Fixes Applied:</strong>
+            <ul>
+                <li><strong>Step 4A:</strong> Enhanced mixed text/math detection</li>
+                <li><strong>Step 4A:</strong> Text block splitting for inline math</li>
+                <li><strong>Step 4B:</strong> Standalone Greek letter catching</li>
+            </ul>
+        </div>
+        
+        <div class="expected-result">
+            <strong>Expected Result:</strong> θ symbols render consistently as mathematical symbols, not text
+        </div>
+        
+        <div class="console-output">Expected Console Messages:
+🔄 Converting mixed text/Greek letter: \text{How does changing }θ\text{ affect the period of } → \text{How does changing }[math]θ[/math]\text{ affect the period of }
+🔄 Converting standalone Greek letter: θ → [math]θ[/math]</div>
+    </div>
+
+    <div class="issue-test">
+        <div class="issue-title">❌ Issue 3: Nested Fractions Not Rendering</div>
+        <div class="raw-content">Problem: \frac{\frac{\sqrt{2}}{2}}{2} appears as text instead of proper fraction</div>
+        
+        <div class="fix-applied">
+            <strong>✅ Fix Applied:</strong>
+            <ul>
+                <li><strong>Step 3:</strong> Iterative nested fraction processing</li>
+                <li><strong>Step 3:</strong> Complex pattern matching for nested structures</li>
+                <li><strong>Step 3:</strong> Multi-pass fraction handling</li>
+            </ul>
+        </div>
+        
+        <div class="expected-result">
+            <strong>Expected Result:</strong> Nested fractions render with proper horizontal bars at multiple levels
+        </div>
+        
+        <div class="console-output">Expected Console Messages:
+🔄 Converting complex fraction: \frac{\frac{\sqrt{2}}{2}}{2} → [math]\frac{\frac{\sqrt{2}}{2}}{2}[/math]
+🔄 Converting complex fraction: \frac{\sqrt{2}}{2} → [math]\frac{\sqrt{2}}{2}[/math]</div>
+    </div>
+
+    <div class="issue-test">
+        <div class="issue-title">❌ Issue 4: Function Expressions</div>
+        <div class="raw-content">Problem: sin(θ) renders inconsistently - sometimes proper, sometimes as text</div>
+        
+        <div class="fix-applied">
+            <strong>✅ Fixes Applied:</strong>
+            <ul>
+                <li><strong>Improved Patterns:</strong> Better trig function detection with \b boundaries</li>
+                <li><strong>Step 4B:</strong> Comprehensive Greek letter handling</li>
+                <li><strong>Pattern Order:</strong> Processing order ensures all components are caught</li>
+            </ul>
+        </div>
+        
+        <div class="expected-result">
+            <strong>Expected Result:</strong> sin(θ) renders with proper sin function and θ symbol consistently
+        </div>
+        
+        <div class="console-output">Expected Console Messages:
+🔄 Converting Trig: sin: \sin(θ) → [math]\sin(θ)[/math]
+🔄 Converting standalone Greek letter: θ → [math]θ[/math]</div>
+    </div>
+
+    <h2>🧪 Complete Test Case</h2>
+    <div class="issue-test">
+        <div class="issue-title">🎯 Full Problem Statement</div>
+        <div class="raw-content">Exit ticket: Explain why θ = π/4 gives coordinates (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}) and \text{How does changing }θ\text{ affect the period of }sin(θ)?</div>
+        
+        <div class="expected-result">
+            <strong>After Fixes, All These Should Render Properly:</strong>
+            <ul>
+                <li>✅ θ = π/4 (mathematical equation)</li>
+                <li>✅ (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}) (coordinate pair with fractions)</li>
+                <li>✅ \text{How does changing }θ\text{ affect the period of } (mixed text/math)</li>
+                <li>✅ sin(θ) (trigonometric function with Greek letter)</li>
+            </ul>
+        </div>
+        
+        <div class="console-output">Expected Console Output:
+🔄 Converting standalone math expression: θ = π/4 → [math]θ = π/4[/math]
+🔄 Converting coordinate expression: (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}) → [math](\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2})[/math]
+🔄 Converting complex fraction: \frac{\sqrt{2}}{2} → [math]\frac{\sqrt{2}}{2}[/math]
+🔄 Converting mixed text/Greek letter: \text{How does changing }θ\text{ affect the period of } → \text{How does changing }[math]θ[/math]\text{ affect the period of }
+🔄 Converting Trig: sin: \sin(θ) → [math]\sin(θ)[/math]
+🎯 Rendering with KaTeX (cleaned): θ = π/4
+🎯 Rendering with KaTeX (cleaned): (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2})
+🎯 Rendering with KaTeX (cleaned): θ
+🎯 Rendering with KaTeX (cleaned): \sin(θ)
+✅ KaTeX rendered and FROZEN - X expressions now static</div>
+    </div>
+
+    <h2>🚀 Testing Instructions</h2>
+    <ol>
+        <li><strong>Generate a trigonometry lesson</strong> with the exact problem statement above</li>
+        <li><strong>Check browser console</strong> for the conversion messages</li>
+        <li><strong>Verify visual rendering:</strong>
+            <ul>
+                <li>θ symbols appear as proper Greek letters (not slanted text)</li>
+                <li>π appears as the pi symbol</li>
+                <li>Fractions have horizontal bars</li>
+                <li>Coordinate pairs are properly formatted</li>
+                <li>sin() functions render correctly</li>
+            </ul>
+        </li>
+        <li><strong>Success criteria:</strong> NO mathematical expressions should appear as plain text or italics</li>
+    </ol>
+
+</body>
+</html>

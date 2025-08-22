@@ -212,8 +212,8 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
 
             {/* Right Column - Enhanced Details */}
             <div className="space-y-4">
-              {/* Relevancy Explanation */}
-              {video.relevancyReason && (
+              {/* Relevancy Explanation - Only show if different from AI analysis */}
+              {video.relevancyReason && !video.intelligentMetadata?.analysisReason && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Why This Video?</h4>
                   <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
@@ -232,6 +232,51 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
                         <span className="font-mono text-green-800">📍 {timestamp}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Search Analysis - Consolidated */}
+              {video.intelligentMetadata && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">🧠 AI Analysis</h4>
+                  <div className="space-y-3">
+                    {/* Key Metrics */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-sm text-gray-700 bg-blue-50 p-2 rounded border border-blue-200">
+                        <span className="font-medium text-blue-800">Search Match:</span><br/>
+                        <span className="text-blue-600">{video.intelligentMetadata.searchTerm}</span>
+                      </div>
+                      <div className="text-sm text-gray-700 bg-green-50 p-2 rounded border border-green-200">
+                        <span className="font-medium text-green-800">AI Confidence:</span><br/>
+                        <span className="text-green-600">{video.intelligentMetadata.confidenceScore}%</span>
+                      </div>
+                    </div>
+                    
+                    {/* Analysis Reason */}
+                    {video.intelligentMetadata.analysisReason && (
+                      <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <span className="font-medium">Why This Video:</span> {video.intelligentMetadata.analysisReason}
+                      </div>
+                    )}
+                    
+                    {/* Educational Tags */}
+                    {video.intelligentMetadata.educationalIndicators.length > 0 && (
+                      <div>
+                        <span className="font-medium text-gray-900 text-sm">Educational Indicators:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {video.intelligentMetadata.educationalIndicators.map((indicator, index) => (
+                            <span 
+                              key={index}
+                              className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded border border-green-200"
+                              title={indicator}
+                            >
+                              {indicator}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

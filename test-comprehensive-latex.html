@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive LaTeX Rendering Test</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        .test-section h2 {
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        .math-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .example {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3b82f6;
+        }
+        .example-title {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        .raw-latex {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 5px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Comprehensive LaTeX Math Rendering Test</h1>
+    <p>This page tests the expanded KaTeX rendering capabilities for Calculus, Trigonometry, and Geometry.</p>
+
+    <div class="test-section">
+        <h2>📐 CALCULUS EXPRESSIONS</h2>
+        <div class="math-examples">
+            <div class="example">
+                <div class="example-title">Basic Integral</div>
+                <div class="raw-latex">Raw: \int x^2 dx</div>
+                <div>Result: \int x^2 dx</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Definite Integral</div>
+                <div class="raw-latex">Raw: \int_{0}^{1} x^2 dx</div>
+                <div>Result: \int_{0}^{1} x^2 dx</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Derivative</div>
+                <div class="raw-latex">Raw: \frac{dy}{dx}</div>
+                <div>Result: \frac{dy}{dx}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Second Derivative</div>
+                <div class="raw-latex">Raw: \frac{d^2y}{dx^2}</div>
+                <div>Result: \frac{d^2y}{dx^2}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Partial Derivative</div>
+                <div class="raw-latex">Raw: \frac{\partial f}{\partial x}</div>
+                <div>Result: \frac{\partial f}{\partial x}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Limit</div>
+                <div class="raw-latex">Raw: \lim_{x \to 0} \frac{\sin x}{x}</div>
+                <div>Result: \lim_{x \to 0} \frac{\sin x}{x}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Summation</div>
+                <div class="raw-latex">Raw: \sum_{n=1}^{\infty} \frac{1}{n^2}</div>
+                <div>Result: \sum_{n=1}^{\infty} \frac{1}{n^2}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Double Integral</div>
+                <div class="raw-latex">Raw: \iint f(x,y) dx dy</div>
+                <div>Result: \iint f(x,y) dx dy</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 TRIGONOMETRY EXPRESSIONS</h2>
+        <div class="math-examples">
+            <div class="example">
+                <div class="example-title">Basic Sine</div>
+                <div class="raw-latex">Raw: \sin(x)</div>
+                <div>Result: \sin(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Cosine Squared</div>
+                <div class="raw-latex">Raw: \cos^2(x)</div>
+                <div>Result: \cos^2(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Inverse Sine</div>
+                <div class="raw-latex">Raw: \sin^{-1}(x)</div>
+                <div>Result: \sin^{-1}(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Arcsine</div>
+                <div class="raw-latex">Raw: \arcsin(x)</div>
+                <div>Result: \arcsin(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Tangent</div>
+                <div class="raw-latex">Raw: \tan(\theta)</div>
+                <div>Result: \tan(\theta)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Secant</div>
+                <div class="raw-latex">Raw: \sec(x)</div>
+                <div>Result: \sec(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Hyperbolic Sine</div>
+                <div class="raw-latex">Raw: \sinh(x)</div>
+                <div>Result: \sinh(x)</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Trig Identity</div>
+                <div class="raw-latex">Raw: \sin^2(x) + \cos^2(x) = 1</div>
+                <div>Result: \sin^2(x) + \cos^2(x) = 1</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔺 GEOMETRY EXPRESSIONS</h2>
+        <div class="math-examples">
+            <div class="example">
+                <div class="example-title">Angle</div>
+                <div class="raw-latex">Raw: \angle ABC</div>
+                <div>Result: \angle ABC</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Triangle</div>
+                <div class="raw-latex">Raw: \triangle ABC</div>
+                <div>Result: \triangle ABC</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Line Segment</div>
+                <div class="raw-latex">Raw: \overline{AB}</div>
+                <div>Result: \overline{AB}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Vector</div>
+                <div class="raw-latex">Raw: \overrightarrow{AB}</div>
+                <div>Result: \overrightarrow{AB}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Parallel</div>
+                <div class="raw-latex">Raw: AB \parallel CD</div>
+                <div>Result: AB \parallel CD</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Perpendicular</div>
+                <div class="raw-latex">Raw: AB \perp CD</div>
+                <div>Result: AB \perp CD</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Congruent</div>
+                <div class="raw-latex">Raw: \triangle ABC \cong \triangle DEF</div>
+                <div>Result: \triangle ABC \cong \triangle DEF</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Degrees</div>
+                <div class="raw-latex">Raw: 45\degree</div>
+                <div>Result: 45\degree</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧮 MIXED EXPRESSIONS</h2>
+        <div class="math-examples">
+            <div class="example">
+                <div class="example-title">Complex Fraction</div>
+                <div class="raw-latex">Raw: \frac{2}{3} + \frac{1}{4}</div>
+                <div>Result: \frac{2}{3} + \frac{1}{4}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Square Root</div>
+                <div class="raw-latex">Raw: \sqrt{25}</div>
+                <div>Result: \sqrt{25}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Cube Root</div>
+                <div class="raw-latex">Raw: \sqrt[3]{27}</div>
+                <div>Result: \sqrt[3]{27}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Greek Letters</div>
+                <div class="raw-latex">Raw: \alpha + \beta = \gamma</div>
+                <div>Result: \alpha + \beta = \gamma</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Exponential</div>
+                <div class="raw-latex">Raw: e^{i\pi} + 1 = 0</div>
+                <div>Result: e^{i\pi} + 1 = 0</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Matrix</div>
+                <div class="raw-latex">Raw: \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</div>
+                <div>Result: \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Set Notation</div>
+                <div class="raw-latex">Raw: x \in \mathbb{R}</div>
+                <div>Result: x \in \mathbb{R}</div>
+            </div>
+
+            <div class="example">
+                <div class="example-title">Inequality</div>
+                <div class="raw-latex">Raw: x \leq 5 \text{ and } y \geq 3</div>
+                <div>Result: x \leq 5 \text{ and } y \geq 3</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 INSTRUCTIONS</h2>
+        <p>To test this implementation:</p>
+        <ol>
+            <li>Open your lesson plan builder application</li>
+            <li>Generate a math lesson with various expressions</li>
+            <li>Check the browser console for conversion messages like:</li>
+            <ul>
+                <li><code>🔄 Converting Derivatives: \frac{dy}{dx} → [math]\frac{dy}{dx}[/math]</code></li>
+                <li><code>🔄 Converting Trig: sin: \sin(x) → [math]\sin(x)[/math]</code></li>
+                <li><code>🔄 Converting Angles: \angle ABC → [math]\angle ABC[/math]</code></li>
+            </ul>
+            <li>Verify that mathematical expressions render with proper formatting instead of slanted text</li>
+        </ol>
+        
+        <p><strong>Expected Results:</strong></p>
+        <ul>
+            <li>✅ Fractions display with horizontal bars</li>
+            <li>✅ Integrals show proper integral symbols</li>
+            <li>✅ Greek letters render as mathematical symbols</li>
+            <li>✅ Trigonometric functions have proper formatting</li>
+            <li>✅ Geometric notation renders correctly</li>
+        </ul>
+    </div>
+
+    <script>
+        // This would normally be handled by your React component
+        // Here it's just for demonstration
+        console.log('📐 Comprehensive LaTeX Test Page Loaded');
+        console.log('🔬 Ready to test: Calculus, Trigonometry, and Geometry expressions');
+    </script>
+</body>
+</html>

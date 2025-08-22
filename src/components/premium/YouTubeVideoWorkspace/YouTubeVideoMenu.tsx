@@ -34,7 +34,7 @@ const YouTubeVideoMenu: React.FC<YouTubeVideoMenuProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
-  const [enableMultipleSelection, setEnableMultipleSelection] = useState(true)
+  const [enableMultipleSelection, setEnableMultipleSelection] = useState(false)
   const [tempSelectedIds, setTempSelectedIds] = useState<Set<string>>(new Set())
   const [intelligentSearchData, setIntelligentSearchData] = useState<IntelligentSearchResponse | null>(null)
   

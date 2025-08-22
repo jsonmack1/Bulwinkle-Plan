@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Comprehensive Math Rendering Test</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .enhancement-section {
+            margin: 25px 0;
+            padding: 20px;
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+            background: #f0fdf4;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #15803d;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+        .test-case {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 4px solid #16a34a;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .test-label {
+            font-weight: bold;
+            color: #374151;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+        .stability-info {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+            margin: 20px 0;
+        }
+        .console-example {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .new-feature {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Enhanced Comprehensive Math Rendering</h1>
+    <p><strong>Balanced approach:</strong> Comprehensive math expression detection with stability safeguards.</p>
+
+    <div class="stability-info">
+        <h2>🔧 Key Stability Features:</h2>
+        <ul>
+            <li><strong>✅ Safe Iteration Limits:</strong> Nested fraction processing capped at 10 iterations</li>
+            <li><strong>✅ Warning System:</strong> Console alerts if complex nesting detected</li>
+            <li><strong>✅ No Infinite Loops:</strong> All while loops have safety breaks</li>
+            <li><strong>✅ Incremental Approach:</strong> Targeted improvements, not complete rewrites</li>
+            <li><strong>✅ Fallback Protection:</strong> KaTeX errors show graceful math-error spans</li>
+        </ul>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">🔢 Enhanced Fraction Processing <span class="new-feature">IMPROVED</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Simple Fractions:</div>
+                \frac{1}{2}, \frac{a}{b}, \frac{x+1}{x-1}
+            </div>
+            <div class="test-case">
+                <div class="test-label">Nested Fractions:</div>
+                \frac{\frac{1}{2}}{\frac{3}{4}}, \frac{a}{\frac{b}{c}}
+            </div>
+            <div class="test-case">
+                <div class="test-label">Complex Nested:</div>
+                \frac{\frac{\sqrt{2}}{2}}{3}, \frac{1}{\frac{\frac{x}{y}}{z}}
+            </div>
+            <div class="test-case">
+                <div class="test-label">Mixed Numbers:</div>
+                2\frac{1}{3}, 5\frac{2}{7}
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting nested fraction: \frac{\frac{1}{2}}{3} → [math]\frac{\frac{1}{2}}{3}[/math]
+⚠️ Max fraction iterations reached - possible complex nesting (if needed)</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">🇬🇷 Complete Greek Letters <span class="new-feature">EXPANDED</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Lowercase:</div>
+                α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω
+            </div>
+            <div class="test-case">
+                <div class="test-label">Uppercase:</div>
+                Γ Δ Θ Λ Ξ Π Σ Υ Φ Ψ Ω
+            </div>
+            <div class="test-case">
+                <div class="test-label">Common Usage:</div>
+                \theta = 30°, \pi = 3.14159, \alpha + \beta = \gamma
+            </div>
+            <div class="test-case">
+                <div class="test-label">Physics:</div>
+                \Delta t, \sigma_{xx}, \Omega \cdot m
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting Greek letter: \theta → [math]\theta[/math]
+🔄 Converting Greek letter: \alpha → [math]\alpha[/math]</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">📐 Extended Trigonometry <span class="new-feature">NEW</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Basic Trig:</div>
+                \sin(x), \cos(θ), \tan(45°)
+            </div>
+            <div class="test-case">
+                <div class="test-label">Extended Trig:</div>
+                \csc(x), \sec(x), \cot(x)
+            </div>
+            <div class="test-case">
+                <div class="test-label">Inverse Trig:</div>
+                \arcsin(x), \arccos(x), \arctan(x)
+            </div>
+            <div class="test-case">
+                <div class="test-label">Hyperbolic:</div>
+                \sinh(x), \cosh(x), \tanh(x)
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting math expression: \sin(x) → [math]\sin(x)[/math]
+🔄 Converting math expression: \arctan(x) → [math]\arctan(x)[/math]</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">⬆️ Exponents & Subscripts <span class="new-feature">NEW</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Exponents:</div>
+                x^{2}, e^{i\pi}, \sin^{2}(x)
+            </div>
+            <div class="test-case">
+                <div class="test-label">Subscripts:</div>
+                x_1, y_2, a_n
+            </div>
+            <div class="test-case">
+                <div class="test-label">Combined:</div>
+                x_{1}^{2}, \theta_{max}^{3}
+            </div>
+            <div class="test-case">
+                <div class="test-label">Complex:</div>
+                \sum_{i=1}^{n} x_i^2
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting math expression: x^{2} → [math]x^{2}[/math]
+🔄 Converting math expression: x_1 → [math]x_1[/math]</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">📐 Geometry & Degrees <span class="new-feature">NEW</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Angles:</div>
+                \angle ABC, 45°, 90\degree
+            </div>
+            <div class="test-case">
+                <div class="test-label">Relations:</div>
+                AB \parallel CD, AB \perp CD
+            </div>
+            <div class="test-case">
+                <div class="test-label">Congruence:</div>
+                \triangle ABC \cong \triangle DEF
+            </div>
+            <div class="test-case">
+                <div class="test-label">Vectors:</div>
+                \overrightarrow{AB}, \overline{CD}
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting math expression: \angle ABC → [math]\angle ABC[/math]
+🔄 Converting math expression: 45° → [math]45°[/math]</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">🔗 Simple Equations & Merging <span class="new-feature">NEW</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Simple Equations:</div>
+                x = 5, y > 3, a ≤ b
+            </div>
+            <div class="test-case">
+                <div class="test-label">Greek Equations:</div>
+                θ = π/4, α + β = γ
+            </div>
+            <div class="test-case">
+                <div class="test-label">Merged Adjacent:</div>
+                [math]x[/math] + [math]y[/math] → [math]x + y[/math]
+            </div>
+            <div class="test-case">
+                <div class="test-label">Complex Mixed:</div>
+                \sin(θ) = 1/2 when θ = 30°
+            </div>
+        </div>
+        <div class="console-example">🔄 Converting simple equation: x = 5 → [math]x = 5[/math]
+🔄 Merged adjacent math tags</div>
+    </div>
+
+    <div class="enhancement-section">
+        <div class="section-title">🔧 Enhanced Macros <span class="new-feature">NEW</span></div>
+        <div class="test-grid">
+            <div class="test-case">
+                <div class="test-label">Number Sets:</div>
+                \RR, \ZZ, \NN, \QQ, \CC
+            </div>
+            <div class="test-case">
+                <div class="test-label">Shortcuts:</div>
+                \vect{v}, \ang ABC, \tri ABC
+            </div>
+            <div class="test-case">
+                <div class="test-label">Degrees:</div>
+                \deg, \degree, \degrees
+            </div>
+            <div class="test-case">
+                <div class="test-label">Usage:</div>
+                x \in \RR, \ang ABC = 60\deg
+            </div>
+        </div>
+        <div class="console-example">🎯 Rendering with KaTeX (cleaned): \RR
+🎯 Rendering with KaTeX (cleaned): \vect{v}</div>
+    </div>
+
+    <div class="stability-info">
+        <h2>🎯 Expected Results:</h2>
+        <ul>
+            <li><strong>✅ Comprehensive Coverage:</strong> Handles nested fractions, all Greek letters, extended trig functions, exponents, subscripts, degrees, geometry symbols</li>
+            <li><strong>✅ Smart Equation Detection:</strong> Automatically wraps simple equations like "θ = π/4"</li>
+            <li><strong>✅ Adjacent Math Merging:</strong> Combines [math]x[/math] + [math]y[/math] → [math]x + y[/math] for cleaner rendering</li>
+            <li><strong>✅ Stability Maintained:</strong> Iteration limits prevent hanging, error handling prevents crashes</li>
+            <li><strong>✅ Quality Rendering:</strong> All expressions render as proper mathematical notation</li>
+        </ul>
+    </div>
+
+    <div class="console-example">Complete Expected Console Output:
+🔄 Converting nested fraction: \frac{\frac{1}{2}}{3} → [math]\frac{\frac{1}{2}}{3}[/math]
+🔄 Converting Greek letter: \theta → [math]\theta[/math]
+🔄 Converting math expression: \sin(x) → [math]\sin(x)[/math]
+🔄 Converting math expression: x^{2} → [math]x^{2}[/math]
+🔄 Converting math expression: \angle ABC → [math]\angle ABC[/math]
+🔄 Converting simple equation: θ = π/4 → [math]θ = π/4[/math]
+🔄 Merged adjacent math tags
+🔄 Converting "times" to "×"
+🎯 Rendering with KaTeX (cleaned): \frac{\frac{1}{2}}{3}
+🎯 Rendering with KaTeX (cleaned): \theta
+🎯 Rendering with KaTeX (cleaned): \sin(x)
+✅ KaTeX rendered and FROZEN - X expressions now static</div>
+
+    <h2>📋 Testing Instructions:</h2>
+    <ol>
+        <li><strong>Generate Diverse Lessons:</strong> Create lessons covering algebra, trigonometry, calculus, and geometry</li>
+        <li><strong>Check Nested Fractions:</strong> Test expressions like \frac{\frac{\sqrt{2}}{2}}{3}</li>
+        <li><strong>Verify Greek Letters:</strong> Ensure all α, β, γ, θ, π symbols render consistently</li>
+        <li><strong>Test Extended Functions:</strong> Try \arcsin, \sinh, \csc functions</li>
+        <li><strong>Check Exponents/Subscripts:</strong> Test x^{2}, x_1 formatting</li>
+        <li><strong>Verify Equations:</strong> Simple equations like "θ = 30°" should auto-wrap</li>
+        <li><strong>Monitor Console:</strong> Look for iteration warnings and merge confirmations</li>
+        <li><strong>Confirm Stability:</strong> No hanging, consistent loading times</li>
+    </ol>
+
+    <p><strong>🚀 Result:</strong> You now have comprehensive mathematical expression detection with rock-solid stability safeguards!</p>
+
+</body>
+</html>

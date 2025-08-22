@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .test-section {
+            background: #374151;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .test-title {
+            color: #60a5fa;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #6b7280; }
+        .result {
+            background: #111827;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+        }
+        .success { border-left: 4px solid #10b981; }
+        .error { border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Direct API Testing Tool</h1>
+    <p>This will help identify exactly where the 500 error is occurring.</p>
+
+    <div class="test-section">
+        <div class="test-title">Step 1: Test Health Endpoint</div>
+        <button onclick="testHealthEndpoint()">Test /api/health</button>
+        <div id="healthResult"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Step 2: Test Basic POST</div>
+        <button onclick="testBasicPost()">Test /api/health POST</button>
+        <div id="postResult"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Step 3: Test Google Drive Endpoint (Minimal)</div>
+        <button onclick="testGoogleDriveMinimal()">Test /api/google-drive/upload (Minimal)</button>
+        <div id="driveMinimalResult"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Step 4: Test with Full Data</div>
+        <button onclick="testGoogleDriveFull()">Test /api/google-drive/upload (Full)</button>
+        <div id="driveFullResult"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Console Logs</div>
+        <div>Check browser console (F12) for detailed server logs with emoji indicators:</div>
+        <div class="result">
+🚀 === GOOGLE DRIVE UPLOAD ENDPOINT START ===
+📅 Timestamp: 2025-01-21T...
+📋 Request method: POST
+📋 Request URL: /api/google-drive/upload
+📋 Headers: { content-type: 'application/json', ... }
+📋 Raw request body length: 1234
+✅ Successfully parsed request body
+        </div>
+    </div>
+
+    <script>
+        async function testHealthEndpoint() {
+            const result = document.getElementById('healthResult')
+            result.innerHTML = 'Testing...'
+            
+            try {
+                const response = await fetch('/api/health')
+                const data = await response.text()
+                
+                result.className = 'result ' + (response.ok ? 'success' : 'error')
+                result.innerHTML = `Status: ${response.status}
+Response: ${data}`
+            } catch (error) {
+                result.className = 'result error'
+                result.innerHTML = `Error: ${error.message}`
+            }
+        }
+
+        async function testBasicPost() {
+            const result = document.getElementById('postResult')
+            result.innerHTML = 'Testing...'
+            
+            try {
+                const response = await fetch('/api/health', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test: 'data' })
+                })
+                const data = await response.text()
+                
+                result.className = 'result ' + (response.ok ? 'success' : 'error')
+                result.innerHTML = `Status: ${response.status}
+Response: ${data}`
+            } catch (error) {
+                result.className = 'result error'
+                result.innerHTML = `Error: ${error.message}`
+            }
+        }
+
+        async function testGoogleDriveMinimal() {
+            const result = document.getElementById('driveMinimalResult')
+            result.innerHTML = 'Testing...'
+            
+            try {
+                const response = await fetch('/api/google-drive/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lessonData: {
+                            topic: 'Test',
+                            grade: 'Test Grade',
+                            subject: 'Test Subject',
+                            duration: '30 minutes',
+                            content: 'Test content'
+                        },
+                        htmlContent: '<p>Test HTML content</p>',
+                        format: 'docx',
+                        accessToken: 'test-token-123'
+                    })
+                })
+                
+                const data = await response.text()
+                
+                result.className = 'result ' + (response.ok ? 'success' : 'error')
+                result.innerHTML = `Status: ${response.status}
+Response: ${data}
+
+This should show exactly where the error occurs in the server logs.`
+            } catch (error) {
+                result.className = 'result error'
+                result.innerHTML = `Error: ${error.message}`
+            }
+        }
+
+        async function testGoogleDriveFull() {
+            const result = document.getElementById('driveFullResult')
+            result.innerHTML = 'Testing with actual lesson plan data...'
+            
+            // Get actual lesson content if it exists
+            const contentElement = document.getElementById('lesson-content-main') || 
+                                   document.querySelector('.math-content-container') ||
+                                   document.querySelector('.lesson-plan-content')
+            
+            const htmlContent = contentElement ? contentElement.innerHTML : '<p>Sample lesson plan content</p>'
+            
+            try {
+                const response = await fetch('/api/google-drive/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lessonData: {
+                            topic: 'Mathematics - Fractions',
+                            grade: '5th Grade',
+                            subject: 'Mathematics',
+                            duration: '45 minutes',
+                            content: 'Full lesson plan content'
+                        },
+                        htmlContent: htmlContent,
+                        format: 'docx',
+                        accessToken: localStorage.getItem('google_access_token') || 'test-token-456'
+                    })
+                })
+                
+                const data = await response.text()
+                
+                result.className = 'result ' + (response.ok ? 'success' : 'error')
+                result.innerHTML = `Status: ${response.status}
+Response: ${data}
+
+Note: This uses real lesson content if available, or sample data otherwise.
+Check server console for detailed error logs.`
+            } catch (error) {
+                result.className = 'result error'
+                result.innerHTML = `Error: ${error.message}`
+            }
+        }
+
+        // Auto-run health check on page load
+        window.onload = function() {
+            testHealthEndpoint()
+        }
+    </script>
+
+</body>
+</html>

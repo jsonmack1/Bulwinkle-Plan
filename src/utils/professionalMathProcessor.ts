@@ -192,6 +192,9 @@ export class ProfessionalMathProcessor {
 
     let processed = content
 
+    // Auto-detect and wrap common mathematical expressions
+    processed = this.autoDetectMathExpressions(processed, options)
+
     // Pre-process: handle [math] and [display] tags
     processed = processed.replace(/\[math\](.*?)\[\/math\]/g, (match, mathContent) => {
       const cleanMath = this.cleanMathExpression(mathContent.trim())
@@ -362,6 +365,67 @@ export class ProfessionalMathProcessor {
       complexity,
       category
     }
+  }
+
+  /**
+   * Auto-detect mathematical expressions and wrap them in appropriate tags
+   */
+  private static autoDetectMathExpressions(content: string, options: ProcessingOptions): string {
+    let processed = content
+
+    // Common mathematical patterns to auto-detect
+    const mathPatterns = [
+      // Fractions
+      /\b\d+\/\d+\b/g,
+      /\([^)]+\)\/\([^)]+\)/g,
+      /[a-zA-Z0-9_]+\s*\/\s*[a-zA-Z0-9_]+/g,
+      
+      // Equations with equals
+      /[a-zA-Z]\s*=\s*[^\s]+/g,
+      /\w+\([^)]+\)\s*=\s*[^\s]+/g,
+      
+      // Expressions with powers/exponents
+      /[a-zA-Z0-9]\^[a-zA-Z0-9]+/g,
+      /[a-zA-Z0-9]\*\*[a-zA-Z0-9]+/g,
+      
+      // Square roots
+      /sqrt\([^)]+\)/gi,
+      /√[a-zA-Z0-9_]+/g,
+      
+      // Trigonometric functions
+      /(sin|cos|tan|sec|csc|cot)\s*\([^)]+\)/gi,
+      
+      // Mathematical operators and symbols
+      /[≤≥≠±∞θαβγδεζηλμπρσφψω]/g,
+      
+      // Greek letters written out
+      /\b(theta|alpha|beta|gamma|delta|epsilon|pi|sigma|phi|omega)\b/gi,
+      
+      // Common math expressions
+      /\b\d*x\s*[+\-]\s*\d+\b/g,
+      /\by\s*=\s*[^\s]+/g
+    ]
+
+    // Process each pattern
+    mathPatterns.forEach(pattern => {
+      processed = processed.replace(pattern, (match) => {
+        // Skip if already wrapped
+        if (match.includes('[math]') || match.includes('[display]')) {
+          return match
+        }
+        
+        // Don't wrap if it's inside HTML tags
+        const beforeMatch = processed.substring(0, processed.indexOf(match))
+        if (/<[^>]*$/.test(beforeMatch)) {
+          return match
+        }
+        
+        // Wrap in math tags
+        return `[math]${match}[/math]`
+      })
+    })
+
+    return processed
   }
 
   /**

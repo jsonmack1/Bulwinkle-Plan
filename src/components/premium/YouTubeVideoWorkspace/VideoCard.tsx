@@ -102,29 +102,18 @@ const VideoCard: React.FC<VideoCardProps> = ({
   if (compact) {
     return (
       <>
-        <div className={`grid grid-cols-[24px_1fr] gap-2 p-2 border rounded-lg transition-all duration-200 mb-2 ${
+        <div className={`flex gap-2 p-1.5 border rounded-lg transition-all duration-200 mb-1.5 ${
           isSelected 
             ? 'bg-blue-50 border-blue-200 shadow-sm' 
             : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
         }`}>
           
-          {/* Checkbox Column */}
-          <div className="flex justify-start pt-1">
-            {enableMultipleSelection && (
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={(e) => onCheckboxSelect?.(video.id, e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                disabled={isLocked}
-              />
-            )}
-          </div>
-          
           {/* Content Column */}
           <div className="flex flex-col gap-1.5">
-            {/* Thumbnail Container */}
-            <div className="relative w-full max-w-[200px]">
+            {/* Thumbnail and Buttons Container */}
+            <div className="flex gap-2">
+              {/* Thumbnail Container */}
+              <div className="relative w-full max-w-[200px]">
               {!thumbnailError ? (
                 <img
                   src={video.thumbnailUrl}
@@ -139,30 +128,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 </div>
               )}
               
-              {/* Plus Button for Instant Add - Top Right (Compact) */}
-              {canAddVideo && !isSelected && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onSelect(video.id)
-                  }}
-                  className="absolute top-1 right-1 bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110 z-10"
-                  title="Add video to lesson plan"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </button>
-              )}
-              
-              {/* Checkmark for Selected Videos - Top Right (Compact) */}
-              {isSelected && (
-                <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-1.5 shadow-lg z-10">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
+              {/* No overlay buttons on thumbnail */}
               
               {/* Duration Overlay */}
               <div className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-semibold">
@@ -174,6 +140,64 @@ const VideoCard: React.FC<VideoCardProps> = ({
                   <span>🔒</span>
                 </div>
               )}
+            </div>
+
+              
+              {/* Buttons Container - Right of Thumbnail */}
+              <div className="flex flex-col gap-2">
+                {/* Toggle Add/Remove Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (isSelected) {
+                      onRemove(video.id)
+                    } else {
+                      onSelect(video.id)
+                    }
+                  }}
+                  disabled={!canAddVideo}
+                  className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
+                    !canAddVideo 
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : isSelected 
+                        ? 'bg-red-500 hover:bg-red-600 text-white'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                  title={
+                    !canAddVideo 
+                      ? 'Premium required for videos over 2 minutes'
+                      : isSelected 
+                        ? 'Remove video from lesson plan' 
+                        : 'Add video to lesson plan'
+                  }
+                >
+                  {!canAddVideo ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0h2m-2 0H10m4-4.5V9a2 2 0 10-4 0v2.5M8 12h8" />
+                    </svg>
+                  ) : isSelected ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  )}
+                </button>
+                
+                {/* Preview Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowPreview(true)
+                  }}
+                  className="px-3 py-1 text-xs bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors"
+                  title="Preview video"
+                >
+                  Preview
+                </button>
+              </div>
             </div>
 
             {/* Text Content */}
@@ -192,46 +216,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 <span>{video.channelTitle}</span>
                 <span>•</span>
                 <span className="text-blue-600 font-medium">{video.relevanceScore}% match</span>
-                {video.intelligentMetadata && (
-                  <>
-                    <span>•</span>
-                    <span className="text-green-600 font-medium" title={`Educational confidence: ${video.intelligentMetadata.confidenceScore}%`}>
-                      🧠 {video.intelligentMetadata.confidenceScore}%
-                    </span>
-                  </>
-                )}
               </div>
-              
-              {/* Intelligent Search Indicators */}
-              {video.intelligentMetadata && video.intelligentMetadata.educationalIndicators.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {video.intelligentMetadata.educationalIndicators.slice(0, 2).map((indicator, index) => (
-                    <span 
-                      key={index}
-                      className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
-                      title={indicator}
-                    >
-                      {indicator.length > 15 ? `${indicator.substring(0, 15)}...` : indicator}
-                    </span>
-                  ))}
-                  {video.intelligentMetadata.educationalIndicators.length > 2 && (
-                    <span className="text-xs text-gray-500">
-                      +{video.intelligentMetadata.educationalIndicators.length - 2} more
-                    </span>
-                  )}
-                </div>
-              )}
-              
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowPreview(true)
-                }}
-                className="self-start px-3 py-1 text-xs bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors"
-                title="Preview video"
-              >
-                Preview
-              </button>
             </div>
           </div>
         </div>
@@ -250,26 +235,12 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
   return (
     <>
-      <div className={`rounded-xl border p-6 transition-all duration-300 backdrop-blur-sm ${
+      <div className={`rounded-xl border p-3 transition-all duration-300 backdrop-blur-sm ${
         isSelected 
           ? 'bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-indigo-300 shadow-xl shadow-indigo-200/40' 
           : 'bg-white/95 border-gray-200 hover:border-gray-300 hover:shadow-2xl hover:shadow-gray-200/30 hover:-translate-y-1'
       }`}>
-        {/* Multiple Selection Checkbox - Full Card */}
-        {enableMultipleSelection && (
-          <div className="flex items-center mb-3">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={(e) => onCheckboxSelect?.(video.id, e.target.checked)}
-              className="w-5 h-5 text-indigo-600 bg-white border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 mr-3"
-              disabled={isLocked}
-            />
-            <label className="text-sm font-medium text-gray-700">
-              {isLocked ? 'Premium Required' : 'Select for lesson'}
-            </label>
-          </div>
-        )}
+        {/* Removed checkbox - streamlined interface */}
         
         {/* Larger Thumbnail with overlay */}
         <div className="relative mb-3">
@@ -287,30 +258,48 @@ const VideoCard: React.FC<VideoCardProps> = ({
             </div>
           )}
           
-          {/* Plus Button for Instant Add - Top Right */}
-          {canAddVideo && !isSelected && (
+          {/* Toggle Add/Remove Button - Next to Thumbnail */}
+          <div className="absolute top-3 right-3">
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                onSelect(video.id)
+                if (isSelected) {
+                  onRemove(video.id)
+                } else {
+                  onSelect(video.id)
+                }
               }}
-              className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110 z-10"
-              title="Add video to lesson plan"
+              disabled={!canAddVideo}
+              className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
+                !canAddVideo 
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                  : isSelected 
+                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
+              }`}
+              title={
+                !canAddVideo 
+                  ? 'Premium required for videos over 2 minutes'
+                  : isSelected 
+                    ? 'Remove video from lesson plan' 
+                    : 'Add video to lesson plan'
+              }
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              {!canAddVideo ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0h2m-2 0H10m4-4.5V9a2 2 0 10-4 0v2.5M8 12h8" />
+                </svg>
+              ) : isSelected ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              )}
             </button>
-          )}
-          
-          {/* Checkmark for Selected Videos - Top Right */}
-          {isSelected && (
-            <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-2 shadow-lg z-10">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          )}
+          </div>
           
           {/* Duration overlay */}
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
@@ -377,15 +366,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
               📊 {video.relevanceScore}% match
             </span>
-            
-            {video.intelligentMetadata && (
-              <span 
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"
-                title={`Educational confidence based on: ${video.intelligentMetadata.educationalIndicators.join(', ')}`}
-              >
-                🧠 {video.intelligentMetadata.confidenceScore}% AI confidence
-              </span>
-            )}
           </div>
 
           {/* Expandable Video Details */}
@@ -507,55 +487,14 @@ const VideoCard: React.FC<VideoCardProps> = ({
             </div>
           </div>
           
-          {/* Stacked Action buttons */}
-          <div className="space-y-2">
-            {/* Preview Button - Always available */}
-            <button
-              onClick={() => setShowPreview(true)}
-              className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors flex items-center justify-center space-x-2"
-            >
-              <span>▶️</span>
-              <span>Preview Video</span>
-            </button>
-            
-            <div className="flex space-x-2">
-              {showRemoveButton && (
-                <button
-                  onClick={() => onRemove(video.id)}
-                  className="flex-1 px-3 py-2 text-sm font-medium text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors border border-rose-200"
-                >
-                  ✕ Remove
-                </button>
-              )}
-              
-              {showAddButton && (
-                <div className="flex-1 relative group">
-                  <button
-                    onClick={() => canAddVideo ? onSelect(video.id) : null}
-                    disabled={isLocked}
-                    className={`w-full px-3 py-2 text-sm font-medium rounded transition-colors ${
-                      isSelected
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                        : isLocked
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border border-indigo-300'
-                    }`}
-                  >
-                    {isSelected ? '✓ Added to Lesson' : isLocked ? '✨ Unlock Premium' : '+ Add to Lesson'}
-                  </button>
-                  
-                  {isLocked && (
-                    <div className="absolute -top-20 left-0 right-0 bg-gradient-to-r from-purple-100 to-indigo-100 border border-purple-300 text-purple-800 text-xs px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                      <div className="flex items-center justify-center space-x-1">
-                        <span>✨</span>
-                        <span>Unlock to add longer videos</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Preview Button Only */}
+          <button
+            onClick={() => setShowPreview(true)}
+            className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors flex items-center justify-center space-x-2"
+          >
+            <span>▶️</span>
+            <span>Preview Video</span>
+          </button>
         </div>
       </div>
 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theta Consistency Test</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .raw-latex {
+            font-family: monospace;
+            background: #e5e7eb;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .expected {
+            color: #16a34a;
+            font-weight: 500;
+        }
+        .problem {
+            color: #dc2626;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Theta Consistency Test Cases</h1>
+    <p>These test cases address the specific issue where some θ symbols render correctly while others appear as text.</p>
+
+    <div class="test-case">
+        <div class="test-title">Test Case 1: Mixed Text and Theta</div>
+        <div class="raw-latex">Original Problem: \text{Find }\theta\text{ when } \sin(\theta) = \frac{1}{2} \text{ in Quadrant I}</div>
+        <div class="expected">Expected: All θ symbols should render as mathematical symbols, not as text</div>
+        <div class="expected">✅ Fix Applied: Step 4A handles mixed text/math scenarios</div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-title">Test Case 2: Standalone Theta</div>
+        <div class="raw-latex">Simple: \theta = 30°</div>
+        <div class="expected">Expected: θ renders as mathematical symbol</div>
+        <div class="expected">✅ Fix Applied: Step 4B handles standalone Greek letters</div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-title">Test Case 3: Theta in Functions</div>
+        <div class="raw-latex">Function: \sin(\theta) + \cos(\theta) = 1</div>
+        <div class="expected">Expected: Both θ symbols render consistently</div>
+        <div class="expected">✅ Fix Applied: Improved pattern matching with \b word boundaries</div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-title">Test Case 4: Multiple Text Blocks</div>
+        <div class="raw-latex">Complex: \text{Given }\theta\text{ and }\phi\text{, find }\theta + \phi</div>
+        <div class="expected">Expected: All Greek letters render as symbols</div>
+        <div class="expected">✅ Fix Applied: Comprehensive Greek letter detection</div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-title">Test Case 5: Already Wrapped Math</div>
+        <div class="raw-latex">Pre-wrapped: [math]\theta[/math] should not double-wrap</div>
+        <div class="expected">Expected: No double-wrapping of [math] tags</div>
+        <div class="expected">✅ Fix Applied: Smart detection prevents double-wrapping</div>
+    </div>
+
+    <h2>🔍 What the Fix Does:</h2>
+    <ul>
+        <li><strong>Step 4A:</strong> Detects patterns like <code>\text{...}\theta\text{...}</code> and wraps the Greek letter</li>
+        <li><strong>Step 4B:</strong> Catches standalone Greek letters that might be missed</li>
+        <li><strong>Improved Patterns:</strong> Uses <code>\b</code> word boundaries for better matching</li>
+        <li><strong>Smart Wrapping:</strong> Prevents double-wrapping of already processed math</li>
+        <li><strong>Complete Coverage:</strong> Handles all Greek letters (α, β, γ, δ, ε, θ, λ, μ, π, σ, etc.)</li>
+    </ul>
+
+    <h2>📝 Console Messages You'll See:</h2>
+    <div class="raw-latex">
+🔄 Converting mixed text/Greek letter: \text{Find }\theta\text{ when } → \text{Find }[math]\theta[/math]\text{ when }<br>
+🔄 Converting standalone Greek letter: \theta → [math]\theta[/math]<br>
+🔄 Converting Greek: theta: \theta → [math]\theta[/math]
+    </div>
+
+    <h2>🎯 Testing Instructions:</h2>
+    <ol>
+        <li>Generate a trigonometry lesson with the problem: <code>Find θ when sin(θ) = 1/2 in Quadrant I</code></li>
+        <li>Check that ALL θ symbols render as proper mathematical symbols</li>
+        <li>Look in browser console for conversion messages</li>
+        <li>Verify no symbols appear as plain text or italicized text</li>
+    </ol>
+
+    <div class="test-case">
+        <div class="test-title">✅ Success Criteria</div>
+        <div class="expected">ALL instances of θ (theta) should render with the same mathematical formatting</div>
+        <div class="expected">NO θ symbols should appear as slanted text or regular text</div>
+        <div class="expected">Console should show conversion messages for each Greek letter</div>
+    </div>
+
+</body>
+</html>
