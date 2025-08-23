@@ -64,9 +64,6 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                   alt="Peabody" 
                   className="h-20 sm:h-24 w-auto flex-shrink-0"
                 />
-                <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  {deviceType === 'mobile' ? 'Activities' : 'Activity Builder'}
-                </span>
               </Link>
             </div>
 
@@ -81,20 +78,13 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                   <span>Home</span>
                 </span>
               </Link>
-              {user && (
+              {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (
                 <Link 
                   href="/memory-bank" 
-                  className={`px-4 py-2 lg:px-5 lg:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all flex items-center space-x-2 min-h-touch ${
-                    subscription?.tier === 'premium' || subscription?.tier === 'pro'
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                  {...(subscription?.tier !== 'premium' && subscription?.tier !== 'pro' && {
-                    onClick: (e) => e.preventDefault()
-                  })}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all flex items-center space-x-2 min-h-touch"
                 >
-                  <Crown size={18} />
-                  <span>Memory Bank {subscription?.tier !== 'premium' && subscription?.tier !== 'pro' && '(Premium)'}</span>
+                  <Crown size={16} />
+                  <span>Memory Bank</span>
                 </Link>
               )}
             </div>
@@ -194,23 +184,14 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
               <span className="font-medium">Home</span>
             </Link>
             
-            {user && (
+            {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (
               <Link 
                 href="/memory-bank"
-                onClick={(e) => {
-                  if (subscription?.tier !== 'premium' && subscription?.tier !== 'pro') {
-                    e.preventDefault();
-                  }
-                  closeMobileMenu();
-                }}
-                className={`flex items-center space-x-3 p-3 rounded-lg font-medium shadow-md min-h-touch transition-colors ${
-                  subscription?.tier === 'premium' || subscription?.tier === 'pro'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                onClick={closeMobileMenu}
+                className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-md hover:from-purple-700 hover:to-indigo-700 transition-colors min-h-touch"
               >
                 <Crown size={20} />
-                <span>Memory Bank {subscription?.tier !== 'premium' && subscription?.tier !== 'pro' && '(Premium)'}</span>
+                <span>Memory Bank</span>
               </Link>
             )}
             

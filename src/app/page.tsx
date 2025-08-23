@@ -1088,7 +1088,7 @@ export default function ActivityLessonBuilder() {
 
       <Navigation 
         isSubMode={formState.isSubMode}
-        onToggleMode={(isSubMode) => dispatch({ type: 'SET_IS_SUB_MODE', payload: isSubMode })}
+        onToggleMode={(isSubMode) => dispatch({ type: 'SET_SUB_MODE', payload: isSubMode })}
       />
       
       {/* Enhanced Error/Status Notification */}
@@ -1258,7 +1258,7 @@ export default function ActivityLessonBuilder() {
               {/* Mobile/Tablet Layout - Stacked */}
               <div className="lg:hidden">
                 {/* Main Title - Mobile Optimized */}
-                <h1 className={`font-bebas text-center sm:text-left text-7xl sm:text-8xl md:text-9xl font-normal mb-4 leading-tight bg-gradient-to-r ${
+                <h1 className={`font-bebas text-center sm:text-left text-[12rem] sm:text-8xl md:text-9xl font-normal mb-4 leading-tight bg-gradient-to-r ${
                   formState.isSubMode 
                     ? 'from-green-600 to-emerald-600' 
                     : 'from-blue-600 to-indigo-600'
