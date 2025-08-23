@@ -116,16 +116,9 @@ export async function POST(request: NextRequest) {
       fromEnv: envKey?.substring(0, 10) + '...',
       envKeyLength: envKey?.length || 0,
       isValid: isValidKey,
-      final: anthropicKey.substring(0, 10) + '...',
-      finalLength: anthropicKey.length
+      final: anthropicKey?.substring(0, 10) + '...',
+      finalLength: anthropicKey?.length || 0
     });
-    
-    if (!anthropicKey) {
-      return NextResponse.json(
-        { error: 'ANTHROPIC_API_KEY environment variable is required' }, 
-        { status: 500 }
-      );
-    }
 
     // Validate required fields
     if (!data.activityContent || !data.gradeLevel || !data.subject || !data.topic) {
@@ -306,7 +299,7 @@ Each adaptation should maintain the core learning objectives while addressing sp
     console.log('✅ Differentiation API call successful');
     
     if (!apiResponse.content || !apiResponse.content[0] || !apiResponse.content[0].text) {
-      console.error('❌ Invalid API response structure');
+      console.error('❌ Invalid API response structure:', JSON.stringify(apiResponse, null, 2));
       return NextResponse.json(
         { error: 'Invalid response from intelligent service' }, 
         { status: 500 }
@@ -316,8 +309,20 @@ Each adaptation should maintain the core learning objectives while addressing sp
     const generatedContent = apiResponse.content[0].text;
     console.log('🎉 Differentiation generated! Length:', generatedContent.length);
 
-    // Parse the structured response
-    const parsedDifferentiation = parseDifferentiationContent(generatedContent);
+    // Parse the structured response with error handling
+    let parsedDifferentiation;
+    try {
+      parsedDifferentiation = parseDifferentiationContent(generatedContent);
+    } catch (parseError) {
+      console.error('❌ Error parsing differentiation content:', parseError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to parse differentiation content',
+          details: parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+        }, 
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -345,27 +350,36 @@ Each adaptation should maintain the core learning objectives while addressing sp
 }
 
 function parseDifferentiationContent(content: string): DifferentiationResponse {
+  if (!content || typeof content !== 'string' || content.length < 10) {
+    throw new Error('Invalid content provided for parsing');
+  }
+  
   console.log('📋 Parsing differentiation content, length:', content.length);
   console.log('📋 Content preview:', content.substring(0, 500));
   console.log('📋 Full content for debugging:', content);
   
-  const sections = {
-    below_grade: extractSection(content, 'BELOW GRADE LEVEL VERSION'),
-    at_grade: extractSection(content, 'AT GRADE LEVEL VERSION'),
-    above_grade: extractSection(content, 'ABOVE GRADE LEVEL VERSION'),
-    esl_adaptations: extractESLSection(content),
-    iep_adaptations: extractIEPSection(content)
-  };
+  try {
+    const sections = {
+      below_grade: extractSection(content, 'BELOW GRADE LEVEL VERSION'),
+      at_grade: extractSection(content, 'AT GRADE LEVEL VERSION'),
+      above_grade: extractSection(content, 'ABOVE GRADE LEVEL VERSION'),
+      esl_adaptations: extractESLSection(content),
+      iep_adaptations: extractIEPSection(content)
+    };
 
-  console.log('📋 Parsed sections:', Object.keys(sections).map(key => `${key}: ${sections[key as keyof typeof sections]?.title || 'missing'}`));
-  
-  // Debug each section content
-  Object.keys(sections).forEach(key => {
-    const section = sections[key as keyof typeof sections];
-    console.log(`📋 Section ${key}:`, section);
-  });
-  
-  return sections;
+    console.log('📋 Parsed sections:', Object.keys(sections).map(key => `${key}: ${sections[key as keyof typeof sections]?.title || 'missing'}`));
+    
+    // Debug each section content
+    Object.keys(sections).forEach(key => {
+      const section = sections[key as keyof typeof sections];
+      console.log(`📋 Section ${key}:`, section);
+    });
+    
+    return sections;
+  } catch (error) {
+    console.error('❌ Error in parseDifferentiationContent:', error);
+    throw new Error(`Failed to parse differentiation content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 function extractSection(content: string, sectionTitle: string): DifferentiationContent {
