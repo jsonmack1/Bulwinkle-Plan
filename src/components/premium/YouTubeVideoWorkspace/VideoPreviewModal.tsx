@@ -239,7 +239,7 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
               {/* AI Search Analysis - Consolidated */}
               {video.intelligentMetadata && (
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">🧠 AI Analysis</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">🧠 Intelligent Analysis</h4>
                   <div className="space-y-3">
                     {/* Key Metrics */}
                     <div className="grid grid-cols-2 gap-3">
@@ -248,7 +248,7 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
                         <span className="text-blue-600">{video.intelligentMetadata.searchTerm}</span>
                       </div>
                       <div className="text-sm text-gray-700 bg-green-50 p-2 rounded border border-green-200">
-                        <span className="font-medium text-green-800">AI Confidence:</span><br/>
+                        <span className="font-medium text-green-800">Intelligent Confidence:</span><br/>
                         <span className="text-green-600">{video.intelligentMetadata.confidenceScore}%</span>
                       </div>
                     </div>

@@ -240,7 +240,7 @@ export const useActivityGeneration = () => {
     }
   }, [])
 
-  // Generate activity with AI - ENHANCED ERROR HANDLING WITH RETRY SUPPORT
+  // Generate activity with intelligence - ENHANCED ERROR HANDLING WITH RETRY SUPPORT
   const generateActivity = useCallback(async (formState: FormState, isRetry: boolean = false) => {
     const finalActivityType = formState.activityType === 'other' ? formState.customActivityType : formState.activityType
     
@@ -344,7 +344,7 @@ export const useActivityGeneration = () => {
         // For non-JSON responses, create user-friendly messages based on status
         if (response.status === 529) {
           errorInfo = {
-            message: 'The AI service is currently experiencing high demand. Our system will automatically try again or provide a backup lesson plan.',
+            message: 'The intelligent service is currently experiencing high demand. Our system will automatically try again or provide a backup lesson plan.',
             type: 'service_overloaded',
             retryable: true,
             userFriendly: true
@@ -358,7 +358,7 @@ export const useActivityGeneration = () => {
           }
         } else if (response.status >= 500) {
           errorInfo = {
-            message: 'The AI service is temporarily unavailable. Please try again in a few minutes.',
+            message: 'The intelligent service is temporarily unavailable. Please try again in a few minutes.',
             type: 'service_unavailable',
             retryable: true,
             userFriendly: true

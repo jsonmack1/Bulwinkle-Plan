@@ -8,6 +8,8 @@ import { useActivityGeneration } from '../hooks/useActivityGeneration'
 import { useSubscription } from '../lib/subscription-mock'
 import { useMemoryBank } from '../lib/memoryBank'
 import Navigation from '../components/Navigation'
+import AnimatedLoadingScreen from '../components/ui/AnimatedLoadingScreen'
+import { useAnimatedLoading } from '../hooks/useAnimatedLoading'
 
 // Lazy load heavy components
 const ActivityCreationModal = lazy(() => import('../components/modals/ActivityCreationModal'))
@@ -161,6 +163,9 @@ export default function ActivityLessonBuilder() {
   
   // YouTube Video Integration State - Phase 1
   const [showYouTubeVideos, setShowYouTubeVideos] = useState(false)
+  
+  // Animated loading screen state
+  const { loadingState, showLoading, hideLoading } = useAnimatedLoading()
   const [isYouTubePanelCollapsed, setIsYouTubePanelCollapsed] = useState(false)
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set())
   const [selectedVideos, setSelectedVideos] = useState<YouTubeVideo[]>([])
@@ -303,7 +308,7 @@ export default function ActivityLessonBuilder() {
   }, [])
 
 
-  // Generate fallback differentiation strategies when AI fails
+  // Generate fallback differentiation strategies when intelligence fails
   const generateFallbackDifferentiation = useCallback((formState: Record<string, unknown>) => {
     const subject = formState.subject.toLowerCase()
     const topic = formState.lessonTopic
@@ -525,6 +530,8 @@ export default function ActivityLessonBuilder() {
     if (!formState.generatedActivity || isLoadingDifferentiation) return
 
     setIsLoadingDifferentiation(true)
+    // Show animated loading screen for differentiation
+    showLoading('differentiating')
     
     try {
       console.log('🎯 Loading inline differentiation...')
@@ -567,8 +574,10 @@ export default function ActivityLessonBuilder() {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load differentiation options. Please try again.' })
     } finally {
       setIsLoadingDifferentiation(false)
+      // Hide animated loading screen
+      hideLoading()
     }
-  }, [formState.generatedActivity, formState.gradeLevel, formState.subject, formState.lessonTopic, formState.activityType, formState.customActivityType, formState.duration, isLoadingDifferentiation])
+  }, [formState.generatedActivity, formState.gradeLevel, formState.subject, formState.lessonTopic, formState.activityType, formState.customActivityType, formState.duration, isLoadingDifferentiation, showLoading, hideLoading])
   
   // YouTube Video Integration Handlers - Phase 1
   const handleVideosSelected = useCallback((videos: YouTubeVideo[]) => {
@@ -662,6 +671,11 @@ export default function ActivityLessonBuilder() {
         ],
         'Social Studies': [
           { value: 'history_reading', label: 'History Reading', icon: '📜', emoji: '📜', description: 'Read historical texts and discuss key points', complexityLevel: 'basic' }
+        ],
+        'Advisory/SEL': [
+          { value: 'simple_check_in', label: 'Simple Check-in Circle', icon: '🧘', emoji: '🧘', description: 'Easy conversation starters for connecting and sharing', complexityLevel: 'basic' },
+          { value: 'gratitude_sharing', label: 'Gratitude & Good Things', icon: '🙏', emoji: '🙏', description: 'Natural sharing about positive moments and appreciation', complexityLevel: 'basic' },
+          { value: 'question_of_day', label: 'Question of the Day', icon: '💭', emoji: '💭', description: 'Thought-provoking questions that spark easy discussion', complexityLevel: 'basic' }
         ]
       }
       return subjectMap[formState.subject] || []
@@ -684,6 +698,16 @@ export default function ActivityLessonBuilder() {
       'Social Studies': [
         { value: 'historical_thinking', label: 'Historical Thinking', icon: '🏛️', emoji: '🏛️', description: 'Complex historical analysis and causation', complexityLevel: 'intermediate' },
         { value: 'civic_engagement', label: 'Civic Engagement', icon: '🗳️', emoji: '🗳️', description: 'Active citizenship and community involvement', complexityLevel: 'advanced' }
+      ],
+      'Advisory/SEL': [
+        { value: 'goals_and_dreams', label: 'Goals, Dreams & Self-Discovery', icon: '🎯', emoji: '🎯', description: 'Conversations about personal aspirations and self-understanding', complexityLevel: 'basic' },
+        { value: 'friendship_relationships', label: 'Friendship & Relationships', icon: '🤝', emoji: '🤝', description: 'Talking through social connections and communication', complexityLevel: 'basic' },
+        { value: 'digital_life_balance', label: 'Digital Life & Real Life', icon: '💻', emoji: '💻', description: 'Exploring healthy relationships with technology and social media', complexityLevel: 'intermediate' },
+        { value: 'stress_overwhelm', label: 'Stress, Overwhelm & Coping', icon: '🧘', emoji: '🧘', description: 'Discussing stress and sharing strategies for managing life challenges', complexityLevel: 'basic' },
+        { value: 'identity_belonging', label: 'Identity, Culture & Belonging', icon: '🌍', emoji: '🌍', description: 'Conversations about who we are and where we fit in', complexityLevel: 'intermediate' },
+        { value: 'communication_conflict', label: 'Communication & Working Through Conflict', icon: '💬', emoji: '💬', description: 'Talking about how we connect and handle disagreements', complexityLevel: 'basic' },
+        { value: 'future_anxiety', label: 'Future Planning & Anxiety', icon: '🔮', emoji: '🔮', description: 'Conversations about the future and managing uncertainty', complexityLevel: 'intermediate' },
+        { value: 'authenticity_pressure', label: 'Being Yourself vs. Fitting In', icon: '🎭', emoji: '🎭', description: 'Discussing authenticity and social pressures', complexityLevel: 'intermediate' }
       ]
     }
     
@@ -876,11 +900,17 @@ export default function ActivityLessonBuilder() {
       dispatch({ type: 'SET_PROCESSING', payload: true })
       dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: false })
       
+      // Show animated loading screen
+      showLoading(formState.showPreview ? 'regenerating' : 'generating')
+      
       const result = await generateActivityAPI(formState)
       
       dispatch({ type: 'SET_GENERATED_ACTIVITY', payload: result.activityData })
       dispatch({ type: 'SET_PROCESSING', payload: false })
       dispatch({ type: 'SET_SHOW_PREVIEW', payload: true })
+      
+      // Hide animated loading screen
+      hideLoading()
       
       // Show fallback notice if applicable
       if (result.fromFallback) {
@@ -1004,7 +1034,7 @@ export default function ActivityLessonBuilder() {
         
         // Special handling for 529 errors - they should be less scary
         if (enhancedError.status === 529 || enhancedError.type === 'service_overloaded') {
-          userMessage = 'The AI service is experiencing high demand. We\'re working on generating your lesson plan with our backup system. Please wait a moment...'
+          userMessage = 'The intelligent service is experiencing high demand. We\'re working on generating your lesson plan with our backup system. Please wait a moment...'
           shouldShowRetryOption = false // Don't show retry for 529 as backend handles it
         }
       } else if (error instanceof Error) {
@@ -1013,6 +1043,9 @@ export default function ActivityLessonBuilder() {
       
       dispatch({ type: 'SET_ERROR', payload: userMessage })
       dispatch({ type: 'SET_PROCESSING', payload: false })
+      
+      // Hide animated loading screen on error
+      hideLoading()
       
       // Auto-retry for certain error types after a delay
       if (shouldShowRetryOption && error && typeof error === 'object') {
@@ -1027,7 +1060,7 @@ export default function ActivityLessonBuilder() {
         }
       }
     }
-  }, [formState, generateActivityAPI])
+  }, [formState, generateActivityAPI, showLoading, hideLoading])
 
   return (
     <>
@@ -1088,7 +1121,7 @@ export default function ActivityLessonBuilder() {
 
       <Navigation 
         isSubMode={formState.isSubMode}
-        onToggleMode={(isSubMode) => dispatch({ type: 'SET_SUB_MODE', payload: isSubMode })}
+        onToggleMode={!formState.showPreview ? (isSubMode) => dispatch({ type: 'SET_SUB_MODE', payload: isSubMode }) : undefined}
       />
       
       {/* Enhanced Error/Status Notification */}
@@ -1148,7 +1181,7 @@ export default function ActivityLessonBuilder() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-800">Generating Your Lesson Plan</h3>
-              <p className="text-sm text-gray-700">Our AI is creating a personalized lesson plan. This may take a moment during high-demand periods...</p>
+              <p className="text-sm text-gray-700">Our intelligence is creating an intelligent lesson plan. This may take a moment during high-demand periods...</p>
             </div>
           </div>
         </div>
@@ -1430,6 +1463,7 @@ export default function ActivityLessonBuilder() {
         <Suspense fallback={<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"><div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div></div>}>
           <ActivityCreationModal
           isSubMode={formState.isSubMode}
+          onToggleMode={(isSubMode) => dispatch({ type: 'SET_SUB_MODE', payload: isSubMode })}
           selectedDate={formState.selectedDate}
           setSelectedDate={(date) => dispatch({ type: 'SET_SELECTED_DATE', payload: date })}
           gradeLevel={formState.gradeLevel}
@@ -1472,14 +1506,6 @@ export default function ActivityLessonBuilder() {
         <div className="fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm z-50 touch-manipulation">
           <div className="h-full w-full bg-white flex flex-col overflow-hidden sm:h-auto sm:max-h-[95vh] sm:w-auto sm:max-w-7xl sm:mx-4 sm:my-6 sm:rounded-lg sm:shadow-2xl sm:relative sm:top-1/2 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:-translate-y-1/2">
             
-            {/* Desktop Logo - Bottom Right Corner */}
-            <div className="hidden sm:block absolute bottom-4 right-4 z-10">
-              <img 
-                src="/peabody-logo-new.svg" 
-                alt="Peabody" 
-                className="h-10 w-auto opacity-70"
-              />
-            </div>
             
             {/* Mobile-Optimized Header */}
             <div className="bg-white border-b border-gray-200 print:hidden">
@@ -1548,6 +1574,15 @@ export default function ActivityLessonBuilder() {
                     )}
                   </button>
 
+                  {/* Peabody Logo - Mobile */}
+                  <div className="flex-shrink-0 flex items-center justify-center px-4">
+                    <img 
+                      src="/peabody-logo-new.svg" 
+                      alt="Peabody" 
+                      className="h-16 w-auto opacity-70"
+                    />
+                  </div>
+
                   <button
                     onClick={toggleYouTubeVideos}
                     className={`flex-shrink-0 min-h-touch px-4 py-3 rounded-lg font-medium transition-all flex items-center space-x-2 text-sm ${
@@ -1561,35 +1596,12 @@ export default function ActivityLessonBuilder() {
                     {!isPremium && <span className="text-xs">✨</span>}
                   </button>
                   
-                  {/* Mode Toggle - Mobile */}
-                  <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2 flex-shrink-0">
-                    <span className={`text-xs font-medium ${
-                      !formState.isSubMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      👩‍🏫
-                    </span>
-                    <button
-                      onClick={() => dispatch({ type: 'TOGGLE_MODE' })}
-                      className={`relative w-10 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
-                        formState.isSubMode ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                    >
-                      <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                        formState.isSubMode ? 'transform translate-x-4' : ''
-                      }`}></div>
-                    </button>
-                    <span className={`text-xs font-medium ${
-                      formState.isSubMode ? 'text-green-600' : 'text-gray-500'
-                    }`}>
-                      🚀
-                    </span>
-                  </div>
                 </div>
               </div>
               
               {/* Desktop Header */}
               <div className="hidden sm:block">
-                <div className="flex justify-between items-center p-4 border-b border-gray-100">
+                <div className="grid grid-cols-3 items-center p-4 border-b border-gray-100">
                   {/* Left: Action Buttons */}
                   <div className="flex items-center space-x-3">
                     {/* Differentiation Button - Premium Feature */}
@@ -1661,32 +1673,18 @@ export default function ActivityLessonBuilder() {
                     </button>
                   </div>
 
-                {/* Center: Sub Mode Toggle */}
-                <div className="flex items-center space-x-3">
-                  <span className={`text-sm font-bold transition-colors ${
-                    !formState.isSubMode ? 'text-gray-600' : 'text-gray-500'
-                  }`}>
-                    👩‍🏫 Teacher
-                  </span>
-                  <button
-                    onClick={() => dispatch({ type: 'TOGGLE_MODE' })}
-                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
-                      formState.isSubMode ? 'bg-green-500' : 'bg-blue-500'
-                    }`}
-                  >
-                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                      formState.isSubMode ? 'transform translate-x-6' : ''
-                    }`}></div>
-                  </button>
-                  <span className={`text-sm font-bold transition-colors ${
-                    formState.isSubMode ? 'text-green-600' : 'text-gray-500'
-                  }`}>
-                    🚀 Sub Mode
-                  </span>
+                {/* Center: Peabody Logo */}
+                <div className="flex items-center justify-center">
+                  <img 
+                    src="/peabody-logo-new.svg" 
+                    alt="Peabody" 
+                    className="h-20 w-auto opacity-70"
+                  />
                 </div>
 
                 {/* Right: Close Button */}
-                <button
+                <div className="flex justify-end">
+                  <button
                   onClick={() => dispatch({ type: 'SET_SHOW_PREVIEW', payload: false })}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors"
                   aria-label="Close preview"
@@ -1694,7 +1692,8 @@ export default function ActivityLessonBuilder() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+                  </button>
+                </div>
               </div>
 
               {/* Top Action Bar - Export/Share at Very Top */}
@@ -1943,7 +1942,7 @@ export default function ActivityLessonBuilder() {
                         <div className="flex items-center">
                           <span className="text-2xl mr-3">🎯</span>
                           <div>
-                            <h3 className="font-bold text-gray-900">AI-Powered Differentiation</h3>
+                            <h3 className="font-bold text-gray-900">Intelligent Differentiation</h3>
                             <p className="text-sm text-gray-600">Contextual strategies for {formState.lessonTopic}</p>
                           </div>
                         </div>
@@ -2127,6 +2126,13 @@ export default function ActivityLessonBuilder() {
       <Suspense fallback={null}>
         {showPremiumLock && <PremiumFeatureLock onClose={() => setShowPremiumLock(false)} />}
       </Suspense>
+
+      {/* Animated Loading Screen */}
+      <AnimatedLoadingScreen
+        isVisible={loadingState.isVisible}
+        animation={loadingState.animation}
+        message={loadingState.message}
+      />
     </div>
     </>
   )

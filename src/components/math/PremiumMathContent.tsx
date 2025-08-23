@@ -56,7 +56,11 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     
     let processed = content
     
-    // STEP 1: Clean any existing math tags to start fresh
+    // STEP 1: Handle standard LaTeX delimiters before cleaning
+    processed = processed.replace(/\$\$(.*?)\$\$/gs, '[display]$1[/display]');
+    processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
+    
+    // STEP 2: Clean any existing math tags to start fresh
     processed = processed.replace(/\[math\]|\[\/math\]|\[display\]|\[\/display\]/g, '')
     console.log('🧹 Cleaned existing math tags')
     
@@ -81,10 +85,14 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     // STEP 4: Handle degree symbols
     processed = processed.replace(/(\d+)°/g, '[math]$1^{\\circ}[/math]')
     
-    // STEP 5: Handle other math symbols
+    // STEP 5: Handle other math symbols and advanced patterns
     processed = processed.replace(/\\sin|\\cos|\\tan|\\sqrt\{[^}]+\}/g, (match) => {
       return '[math]' + match + '[/math]'
     })
+    
+    // STEP 6: Wrap additional math patterns
+    processed = processed.replace(/\\int|\\sum|\\prod|\\lim/g, (match) => '[math]' + match + '[/math]');
+    processed = processed.replace(/\\begin\{(matrix|pmatrix|bmatrix|cases|aligned|gather)\}(.*?)\\end\{\1\}/gs, '[display]$0[/display]');
 
     console.log('📝 Content after math wrapping:', processed.substring(0, 200))
 
@@ -187,7 +195,8 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
           throwOnError: false,
           errorColor: '#dc3545',
           strict: false,
-          trust: false,
+          trust: true,
+          minRuleThickness: 0.05,
           macros: {
             "\\RR": "\\mathbb{R}",
             "\\ZZ": "\\mathbb{Z}",
@@ -195,7 +204,24 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
             "\\QQ": "\\mathbb{Q}",
             "\\CC": "\\mathbb{C}",
             "\\degree": "^{\\circ}",
-            "\\degrees": "^{\\circ}"
+            "\\degrees": "^{\\circ}",
+            "\\pd": "\\partial",
+            "\\dd": "\\mathrm{d}",
+            "\\bra": "\\langle #1 |",
+            "\\ket": "| #1 \\rangle",
+            "\\braket": "\\langle #1 | #2 \\rangle",
+            "\\abs": "| #1 |",
+            "\\norm": "\\| #1 \\|",
+            "\\vec": "\\mathbf{#1}",
+            "\\hat": "\\widehat{#1}",
+            "\\tr": "\\operatorname{tr}",
+            "\\det": "\\operatorname{det}",
+            "\\rank": "\\operatorname{rank}",
+            "\\span": "\\operatorname{span}",
+            "\\im": "\\operatorname{im}",
+            "\\ker": "\\operatorname{ker}",
+            "\\Re": "\\operatorname{Re}",
+            "\\Im": "\\operatorname{Im}"
           }
         }
 
@@ -233,7 +259,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
             console.log('✅ Inline math rendered successfully')
           } catch (error) {
             console.warn('KaTeX inline rendering error:', error)
-            container.innerHTML = container.innerHTML.replace(match, `<span class="math-error">${latex}</span>`)
+            container.innerHTML = container.innerHTML.replace(match, `<span class="math-error">Error: ${cleanLatex} (${error.message})</span>`)
           }
         })
 
@@ -269,7 +295,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
             console.log('✅ Display math rendered successfully')
           } catch (error) {
             console.warn('KaTeX display rendering error:', error)
-            container.innerHTML = container.innerHTML.replace(match, `<div class="math-error">${latex}</div>`)
+            container.innerHTML = container.innerHTML.replace(match, `<div class="math-error">Error: ${cleanLatex} (${error.message})</div>`)
           }
         })
 
@@ -427,6 +453,14 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         .premium-math-content :global(.katex-display) {
           margin: 1.2em 0;
           text-align: center;
+        }
+
+        .premium-math-content :global(.katex-display) > :global(.katex) {
+          white-space: normal;
+        }
+
+        .premium-math-content :global(.katex-display) > :global(.base) {
+          margin: 0.25em 0;
         }
 
         .premium-math-content :global(.katex-display .katex) {

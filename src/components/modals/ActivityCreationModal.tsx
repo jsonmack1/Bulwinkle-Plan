@@ -5,6 +5,7 @@ import { useDeviceDetection } from '../ui/ResponsiveLayout'
 
 interface ActivityCreationModalProps {
   isSubMode: boolean
+  onToggleMode: (isSubMode: boolean) => void
   selectedDate: string
   setSelectedDate: (date: string) => void
   gradeLevel: string
@@ -41,6 +42,7 @@ interface ActivityCreationModalProps {
 
 const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
   isSubMode,
+  onToggleMode,
   selectedDate,
   setSelectedDate,
   gradeLevel,
@@ -113,6 +115,39 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
             >
               <X size={deviceType === 'mobile' ? 24 : 20} />
             </button>
+          </div>
+        </div>
+        
+        {/* Teacher/Sub Mode Toggle - Top of Form */}
+        <div className={cn(
+          "bg-gray-50 border-b border-gray-100",
+          deviceType === 'mobile' ? "px-6 py-4" : "px-6 py-4"
+        )}>
+          <div className="flex items-center justify-center">
+            <div className="bg-white rounded-full p-1 shadow-md border border-gray-200">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => onToggleMode(false)}
+                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${
+                    !isSubMode 
+                      ? 'bg-blue-600 text-white shadow-sm' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Teacher Mode
+                </button>
+                <button
+                  onClick={() => onToggleMode(true)}
+                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${
+                    isSubMode 
+                      ? 'bg-green-600 text-white shadow-sm' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Sub Mode
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -249,6 +284,7 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
                 <option value="Music">Music</option>
                 <option value="World Language">World Language</option>
                 <option value="Health">Health</option>
+                <option value="Advisory/SEL">Advisory/SEL</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Other">Other</option>
                 </select>
@@ -378,7 +414,11 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
                   isTouch && "touch-manipulation"
                 )}
               >
-                <option value="30">30 minutes</option>
+                <option value="10">10 minutes (quick check-in)</option>
+                <option value="15">15 minutes (advisory)</option>
+                <option value="20">20 minutes (advisory)</option>
+                <option value="25">25 minutes (advisory)</option>
+                <option value="30">30 minutes (advisory/short class)</option>
                 <option value="45">45 minutes</option>
                 <option value="50">50 minutes (standard period)</option>
                 <option value="60">60 minutes</option>
@@ -410,7 +450,7 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
                     type="text"
                     value={substituteName}
                     onChange={(e) => setSubstituteName(e.target.value)}
-                    placeholder="Name for personalized instructions (not required)"
+                    placeholder="Name for customized instructions (not required)"
                     className={cn(
                       "w-full border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-300 hover:border-gray-300 shadow-sm hover:shadow-md transition-all text-gray-900 placeholder-gray-400",
                       deviceType === 'mobile' 

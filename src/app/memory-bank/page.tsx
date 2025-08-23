@@ -295,7 +295,7 @@ export default function MemoryBankPage() {
           setUpgradeModal({
             show: true,
             featureName: 'Smart Suggestions',
-            featureDescription: 'Get AI-powered recommendations to create similar activities based on your successful lessons.',
+            featureDescription: 'Get intelligent recommendations to create similar activities based on your successful lessons.',
             featureIcon: '🧠'
           })
           return

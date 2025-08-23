@@ -22,7 +22,7 @@ export const StorageLimitPrompt: React.FC<UpgradePromptProps> = ({ onUpgrade, on
             Your Memory Bank is Getting Full!
           </h3>
           <p className="text-sm text-purple-700 mt-1">
-            You've reached your 5-activity limit. Upgrade to Premium to save unlimited activities plus get AI suggestions and insights.
+            You've reached your 5-activity limit. Upgrade to Premium to save unlimited activities plus get intelligent suggestions and insights.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button 
@@ -72,7 +72,7 @@ export const FeatureUpgradeModal: React.FC<UpgradePromptProps & {
             <h4 className="font-medium text-gray-900 mb-2">Premium includes:</h4>
             <ul className="text-sm text-gray-700 space-y-1">
               <li>✨ Unlimited activity storage</li>
-              <li>🧠 AI-powered suggestions</li>
+              <li>🧠 Intelligent suggestions</li>
               <li>📊 Teaching insights & analytics</li>
               <li>📋 Template creation system</li>
               <li>📤 Export & backup options</li>
@@ -117,7 +117,7 @@ export const GentleSuggestionPrompt: React.FC<UpgradePromptProps & {
             Loving the Memory Bank?
           </h3>
           <p className="text-sm text-blue-700 mt-1">
-            You've saved {activityCount} activities! Unlock AI suggestions and unlimited storage with Premium.
+            You've saved {activityCount} activities! Unlock intelligent suggestions and unlimited storage with Premium.
           </p>
           <div className="mt-2 flex space-x-2">
             <button 
@@ -158,7 +158,7 @@ export const SuccessPrompt: React.FC<UpgradePromptProps & {
             Great Success Rate!
           </h3>
           <p className="text-sm text-green-700 mt-1">
-            Your activities average {averageRating.toFixed(1)} stars! Get AI insights to replicate this success with Premium.
+            Your activities average {averageRating.toFixed(1)} stars! Get intelligent insights to replicate this success with Premium.
           </p>
           <div className="mt-2 flex space-x-2">
             <button 

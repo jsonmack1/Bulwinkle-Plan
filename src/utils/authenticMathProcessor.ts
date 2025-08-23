@@ -1,6 +1,6 @@
 /**
  * Authentic Math Content Processor
- * Post-processes AI-generated lesson content to replace generic math expressions
+ * Post-processes intelligently-generated lesson content to replace generic math expressions
  * with authentic, topic-specific mathematical content and step-by-step solutions.
  */
 

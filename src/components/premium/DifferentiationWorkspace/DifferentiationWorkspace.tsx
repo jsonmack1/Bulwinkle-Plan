@@ -410,7 +410,7 @@ const DifferentiationWorkspace: React.FC<DifferentiationWorkspaceProps> = ({
             Generating Smart Adaptations...
           </h3>
           <p className="text-gray-600 max-w-md">
-            Creating personalized differentiation based on {gradeLevel} level. This usually takes 15-25 seconds.
+            Creating differentiated content based on {gradeLevel} level. This usually takes 15-25 seconds.
           </p>
           <div className="mt-4 w-64 bg-gray-200 rounded-full h-2 mx-auto">
             <div className="bg-purple-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>

@@ -248,14 +248,14 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
 
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-6xl mb-4 animate-spin">⚙️</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="text-4xl sm:text-6xl mb-4 animate-spin">⚙️</div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
                 Generating Differentiated Adaptations...
               </h3>
-              <p className="text-gray-600 text-center max-w-md">
-                Creating personalized versions for different learning levels and needs. This may take 30-45 seconds.
+              <p className="text-gray-600 text-center max-w-md font-bold">
+                Differentiating content for different learning levels and needs. This may take 30-45 seconds.
               </p>
-              <div className="mt-4 w-64 bg-gray-200 rounded-full h-2">
+              <div className="mt-4 w-48 sm:w-64 bg-gray-200 rounded-full h-2">
                 <div className="bg-purple-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
               </div>
             </div>

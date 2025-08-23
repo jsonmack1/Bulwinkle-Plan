@@ -308,7 +308,7 @@ Each adaptation should maintain the core learning objectives while addressing sp
     if (!apiResponse.content || !apiResponse.content[0] || !apiResponse.content[0].text) {
       console.error('❌ Invalid API response structure');
       return NextResponse.json(
-        { error: 'Invalid response from AI service' }, 
+        { error: 'Invalid response from intelligent service' }, 
         { status: 500 }
       );
     }
@@ -371,7 +371,7 @@ function parseDifferentiationContent(content: string): DifferentiationResponse {
 function extractSection(content: string, sectionTitle: string): DifferentiationContent {
   console.log(`📋 Extracting section: ${sectionTitle}`);
   
-  // Try multiple regex patterns to catch different AI output formats
+  // Try multiple regex patterns to catch different intelligent output formats
   const patterns = [
     new RegExp(`## ${sectionTitle}([\\s\\S]*?)(?=##|$)`, 'i'),
     new RegExp(`\\*\\*${sectionTitle}\\*\\*([\\s\\S]*?)(?=\\*\\*[A-Z]|$)`, 'i'),

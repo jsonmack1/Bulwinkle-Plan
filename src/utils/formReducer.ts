@@ -255,8 +255,8 @@ export interface FormState {
   specialNotes: string
   showAdvancedOptions: boolean
   
-  // AI states
-  aiProcessing: boolean
+  // Intelligence states
+  intelligenceProcessing: boolean
   generatedActivityId: string
   generatedActivity: string | null
   
@@ -286,7 +286,7 @@ export type FormAction =
   | { type: 'SET_SPECIAL_NOTES'; payload: string }
   | { type: 'SET_SHOW_ADVANCED_OPTIONS'; payload: boolean }
   | { type: 'SET_PROCESSING'; payload: boolean }
-  | { type: 'SET_AI_PROCESSING'; payload: boolean }
+  | { type: 'SET_INTELLIGENCE_PROCESSING'; payload: boolean }
   | { type: 'SET_GENERATED_ACTIVITY_ID'; payload: string }
   | { type: 'SET_GENERATED_ACTIVITY'; payload: string | null }
   | { type: 'SET_ERROR'; payload: string }
@@ -324,8 +324,8 @@ export const initialFormState: FormState = {
   specialNotes: '',
   showAdvancedOptions: false,
   
-  // AI states
-  aiProcessing: false,
+  // Intelligence states
+  intelligenceProcessing: false,
   generatedActivityId: '',
   generatedActivity: null,
   
@@ -395,9 +395,9 @@ export function formReducer(state: FormState, action: FormAction): FormState {
     case 'SET_SHOW_ADVANCED_OPTIONS':
       return { ...state, showAdvancedOptions: action.payload }
     case 'SET_PROCESSING':
-      return { ...state, aiProcessing: action.payload }
-    case 'SET_AI_PROCESSING':
-      return { ...state, aiProcessing: action.payload }
+      return { ...state, intelligenceProcessing: action.payload }
+    case 'SET_INTELLIGENCE_PROCESSING':
+      return { ...state, intelligenceProcessing: action.payload }
     case 'SET_GENERATED_ACTIVITY_ID':
       return { ...state, generatedActivityId: action.payload }
     case 'SET_GENERATED_ACTIVITY':

@@ -23,15 +23,25 @@ function isMathSubject(subject: string, gradeLevel: string): boolean {
   const subj = subject.toLowerCase();
   const grade = gradeLevel.toLowerCase();
   
-  return subj.includes('math') || 
-         subj.includes('calculus') || 
-         subj.includes('algebra') || 
-         subj.includes('geometry') || 
-         subj.includes('trigonometry') || 
-         subj.includes('statistics') || 
-         subj.includes('precalculus') ||
-         grade.includes('ap calculus') ||
-         grade.includes('ap statistics');
+  // Comprehensive math subject detection
+  const mathKeywords = [
+    'math', 'mathematics', 'calculus', 'algebra', 'geometry', 
+    'trigonometry', 'statistics', 'precalculus', 'pre-calculus',
+    'arithmetic', 'number theory', 'discrete math', 'linear algebra',
+    'differential equations', 'integral calculus', 'finite math'
+  ];
+  
+  const mathGrades = [
+    'ap calculus', 'ap statistics', 'ap computer science a'  // CS A has significant math
+  ];
+  
+  // Check subject name
+  const hasSubjectMath = mathKeywords.some(keyword => subj.includes(keyword));
+  
+  // Check grade level
+  const hasGradeMath = mathGrades.some(gradeKeyword => grade.includes(gradeKeyword));
+  
+  return hasSubjectMath || hasGradeMath;
 }
 
 function generateMathEnhancedPrompt(subject: string, gradeLevel: string, topic: string, activityType: string = ''): string {
@@ -415,6 +425,10 @@ function getSubjectThemes(subject: string): string[] {
       return ['Art Studio', 'Creative Workshop', 'Artist\'s Canvas', 'Design Lab', 'Art Gallery', 'Creative Corner', 'Masterpiece Maker']
     case 'music':
       return ['Music Studio', 'Sound Lab', 'Rhythm Workshop', 'Melody Maker', 'Music Academy', 'Band Practice', 'Concert Hall']
+    case 'advisory/sel':
+    case 'advisory':
+    case 'sel':
+      return ['Circle Time', 'Growth Workshop', 'Reflection Corner', 'Community Builder', 'Mindful Moment', 'Connection Circle', 'Life Skills Lab']
     default:
       return ['Learning Lab', 'Knowledge Workshop', 'Discovery Center', 'Study Session', 'Academic Arena', 'Learning Studio', 'Classroom Challenge']
   }
@@ -434,6 +448,10 @@ function getSubjectExamples(subject: string, topic: string): string {
     case 'social studies':
     case 'history':
       return `- "${topic} Time Journey" - historical exploration\n- "Global ${topic} Connections" - cultural focus\n- "${topic} Heritage Hunt" - research focus`
+    case 'advisory/sel':
+    case 'advisory':
+    case 'sel':
+      return `- "${topic} Circle Time" - community building\n- "${topic} Growth Workshop" - skill development\n- "${topic} Reflection Corner" - self-awareness focus`
     default:
       return `- "${topic} Discovery Lab" - exploration focus\n- "${topic} Learning Studio" - skill building\n- "${topic} Knowledge Quest" - research focus`
   }
@@ -536,6 +554,93 @@ Design the activity with developmental progression:
 This is authentic college preparation - create an activity worthy of college credit.`;
 }
 
+function createSubjectSpecificPrompt(subject: string, gradeLevel: string, topic: string, activityType: string): string {
+  const isMath = isMathSubject(subject, gradeLevel);
+  const isSEL = subject.toLowerCase().includes('advisory') || subject.toLowerCase().includes('sel');
+  const isAPCourse = gradeLevel.startsWith('AP ');
+  
+  // Advisory/SEL subjects should NEVER be college-level, even in AP contexts
+  if (isSEL) {
+    return generateSELEnhancementPrompt(subject, gradeLevel, topic, activityType);
+  } else if (isMath) {
+    return generateMathEnhancedPrompt(subject, gradeLevel, topic, activityType);
+  } else {
+    return generateNonMathSubjectPrompt(subject, gradeLevel, topic, activityType);
+  }
+}
+
+function generateNonMathSubjectPrompt(subject: string, gradeLevel: string, topic: string, activityType: string): string {
+  return `
+**NON-MATHEMATICAL CONTENT GENERATION:**
+
+This is a ${subject} lesson for ${gradeLevel} students. ABSOLUTELY NO mathematical notation should be included.
+
+**FORMATTING REQUIREMENTS:**
+- Use regular text formatting only
+- NO [math]...[/math] tags
+- NO LaTeX notation
+- NO fraction notation like \\frac{}{} 
+- NO mathematical expressions or equations
+- Focus on ${subject}-appropriate content and terminology
+
+**Subject-Specific Content for ${topic}:**
+- Use ${subject} vocabulary and concepts
+- Include ${subject}-appropriate examples and applications
+- Focus on skills and knowledge relevant to ${subject}
+- Create engaging activities that connect to ${topic} in meaningful ways
+
+This lesson should feel authentically designed for ${subject} students, not borrowed from mathematics curriculum.`;
+}
+
+function generateSELEnhancementPrompt(subject: string, gradeLevel: string, topic: string, activityType: string): string {
+  return `
+**ADVISORY CONVERSATION APPROACH:**
+
+This is NOT a formal lesson - it's a facilitated conversation for relationship and community building. You are creating content that feels like a caring adult having a thoughtful chat with young people.
+
+**CRITICAL FORMATTING RULE:**
+- ABSOLUTELY NO mathematical notation or equations
+- NO [math]...[/math] tags
+- NO LaTeX expressions like \\frac{}{} 
+- Use ONLY conversational language and regular text formatting
+- This is social-emotional learning, not mathematics
+
+**CONVERSATIONAL PHILOSOPHY:**
+- Teacher is a conversation facilitator, NOT an instructor delivering content
+- Focus on "What do you think?" rather than "What is the right answer?"
+- Students drive the direction through their interests and responses  
+- Feel natural and organic, not scripted or clinical
+- Build relationships and community, not deliver academic content
+
+**CONVERSATION FORMAT:**
+- NO precise time breakdowns (use flexible suggestions like "Start with..." or "When ready to wrap up...")
+- NO formal assessments, rubrics, or grading components
+- NO materials beyond conversation and maybe paper/pen if students want to jot thoughts
+- NO teacher prep burden or complicated setup
+
+**CONTENT STYLE FOR ${topic.toUpperCase()}:**
+- Start with an engaging question or relatable scenario about ${topic} that students naturally want to discuss
+- Provide conversation starters and prompts, NOT step-by-step instructions
+- Include "If the conversation goes toward..." guidance to help teachers navigate different directions
+- Offer multiple ways the discussion might evolve based on student interests
+- Give students voice and choice in where the conversation leads
+
+**CONVERSATION FEEL:**
+- Like a thoughtful circle chat, not a classroom lesson
+- Help students think about themselves, their relationships, and their experiences with ${topic}
+- Simple, meaningful prompts that can spark genuine discussion
+- Options for quiet students to reflect privately or participate in ways that feel comfortable
+- Natural closure that emerges from the conversation rather than forced wrap-up activities
+
+**FACILITATION GUIDANCE:**
+- Provide supportive conversation starters that any caring adult could use
+- Include gentle ways to keep discussion healthy and inclusive
+- Suggest how to honor different perspectives without judgment
+- Offer ideas for drawing out quiet voices without putting anyone on the spot
+
+Create content that feels like the kind of meaningful conversation a trusted mentor might have with young people - supportive, thought-provoking, and relationship-building, but never academic or clinical.`;
+}
+
 function generateTeacherModePrompt(activityData: {
   subject: string;
   gradeLevel: string;
@@ -550,15 +655,19 @@ function generateTeacherModePrompt(activityData: {
   
   const isAPCourse = gradeLevel.startsWith('AP ');
   const isMath = isMathSubject(subject, gradeLevel);
+  const isSEL = subject.toLowerCase().includes('advisory') || subject.toLowerCase().includes('sel');
   const useCER = shouldUseCER(subject, gradeLevel, activityType);
   const fluidCERPrompting = useCER ? getFluidCERPrompting(subject, gradeLevel, topic, activityType) : '';
   const activityNamePrompt = generateActivityNamePrompt(subject, gradeLevel, topic, activityType);
-  const apEnhancement = isAPCourse ? generateAPEnhancement(gradeLevel, topic) : '';
-  const mathEnhancement = isMath ? generateMathEnhancedPrompt(subject, gradeLevel, topic, activityType) : '';
+  // Advisory/SEL subjects should never have AP enhancement, even if gradeLevel suggests AP
+  const apEnhancement = (isAPCourse && !isSEL) ? generateAPEnhancement(gradeLevel, topic) : '';
+  const subjectSpecificEnhancement = createSubjectSpecificPrompt(subject, gradeLevel, topic, activityType);
   
-  const baseInstructions = isAPCourse 
-    ? `You are creating an AP-level activity with authentic college rigor and College Board alignment. This must prepare students for both AP exam success AND genuine college readiness.`
-    : `You are creating a comprehensive, standards-aligned activity for professional teachers. Focus on research-based instructional strategies and activities using common classroom materials.`;
+  const baseInstructions = isSEL 
+    ? `You are creating a developmentally appropriate Advisory/SEL conversation activity focused on relationship-building and social-emotional growth. This is NOT academic instruction.`
+    : (isAPCourse 
+      ? `You are creating an AP-level activity with authentic college rigor and College Board alignment. This must prepare students for both AP exam success AND genuine college readiness.`
+      : `You are creating a comprehensive, standards-aligned activity for professional teachers. Focus on research-based instructional strategies and activities using common classroom materials.`);
   
   return `${baseInstructions}
 
@@ -575,7 +684,7 @@ ACTIVITY SPECIFICATIONS:
 
 ${apEnhancement}
 
-${mathEnhancement}
+${subjectSpecificEnhancement}
 
 **Teaching Insights & Discussion Starters**
 
@@ -739,6 +848,7 @@ function generateSubModePrompt(activityData: {
   
   const isAPCourse = gradeLevel.startsWith('AP ');
   const isMath = isMathSubject(subject, gradeLevel);
+  const isSEL = subject.toLowerCase().includes('advisory') || subject.toLowerCase().includes('sel');
   const useCER = shouldUseCER(subject, gradeLevel, activityType);
   const isElementary = gradeLevel.toLowerCase().includes('prek') || gradeLevel.toLowerCase().includes('k') || 
                       gradeLevel.toLowerCase().includes('1st') || gradeLevel.toLowerCase().includes('2nd') ||
@@ -746,7 +856,13 @@ function generateSubModePrompt(activityData: {
                       gradeLevel.toLowerCase().includes('5th');
   
   const activityNamePrompt = generateActivityNamePrompt(subject, gradeLevel, topic, activityType);
-  const mathEnhancement = isMath ? generateMathEnhancedPrompt(subject, gradeLevel, topic, activityType) : '';
+  
+  // Create subject-specific enhancement for substitute mode
+  const subjectSpecificSubEnhancement = isMath ? generateMathEnhancedPrompt(subject, gradeLevel, topic, activityType) : 
+    (isSEL ? `
+**ADVISORY CONVERSATION FOR SUBSTITUTES:**
+This ${topic} advisory is simply a facilitated conversation - like being a caring adult who asks thoughtful questions and listens. No special training needed! Students will naturally share and reflect. Your job is just to create a welcoming space where they can talk about ${topic} in whatever way feels meaningful to them. Think of it like being a supportive mentor having a chat, not teaching a lesson.` : 
+    generateNonMathSubjectPrompt(subject, gradeLevel, topic, activityType));
   
   const baseInstructions = isAPCourse 
     ? `You are creating a substitute-friendly AP activity that maintains college-level rigor while being manageable for any substitute. Focus on discussion-based college preparation, independent analytical work, and authentic AP-level tasks.`
@@ -765,7 +881,7 @@ SUBSTITUTE ACTIVITY SPECIFICATIONS:
 - Substitute Name: ${substituteName || '[Substitute Teacher]'}
 - Special Notes: ${specialNotes || 'None'}
 
-${mathEnhancement}
+${subjectSpecificSubEnhancement}
 
 SUBSTITUTE-FRIENDLY REQUIREMENTS:
 ${isAPCourse 
@@ -1560,16 +1676,16 @@ export async function POST(request: NextRequest) {
       let errorType = 'server_error';
       
       if (response?.status === 429) {
-        userMessage = 'The AI service is currently experiencing high demand. Please try again in a few minutes.';
+        userMessage = 'The intelligent service is currently experiencing high demand. Please try again in a few minutes.';
         errorType = 'rate_limited';
       } else if (response?.status === 529) {
-        userMessage = 'The AI service is temporarily overloaded. We\'ve generated a high-quality lesson plan using our backup system.';
+        userMessage = 'The intelligent service is temporarily overloaded. We\'ve generated a high-quality lesson plan using our backup system.';
         errorType = 'service_overloaded';
       } else if (response?.status >= 500) {
-        userMessage = 'The AI service is temporarily unavailable. Please try again in a few minutes.';
+        userMessage = 'The intelligent service is temporarily unavailable. Please try again in a few minutes.';
         errorType = 'service_unavailable';
       } else if (!response) {
-        userMessage = 'Unable to connect to the AI service. Please check your internet connection and try again.';
+        userMessage = 'Unable to connect to the intelligent service. Please check your internet connection and try again.';
         errorType = 'network_error';
       }
       

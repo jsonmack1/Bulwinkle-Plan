@@ -116,20 +116,20 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
   return (
     <div className="text-center py-12 max-w-2xl mx-auto">
       {/* Main Progress Icon */}
-      <div className="text-6xl mb-6 animate-bounce">
+      <div className="text-8xl sm:text-[12rem] mb-6 animate-bounce">
         {steps[currentStep]?.icon || "🎯"}
       </div>
       
       {/* Main Status */}
-      <div className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
         {isSubMode ? 'Creating Your Substitute Plan' : 'Crafting Your Lesson Plan'}
       </div>
       
       {/* Current Step Description */}
-      <div className="text-lg text-blue-600 font-semibold mb-1">
+      <div className="text-lg sm:text-2xl text-blue-600 font-semibold mb-1">
         {steps[currentStep]?.label || "Processing..."}
       </div>
-      <div className="text-gray-600 mb-6">
+      <div className="text-base sm:text-xl text-gray-600 mb-6 font-bold">
         {steps[currentStep]?.description || "Working on your lesson plan..."}
       </div>
       
@@ -166,7 +166,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
         {steps.map((step, index) => (
           <div key={step.id} className="flex flex-col items-center flex-1">
             {/* Step Circle */}
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-2 transition-all duration-300 ${
+            <div className={`w-8 h-8 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-sm sm:text-xl font-medium mb-2 transition-all duration-300 ${
               index < currentStep 
                 ? 'bg-green-500 text-white' 
                 : index === currentStep 
@@ -177,7 +177,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
             </div>
             
             {/* Step Label */}
-            <div className={`text-xs text-center transition-colors duration-300 ${
+            <div className={`text-xs sm:text-lg text-center transition-colors duration-300 font-bold ${
               index <= currentStep ? 'text-gray-700 font-medium' : 'text-gray-400'
             }`}>
               {step.label}

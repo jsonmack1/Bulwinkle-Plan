@@ -17,7 +17,7 @@ export interface YouTubeVideo {
   url: string
   embedUrl?: string
   shortUrl?: string // Short youtu.be format URL
-  relevanceScore: number // AI-calculated score 0-100
+  relevanceScore: number // Intelligently-calculated score 0-100
   relevancyReason?: string // Explanation of why this video is relevant
   suggestedTimestamps?: string[] // Key learning moments with timestamps
   safetyAnalysis: VideoSafetyAnalysis

@@ -394,7 +394,7 @@ function generateIntelligentMockResults(
     },
     note: error 
       ? `Mock intelligent search due to error: ${error}` 
-      : 'Mock intelligent search results. Configure YOUTUBE_API_KEY for real YouTube search with AI analysis.'
+      : 'Mock intelligent search results. Configure YOUTUBE_API_KEY for real YouTube search with intelligent analysis.'
   })
 }
 

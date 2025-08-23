@@ -1,5 +1,5 @@
 /**
- * AI Mathematical Reasoning Service
+ * Intelligent Mathematical Reasoning Service
  * Provides dynamic step-by-step solutions for any mathematical expression
  */
 
@@ -11,7 +11,7 @@ const anthropic = new Anthropic({
 })
 
 export async function POST(request: NextRequest) {
-  console.log('🧮 AI Math Solver endpoint called')
+  console.log('🧮 Intelligent Math Solver endpoint called')
   
   try {
     const { prompt } = await request.json()
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const solution = response.content[0]?.type === 'text' ? response.content[0].text : ''
     
-    console.log('✅ AI mathematical reasoning completed')
+    console.log('✅ Intelligent mathematical reasoning completed')
     
     return NextResponse.json({
       success: true,
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: unknown) {
-    console.error('❌ AI Math Solver error:', error)
+    console.error('❌ Intelligent Math Solver error:', error)
     
     return NextResponse.json({
       success: false,

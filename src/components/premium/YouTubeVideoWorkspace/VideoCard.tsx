@@ -385,7 +385,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 {/* Intelligent Search Analysis */}
                 {video.intelligentMetadata && (
                   <div>
-                    <h5 className="text-xs font-medium text-gray-900 mb-1">🧠 AI Analysis</h5>
+                    <h5 className="text-xs font-medium text-gray-900 mb-1">🧠 Intelligent Analysis</h5>
                     <div className="space-y-2">
                       <p className="text-xs text-gray-600 bg-green-50 p-2 rounded border border-green-200">
                         <span className="font-medium">Search Term:</span> {video.intelligentMetadata.searchTerm}

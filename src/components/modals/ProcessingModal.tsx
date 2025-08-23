@@ -14,7 +14,7 @@ const ProcessingModal: React.FC<ProcessingModalProps> = ({ isSubMode, showPrevie
 
           {/* Dynamic Activity Icon */}
           <div className="mb-6 relative">
-            <div className={`w-32 h-32 mx-auto rounded-full flex items-center justify-center ${
+            <div className={`w-32 h-32 sm:w-64 sm:h-64 mx-auto rounded-full flex items-center justify-center ${
               isSubMode 
                 ? 'bg-gradient-to-br from-green-100 to-emerald-100 border-4 border-green-300' 
                 : 'bg-gradient-to-br from-blue-100 to-indigo-100 border-4 border-blue-300'
@@ -22,19 +22,19 @@ const ProcessingModal: React.FC<ProcessingModalProps> = ({ isSubMode, showPrevie
             style={{
               animation: 'bounce-gentle 1.5s ease-in-out infinite'
             }}>
-              <div className={`text-4xl ${isSubMode ? 'text-green-600' : 'text-blue-600'}`}>
+              <div className={`text-4xl sm:text-8xl ${isSubMode ? 'text-green-600' : 'text-blue-600'}`}>
                 {isSubMode ? '👥' : '🎓'}
               </div>
             </div>
           </div>
 
           {/* Title and Messages */}
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <h3 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-4">
             {showPreview ? 'Regenerating Your Activity' : (isSubMode ? 'Creating Your Substitute-Ready Activity' : 'Building Your Professional Activity')}
           </h3>
           
           <div className="h-6">
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-base sm:text-2xl font-bold">
               {isSubMode 
                 ? 'Generating simple, hands-off activities...'
                 : 'Creating comprehensive content with teaching insights...'

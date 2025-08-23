@@ -22,7 +22,7 @@ const bebasNeue = Bebas_Neue({
 
 export const metadata: Metadata = {
   title: "Peabody Lesson Plan Builder - Create Engaging Educational Activities",
-  description: "Professional lesson planning tool for educators. Create, customize, and manage educational activities with AI-powered assistance.",
+  description: "Professional lesson planning tool for educators. Create, customize, and manage educational activities with intelligent assistance.",
   keywords: "lesson plans, education, teaching, activities, classroom management, peabody",
   authors: [{ name: "Peabody College" }],
   appleWebApp: {

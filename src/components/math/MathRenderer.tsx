@@ -38,14 +38,32 @@ const MathRenderer: React.FC<MathRendererProps> = ({
         throwOnError: false,
         errorColor: '#dc3545',
         strict: false,
-        trust: false,
+        trust: true,
+        minRuleThickness: 0.05,
         macros: {
           "\\RR": "\\mathbb{R}",
           "\\ZZ": "\\mathbb{Z}",
           "\\NN": "\\mathbb{N}",
           "\\QQ": "\\mathbb{Q}",
           "\\CC": "\\mathbb{C}",
-          "\\ce": "\\text{#1}"
+          "\\ce": "\\text{#1}",
+          "\\pd": "\\partial",
+          "\\dd": "\\mathrm{d}",
+          "\\bra": "\\langle #1 |",
+          "\\ket": "| #1 \\rangle",
+          "\\braket": "\\langle #1 | #2 \\rangle",
+          "\\abs": "| #1 |",
+          "\\norm": "\\| #1 \\|",
+          "\\vec": "\\mathbf{#1}",
+          "\\hat": "\\widehat{#1}",
+          "\\tr": "\\operatorname{tr}",
+          "\\det": "\\operatorname{det}",
+          "\\rank": "\\operatorname{rank}",
+          "\\span": "\\operatorname{span}",
+          "\\im": "\\operatorname{im}",
+          "\\ker": "\\operatorname{ker}",
+          "\\Re": "\\operatorname{Re}",
+          "\\Im": "\\operatorname{Im}"
         }
       }
 

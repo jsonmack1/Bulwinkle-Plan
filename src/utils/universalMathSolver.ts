@@ -1,6 +1,6 @@
 /**
  * Universal Mathematical Reasoning Engine
- * Dynamically solves ANY mathematical expression using AI-powered analysis
+ * Dynamically solves ANY mathematical expression using intelligent analysis
  * NO hardcoded solutions - pure mathematical reasoning
  */
 
@@ -55,8 +55,8 @@ export class UniversalMathSolver {
       // Step 1: Analyze the mathematical structure (NO hardcoding)
       const analysis = this.analyzeExpressionStructure(expression);
       
-      // Step 2: Generate solution using AI mathematical reasoning
-      const solution = await this.generateAISolution(expression, analysis, topic, gradeLevel);
+      // Step 2: Generate solution using intelligent mathematical reasoning
+      const solution = await this.generateIntelligentSolution(expression, analysis, topic, gradeLevel);
       
       // Step 3: Validate mathematical accuracy
       const validatedSolution = this.validateSolution(solution);
@@ -66,7 +66,7 @@ export class UniversalMathSolver {
       
     } catch (error) {
       console.error('❌ Universal solver error:', error);
-      // Fallback to basic analysis if AI fails
+      // Fallback to basic analysis if intelligence fails
       return this.generateFallbackSolution(expression, gradeLevel);
     }
   }
@@ -109,24 +109,24 @@ export class UniversalMathSolver {
   }
 
   /**
-   * Step 2: Generate AI-powered mathematical solution
+   * Step 2: Generate intelligent mathematical solution
    */
-  private static async generateAISolution(
+  private static async generateIntelligentSolution(
     expression: string, 
     analysis: MathStructureAnalysis, 
     topic: string, 
     gradeLevel: string
   ): Promise<UniversalMathSolution> {
     
-    // Create dynamic AI prompt for mathematical reasoning
+    // Create dynamic intelligent prompt for mathematical reasoning
     const prompt = this.createMathematicalReasoningPrompt(expression, analysis, topic, gradeLevel);
     
     try {
-      // Send to AI for dynamic mathematical reasoning
-      const aiResponse = await this.callMathematicalAI(prompt);
+      // Send to intelligence for dynamic mathematical reasoning
+      const intelligenceResponse = await this.callMathematicalIntelligence(prompt);
       
-      // Parse AI response into structured steps
-      const solution = this.parseAISolution(aiResponse, expression, analysis.primaryType);
+      // Parse intelligent response into structured steps
+      const solution = this.parseIntelligentSolution(intelligenceResponse, expression, analysis.primaryType);
       
       return solution;
       
@@ -192,7 +192,7 @@ Next: [What to do in the following step]`;
   /**
    * Call AI service for mathematical reasoning
    */
-  private static async callMathematicalAI(prompt: string): Promise<string> {
+  private static async callMathematicalIntelligence(prompt: string): Promise<string> {
     // Check if we have Anthropic API access
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error('No AI service available');
@@ -616,7 +616,7 @@ Next: [What to do in the following step]`;
     };
   }
 
-  private static parseAISolution(aiResponse: string, expression: string, type: string): UniversalMathSolution {
+  private static parseIntelligentSolution(intelligenceResponse: string, expression: string, type: string): UniversalMathSolution {
     console.log('📝 Parsing AI mathematical response');
     
     const steps: MathSolutionStep[] = [];
@@ -629,7 +629,7 @@ Next: [What to do in the following step]`;
       let match;
       let stepNumber = 1;
       
-      while ((match = stepRegex.exec(aiResponse)) !== null) {
+      while ((match = stepRegex.exec(intelligenceResponse)) !== null) {
         const [, stepNum, title, expr, reasoning, nextAction] = match;
         
         steps.push({
@@ -647,7 +647,7 @@ Next: [What to do in the following step]`;
       
       // If the regex parsing didn't work well, try simpler parsing
       if (steps.length === 0) {
-        const lines = aiResponse.split('\n').filter(line => line.trim());
+        const lines = intelligenceResponse.split('\n').filter(line => line.trim());
         let currentStep: Partial<MathSolutionStep> = {};
         
         for (const line of lines) {
@@ -692,7 +692,7 @@ Next: [What to do in the following step]`;
       }
       
       // Extract final answer if present
-      const answerMatch = aiResponse.match(/(?:final answer|answer|solution):\s*([^.\n]+)/i);
+      const answerMatch = intelligenceResponse.match(/(?:final answer|answer|solution):\s*([^.\n]+)/i);
       if (answerMatch) {
         finalAnswer = answerMatch[1].trim();
       }
@@ -719,7 +719,7 @@ Next: [What to do in the following step]`;
         title: 'Mathematical Solution',
         expression: expression,
         mathjax: `$${expression}$`,
-        explanation: aiResponse.substring(0, 200) + '...',
+        explanation: intelligenceResponse.substring(0, 200) + '...',
         reasoning: 'AI-generated mathematical reasoning',
         nextAction: 'Review the solution process'
       });
