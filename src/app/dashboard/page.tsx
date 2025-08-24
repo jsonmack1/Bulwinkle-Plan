@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSearchParams } from 'next/navigation';
 import { trackAnalyticsEvent } from '../../lib/usageTracker';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -126,5 +126,20 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

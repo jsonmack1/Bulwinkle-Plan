@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
 
 /**
  * Cancel user subscription
  * POST /api/user/cancel-subscription
+ * TEMPORARILY DISABLED - Stripe not yet configured
  */
+export async function POST(request: NextRequest) {
+  // Temporary response until Stripe is configured
+  return NextResponse.json(
+    { error: 'Subscription management not yet configured' },
+    { status: 501 }
+  );
+}
+
+/* TODO: Uncomment when ready to implement Stripe
+
+import { supabase } from '../../../../lib/supabase';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -17,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's Stripe subscription ID
+    // Get user's subscription details
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('stripe_customer_id, stripe_subscription_id, email, name')
@@ -34,54 +46,41 @@ export async function POST(request: NextRequest) {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
     if (cancelAtPeriodEnd) {
-      // Cancel at end of billing period (default)
+      // Schedule cancellation at period end
       const subscription = await stripe.subscriptions.update(
         userData.stripe_subscription_id,
         {
-          cancel_at_period_end: true,
+          cancel_at_period_end: true
         }
       );
 
-      // Update user record
+      // Update our database
       await supabase
-        .from('users')
+        .from('subscriptions')
         .update({
           subscription_cancel_at_period_end: true,
           updated_at: new Date().toISOString()
         })
-        .eq('id', userId);
+        .eq('stripe_subscription_id', userData.stripe_subscription_id);
 
-      // Log the cancellation
-      await supabase
-        .from('subscription_events')
-        .insert({
-          user_id: userId,
-          event_type: 'subscription_cancel_scheduled',
-          event_data: {
-            subscription_id: userData.stripe_subscription_id,
-            cancel_at_period_end: true,
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString()
-          }
-        });
-
-      // Track analytics
+      // Track analytics event
       await supabase
         .from('analytics_events')
         .insert({
           user_id: userId,
-          event_name: 'subscription_cancel_requested',
-          event_category: 'churn',
+          event_name: 'subscription_cancellation_scheduled',
+          event_category: 'subscription_lifecycle',
           event_properties: {
-            cancel_type: 'at_period_end',
-            subscription_id: userData.stripe_subscription_id
+            subscription_id: userData.stripe_subscription_id,
+            cancel_at_period_end: true,
+            current_period_end: subscription.current_period_end
           }
         });
 
       return NextResponse.json({
         success: true,
         message: 'Subscription will be cancelled at the end of the billing period',
-        cancelAtPeriodEnd: true,
-        periodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+        cancelAtPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
       });
 
     } else {
@@ -90,62 +89,48 @@ export async function POST(request: NextRequest) {
         userData.stripe_subscription_id
       );
 
-      // Update user record
+      // Update our database
       await supabase
-        .from('users')
+        .from('subscriptions')
         .update({
-          subscription_status: 'free',
-          current_plan: 'free',
+          status: 'cancelled',
           stripe_subscription_id: null,
-          subscription_end_date: new Date().toISOString(),
+          cancelled_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', userId);
+        .eq('stripe_subscription_id', userData.stripe_subscription_id);
 
-      // Log the cancellation
-      await supabase
-        .from('subscription_events')
-        .insert({
-          user_id: userId,
-          event_type: 'subscription_cancelled_immediately',
-          event_data: {
-            subscription_id: userData.stripe_subscription_id,
-            cancelled_at: new Date().toISOString()
-          }
-        });
-
-      // Track analytics
+      // Track analytics event
       await supabase
         .from('analytics_events')
         .insert({
           user_id: userId,
           event_name: 'subscription_cancelled_immediately',
-          event_category: 'churn',
+          event_category: 'subscription_lifecycle',
           event_properties: {
-            cancel_type: 'immediate',
-            subscription_id: userData.stripe_subscription_id
+            subscription_id: userData.stripe_subscription_id,
+            cancellation_reason: 'user_request_immediate'
           }
         });
 
       return NextResponse.json({
         success: true,
-        message: 'Subscription has been cancelled immediately',
-        cancelAtPeriodEnd: false
+        message: 'Subscription cancelled immediately',
+        cancelledAt: new Date().toISOString()
       });
     }
 
   } catch (error) {
-    console.error('Subscription cancellation failed:', error);
+    console.error('Subscription cancellation error:', error);
     
     // Track failed cancellation
     try {
-      const body = await request.json();
       await supabase
         .from('analytics_events')
         .insert({
-          user_id: body.userId || null,
-          event_name: 'subscription_cancel_failed',
-          event_category: 'errors',
+          user_id: request.body?.userId || null,
+          event_name: 'subscription_cancellation_failed',
+          event_category: 'subscription_lifecycle',
           event_properties: {
             error: error instanceof Error ? error.message : 'Unknown error'
           }
@@ -164,11 +149,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Reactivate cancelled subscription
- * PUT /api/user/cancel-subscription
- */
-export async function PUT(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId } = body;
@@ -180,7 +161,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Get user's Stripe subscription ID
+    // Get user's subscription details
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('stripe_customer_id, stripe_subscription_id, subscription_cancel_at_period_end')
@@ -189,7 +170,7 @@ export async function PUT(request: NextRequest) {
 
     if (userError || !userData || !userData.stripe_subscription_id) {
       return NextResponse.json(
-        { error: 'No subscription found' },
+        { error: 'No active subscription found' },
         { status: 404 }
       );
     }
@@ -203,66 +184,53 @@ export async function PUT(request: NextRequest) {
 
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-    // Reactivate subscription (remove cancel_at_period_end)
+    // Remove cancellation scheduling
     const subscription = await stripe.subscriptions.update(
       userData.stripe_subscription_id,
       {
-        cancel_at_period_end: false,
+        cancel_at_period_end: false
       }
     );
 
-    // Update user record
+    // Update our database
     await supabase
-      .from('users')
+      .from('subscriptions')
       .update({
         subscription_cancel_at_period_end: false,
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId);
+      .eq('stripe_subscription_id', userData.stripe_subscription_id);
 
-    // Log the reactivation
-    await supabase
-      .from('subscription_events')
-      .insert({
-        user_id: userId,
-        event_type: 'subscription_reactivated',
-        event_data: {
-          subscription_id: userData.stripe_subscription_id,
-          reactivated_at: new Date().toISOString()
-        }
-      });
-
-    // Track analytics
+    // Track analytics event
     await supabase
       .from('analytics_events')
       .insert({
         user_id: userId,
-        event_name: 'subscription_reactivated',
-        event_category: 'retention',
+        event_name: 'subscription_cancellation_removed',
+        event_category: 'subscription_lifecycle',
         event_properties: {
-          subscription_id: userData.stripe_subscription_id
+          subscription_id: userData.stripe_subscription_id,
+          current_period_end: subscription.current_period_end
         }
       });
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription has been reactivated',
-      subscription: {
-        id: subscription.id,
-        status: subscription.status,
-        cancelAtPeriodEnd: false,
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
-      }
+      message: 'Subscription cancellation removed - your subscription will continue',
+      continuesUntil: new Date(subscription.current_period_end * 1000).toISOString()
     });
 
   } catch (error) {
-    console.error('Subscription reactivation failed:', error);
+    console.error('Remove subscription cancellation error:', error);
+    
     return NextResponse.json(
       { 
-        error: 'Failed to reactivate subscription',
+        error: 'Failed to remove subscription cancellation',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );
   }
 }
+
+*/
