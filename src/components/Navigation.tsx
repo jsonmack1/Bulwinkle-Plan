@@ -78,6 +78,15 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                   <span>Home</span>
                 </span>
               </Link>
+              <Link 
+                href="/pricing" 
+                className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+              >
+                <span className="flex items-center space-x-2">
+                  <Crown size={18} />
+                  <span>Pricing</span>
+                </span>
+              </Link>
               {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (
                 <Link 
                   href="/memory-bank" 
@@ -182,6 +191,15 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
             >
               <Home size={20} />
               <span className="font-medium">Home</span>
+            </Link>
+            
+            <Link 
+              href="/pricing"
+              onClick={closeMobileMenu}
+              className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors min-h-touch"
+            >
+              <Crown size={20} />
+              <span className="font-medium">Pricing</span>
             </Link>
             
             {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (

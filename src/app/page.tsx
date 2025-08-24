@@ -1212,19 +1212,19 @@ export default function ActivityLessonBuilder() {
                 {/* Left Column - Header and Subtext */}
                 <div className="flex flex-col justify-center space-y-3 pl-8">
                   {/* Main Title - Left Half */}
-                  <h1 className={`font-bebas text-left text-[80px] xl:text-[100px] font-normal leading-[0.9] bg-gradient-to-r ${
+                  <h1 className={`font-bebas text-left ${formState.isSubMode ? 'text-[75px] xl:text-[90px]' : 'text-[70px] xl:text-[85px]'} font-normal leading-[0.9] bg-gradient-to-r ${
                     formState.isSubMode 
                       ? 'from-green-600 to-emerald-600' 
                       : 'from-blue-600 to-indigo-600'
                   } bg-clip-text text-transparent text-render-optimized`}>
-                    {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Activities in Minutes'}
+                    {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Lesson Planning Doesn\'t Have to Feel Overwhelming'}
                   </h1>
                   
                   {/* Subtitle - Below headline in left half */}
-                  <p className="text-left text-[20px] xl:text-[30px] text-gray-600 leading-[1.1] text-render-optimized font-normal" style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
+                  <p className={`text-left ${formState.isSubMode ? 'text-[25px] xl:text-[38px]' : 'text-[23px] xl:text-[35px]'} text-gray-600 leading-[1.1] text-render-optimized font-normal`} style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
                     {formState.isSubMode 
                       ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
-                      : 'Turn hours of lesson planning into minutes. Create engaging activites your students will love!'
+                      : 'Plan engaging lessons in minutes, and step into the classroom confident and prepared.'
                     }
                   </p>
                 </div>
@@ -1291,19 +1291,19 @@ export default function ActivityLessonBuilder() {
               {/* Mobile/Tablet Layout - Stacked */}
               <div className="lg:hidden">
                 {/* Main Title - Mobile Optimized */}
-                <h1 className={`font-bebas text-center sm:text-left text-[12rem] sm:text-8xl md:text-9xl font-normal mb-4 leading-tight bg-gradient-to-r ${
+                <h1 className={`font-bebas text-center sm:text-left ${formState.isSubMode ? 'text-[11rem] sm:text-8xl md:text-9xl' : 'text-[10rem] sm:text-7xl md:text-8xl'} font-normal mb-4 leading-tight bg-gradient-to-r ${
                   formState.isSubMode 
                     ? 'from-green-600 to-emerald-600' 
                     : 'from-blue-600 to-indigo-600'
                 } bg-clip-text text-transparent px-4 text-render-optimized`}>
-                  {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Build Engaging Activities in Minutes'}
+                  {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Lesson Planning Doesn\'t Have to Feel Overwhelming'}
                 </h1>
                 
                 {/* Subtitle - Mobile Optimized */}
-                <p className="text-center sm:text-left text-lg sm:text-2xl md:text-3xl text-gray-600 leading-relaxed px-4 text-render-optimized font-normal mb-8" style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
+                <p className={`text-center sm:text-left ${formState.isSubMode ? 'text-xl sm:text-3xl md:text-4xl' : 'text-lg sm:text-2xl md:text-3xl'} text-gray-600 leading-relaxed px-4 text-render-optimized font-normal mb-8`} style={{fontFamily: 'Arial Narrow, Arial, sans-serif'}}>
                   {formState.isSubMode 
                     ? 'Save your sanity with sub plans that work for any teacher, any grade, any subject.'
-                    : 'Turn hours of lesson planning into minutes. Create engaging activites your students will love!'
+                    : 'Plan engaging lessons in minutes, and step into the classroom confident and prepared.'
                   }
                 </p>
                 
@@ -1395,6 +1395,71 @@ export default function ActivityLessonBuilder() {
                 <div className="text-6xl mb-4">▶️</div>
                 <p className="text-xl font-semibold">YouTube Video Placeholder</p>
                 <p className="text-sm mt-2">Video embed will be placed here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials Section */}
+      <div className="relative bg-white py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+            What Teachers Are Saying
+          </h2>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Testimonial 1 - Kayla */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl shadow-lg border border-blue-100">
+              <div className="text-4xl text-blue-500 mb-4">"</div>
+              <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                The Intelligent Sub Plans are a life saver! Full scripts and activities that keep the class in order and actually fun!
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  K
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Kayla</div>
+                  <div className="text-gray-600 text-sm">2nd Grade Teacher Special Ed</div>
+                  <div className="text-gray-600 text-xs">Flowery Branch, GA</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 2 - Cindy */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border border-purple-100">
+              <div className="text-4xl text-purple-500 mb-4">"</div>
+              <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                The fact that these are standards aligned is the cherry on top, no going back for me!
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  C
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Cindy</div>
+                  <div className="text-gray-600 text-sm">11th Grade Chemistry</div>
+                  <div className="text-gray-600 text-xs">Valley Stream, NY</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial 3 - Danielle */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-lg border border-green-100">
+              <div className="text-4xl text-green-500 mb-4">"</div>
+              <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                Removes the headaches of lesson planning, it even does the differentiation! So simple.
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  D
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Danielle</div>
+                  <div className="text-gray-600 text-sm">8th Grade Science</div>
+                  <div className="text-gray-600 text-xs">Huntington, NY</div>
+                </div>
               </div>
             </div>
           </div>
