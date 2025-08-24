@@ -114,6 +114,30 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     // Convert markdown bold to HTML
     processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 
+    // Enhance EXIT TICKET sections with prominent styling
+    processed = processed.replace(
+      /(EXIT TICKET[^:]*:?.*?)(\n(?:(?!^(?:\*\*|#|Activity|Phase|Materials|Duration|**[A-Z])).)*)/gims,
+      '<div class="exit-ticket-section">' +
+      '<div class="exit-ticket-header">' +
+      '<span class="exit-ticket-icon">🎯</span>' +
+      '<strong>$1</strong>' +
+      '</div>' +
+      '<div class="exit-ticket-content">$2</div>' +
+      '</div>'
+    )
+    
+    // Also catch variations like "Exit Ticket & Assessment", "Quick Exit Ticket", etc.
+    processed = processed.replace(
+      /((?:Exit Ticket|Quick Exit Ticket)[^:]*:?.*?)(\n(?:(?!^(?:\*\*|#|Activity|Phase|Materials|Duration|**[A-Z])).)*)/gims,
+      '<div class="exit-ticket-section">' +
+      '<div class="exit-ticket-header">' +
+      '<span class="exit-ticket-icon">🎯</span>' +
+      '<strong>$1</strong>' +
+      '</div>' +
+      '<div class="exit-ticket-content">$2</div>' +
+      '</div>'
+    )
+
     // Process bullet lists and paragraphs more intelligently
     const lines = processed.split('\n')
     let inList = false
@@ -442,6 +466,66 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
           color: #1d4ed8;
           box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
           page-break-inside: avoid;
+        }
+
+        /* EXIT TICKET Prominent Styling */
+        .premium-math-content :global(.exit-ticket-section) {
+          background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 10%, #f59e0b 100%);
+          border: 3px solid #d97706;
+          border-radius: 12px;
+          padding: 1.25rem;
+          margin: 2rem 0;
+          box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25), 0 2px 6px rgba(251, 191, 36, 0.2);
+          page-break-inside: avoid;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .premium-math-content :global(.exit-ticket-section::before) {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #dc2626, #ea580c, #d97706, #ca8a04);
+          border-radius: 12px 12px 0 0;
+        }
+
+        .premium-math-content :global(.exit-ticket-header) {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1rem;
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: #92400e;
+        }
+
+        .premium-math-content :global(.exit-ticket-icon) {
+          font-size: 1.5rem;
+          margin-right: 0.75rem;
+          display: inline-block;
+          animation: pulse 2s infinite;
+        }
+
+        .premium-math-content :global(.exit-ticket-content) {
+          color: #78350f;
+          font-weight: 500;
+          line-height: 1.7;
+          background: rgba(255, 255, 255, 0.7);
+          padding: 1rem;
+          border-radius: 8px;
+          border: 1px solid rgba(217, 119, 6, 0.3);
+        }
+
+        .premium-math-content :global(.exit-ticket-content) strong {
+          color: #92400e;
+          font-weight: 700;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
         }
 
         /* KaTeX Integration Styles */

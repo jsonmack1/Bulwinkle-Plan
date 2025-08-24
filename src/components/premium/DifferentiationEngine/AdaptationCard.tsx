@@ -14,6 +14,15 @@ interface AdaptationCardProps {
     behavioral_supports?: string[]
     sensory_accommodations?: string[]
     cognitive_modifications?: string[]
+    exit_ticket?: {
+      format?: string
+      questions?: string[]
+      time_needed?: string
+      language_supports?: string[]
+      visual_supports?: string[]
+      accommodations?: string[]
+      alternative_formats?: string[]
+    }
   }
 }
 
@@ -177,18 +186,152 @@ const AdaptationCard: React.FC<AdaptationCardProps> = ({ title, type, data }) =>
           {data.sensory_accommodations && renderSection('Sensory Accommodations', data.sensory_accommodations, '👂')}
           {data.cognitive_modifications && renderSection('Cognitive Modifications', data.cognitive_modifications, '🧠')}
 
+          {/* Exit Ticket Section - Always show with prominent styling */}
+          {data.exit_ticket && (
+            <div className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h5 className="font-bold text-indigo-800 flex items-center text-lg">
+                  <span className="mr-2 text-xl">🎯</span>
+                  Exit Ticket
+                </h5>
+                <button
+                  onClick={() => {
+                    const exitTicketContent = [
+                      `Exit Ticket Format: ${data.exit_ticket?.format || 'Standard format'}`,
+                      data.exit_ticket?.time_needed ? `Time Needed: ${data.exit_ticket.time_needed}` : '',
+                      data.exit_ticket?.questions?.length ? `Questions:\n• ${data.exit_ticket.questions.join('\n• ')}` : '',
+                      data.exit_ticket?.language_supports?.length ? `Language Supports:\n• ${data.exit_ticket.language_supports.join('\n• ')}` : '',
+                      data.exit_ticket?.visual_supports?.length ? `Visual Supports:\n• ${data.exit_ticket.visual_supports.join('\n• ')}` : '',
+                      data.exit_ticket?.accommodations?.length ? `Accommodations:\n• ${data.exit_ticket.accommodations.join('\n• ')}` : '',
+                      data.exit_ticket?.alternative_formats?.length ? `Alternative Formats:\n• ${data.exit_ticket.alternative_formats.join('\n• ')}` : ''
+                    ].filter(Boolean).join('\n\n')
+                    handleCopy(exitTicketContent, 'Exit Ticket')
+                  }}
+                  className="text-xs px-3 py-1 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
+                  title="Copy Exit Ticket"
+                >
+                  {copiedSection === 'Exit Ticket' ? 'Copied!' : 'Copy Exit Ticket'}
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <span className="font-medium text-indigo-700">Format:</span>
+                  <span className="ml-2 text-gray-800">{data.exit_ticket.format}</span>
+                </div>
+                
+                {data.exit_ticket.time_needed && (
+                  <div>
+                    <span className="font-medium text-indigo-700">Time Needed:</span>
+                    <span className="ml-2 text-gray-800">{data.exit_ticket.time_needed}</span>
+                  </div>
+                )}
+                
+                {data.exit_ticket.questions && data.exit_ticket.questions.length > 0 && (
+                  <div>
+                    <span className="font-medium text-indigo-700 block mb-1">Questions:</span>
+                    <ul className="ml-4 space-y-1">
+                      {data.exit_ticket.questions.map((question, index) => (
+                        <li key={index} className="flex">
+                          <span className="mr-2 text-indigo-500">•</span>
+                          <span className="text-gray-800">{question}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.exit_ticket.language_supports && data.exit_ticket.language_supports.length > 0 && (
+                  <div>
+                    <span className="font-medium text-indigo-700 block mb-1">Language Supports:</span>
+                    <ul className="ml-4 space-y-1">
+                      {data.exit_ticket.language_supports.map((support, index) => (
+                        <li key={index} className="flex">
+                          <span className="mr-2 text-indigo-500">•</span>
+                          <span className="text-gray-800">{support}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.exit_ticket.visual_supports && data.exit_ticket.visual_supports.length > 0 && (
+                  <div>
+                    <span className="font-medium text-indigo-700 block mb-1">Visual Supports:</span>
+                    <ul className="ml-4 space-y-1">
+                      {data.exit_ticket.visual_supports.map((support, index) => (
+                        <li key={index} className="flex">
+                          <span className="mr-2 text-indigo-500">•</span>
+                          <span className="text-gray-800">{support}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.exit_ticket.accommodations && data.exit_ticket.accommodations.length > 0 && (
+                  <div>
+                    <span className="font-medium text-indigo-700 block mb-1">Accommodations:</span>
+                    <ul className="ml-4 space-y-1">
+                      {data.exit_ticket.accommodations.map((accommodation, index) => (
+                        <li key={index} className="flex">
+                          <span className="mr-2 text-indigo-500">•</span>
+                          <span className="text-gray-800">{accommodation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {data.exit_ticket.alternative_formats && data.exit_ticket.alternative_formats.length > 0 && (
+                  <div>
+                    <span className="font-medium text-indigo-700 block mb-1">Alternative Formats:</span>
+                    <ul className="ml-4 space-y-1">
+                      {data.exit_ticket.alternative_formats.map((format, index) => (
+                        <li key={index} className="flex">
+                          <span className="mr-2 text-indigo-500">•</span>
+                          <span className="text-gray-800">{format}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Copy All Button */}
           <div className="mt-4 pt-4 border-t border-gray-200">
             <button
               onClick={() => {
-                const allContent = Object.entries(data)
-                  .filter(([_, value]) => value && Array.isArray(value) && value.length > 0)
-                  .map(([key, value]) => {
-                    const sectionName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                    return `${sectionName}:\n• ${(value as string[]).join('\n• ')}`
-                  })
-                  .join('\n\n')
+                const sections = []
                 
+                // Add regular array sections
+                Object.entries(data)
+                  .filter(([key, value]) => key !== 'exit_ticket' && value && Array.isArray(value) && value.length > 0)
+                  .forEach(([key, value]) => {
+                    const sectionName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                    sections.push(`${sectionName}:\n• ${(value as string[]).join('\n• ')}`)
+                  })
+                
+                // Add exit ticket section
+                if (data.exit_ticket) {
+                  const exitTicketContent = [
+                    `Exit Ticket Format: ${data.exit_ticket.format || 'Standard format'}`,
+                    data.exit_ticket.time_needed ? `Time Needed: ${data.exit_ticket.time_needed}` : '',
+                    data.exit_ticket.questions?.length ? `Questions:\n• ${data.exit_ticket.questions.join('\n• ')}` : '',
+                    data.exit_ticket.language_supports?.length ? `Language Supports:\n• ${data.exit_ticket.language_supports.join('\n• ')}` : '',
+                    data.exit_ticket.visual_supports?.length ? `Visual Supports:\n• ${data.exit_ticket.visual_supports.join('\n• ')}` : '',
+                    data.exit_ticket.accommodations?.length ? `Accommodations:\n• ${data.exit_ticket.accommodations.join('\n• ')}` : '',
+                    data.exit_ticket.alternative_formats?.length ? `Alternative Formats:\n• ${data.exit_ticket.alternative_formats.join('\n• ')}` : ''
+                  ].filter(Boolean).join('\n')
+                  
+                  if (exitTicketContent) {
+                    sections.push(`Exit Ticket:\n${exitTicketContent}`)
+                  }
+                }
+                
+                const allContent = sections.join('\n\n')
                 const fullContent = `${title}\n\n${allContent}`
                 handleCopy(fullContent, 'entire adaptation')
               }}

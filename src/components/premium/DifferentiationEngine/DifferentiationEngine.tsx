@@ -17,18 +17,33 @@ interface DifferentiationContent {
   instructions: string[]
   modifications: string[]
   materials_changes?: string[]
+  exit_ticket: {
+    format: string
+    questions: string[]
+    time_needed: string
+  }
 }
 
 interface ESLAdaptations {
   vocabulary_support: string[]
   visual_aids: string[]
   language_scaffolds: string[]
+  exit_ticket: {
+    format: string
+    language_supports: string[]
+    visual_supports: string[]
+  }
 }
 
 interface IEPAdaptations {
   behavioral_supports: string[]
   sensory_accommodations: string[]
   cognitive_modifications: string[]
+  exit_ticket: {
+    format: string
+    accommodations: string[]
+    alternative_formats: string[]
+  }
 }
 
 interface DifferentiationData {
@@ -133,6 +148,18 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
       sections.push(`Materials Changes:\n• ${adaptation.materials_changes.join('\n• ')}`)
     }
     
+    // Add exit ticket section
+    if (adaptation.exit_ticket) {
+      const exitTicketSection = [`Exit Ticket Format: ${adaptation.exit_ticket.format}`]
+      if (adaptation.exit_ticket.questions?.length) {
+        exitTicketSection.push(`Questions:\n• ${adaptation.exit_ticket.questions.join('\n• ')}`)
+      }
+      if (adaptation.exit_ticket.time_needed) {
+        exitTicketSection.push(`Time Needed: ${adaptation.exit_ticket.time_needed}`)
+      }
+      sections.push(`Exit Ticket:\n${exitTicketSection.join('\n')}`)
+    }
+    
     return sections.join('\n\n')
   }
 
@@ -147,6 +174,18 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
     }
     if (adaptation.language_scaffolds?.length) {
       sections.push(`Language Scaffolds:\n• ${adaptation.language_scaffolds.join('\n• ')}`)
+    }
+    
+    // Add exit ticket section
+    if (adaptation.exit_ticket) {
+      const exitTicketSection = [`Exit Ticket Format: ${adaptation.exit_ticket.format}`]
+      if (adaptation.exit_ticket.language_supports?.length) {
+        exitTicketSection.push(`Language Supports:\n• ${adaptation.exit_ticket.language_supports.join('\n• ')}`)
+      }
+      if (adaptation.exit_ticket.visual_supports?.length) {
+        exitTicketSection.push(`Visual Supports:\n• ${adaptation.exit_ticket.visual_supports.join('\n• ')}`)
+      }
+      sections.push(`Exit Ticket:\n${exitTicketSection.join('\n')}`)
     }
     
     return sections.join('\n\n')
@@ -165,7 +204,54 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
       sections.push(`Cognitive Modifications:\n• ${adaptation.cognitive_modifications.join('\n• ')}`)
     }
     
+    // Add exit ticket section
+    if (adaptation.exit_ticket) {
+      const exitTicketSection = [`Exit Ticket Format: ${adaptation.exit_ticket.format}`]
+      if (adaptation.exit_ticket.accommodations?.length) {
+        exitTicketSection.push(`Accommodations:\n• ${adaptation.exit_ticket.accommodations.join('\n• ')}`)
+      }
+      if (adaptation.exit_ticket.alternative_formats?.length) {
+        exitTicketSection.push(`Alternative Formats:\n• ${adaptation.exit_ticket.alternative_formats.join('\n• ')}`)
+      }
+      sections.push(`Exit Ticket:\n${exitTicketSection.join('\n')}`)
+    }
+    
     return sections.join('\n\n')
+  }
+
+  // Helper function to check if a differentiation card has meaningful content
+  const hasContent = (data: any): boolean => {
+    if (!data) return false
+    
+    // Check all possible array fields for content
+    const arrayFields = [
+      'talk_track', 'instructions', 'modifications', 'materials_changes',
+      'vocabulary_support', 'visual_aids', 'language_scaffolds',
+      'behavioral_supports', 'sensory_accommodations', 'cognitive_modifications'
+    ]
+    
+    const hasArrayContent = arrayFields.some(field => {
+      const fieldData = data[field]
+      return fieldData && Array.isArray(fieldData) && 
+             fieldData.length > 0 && 
+             !fieldData.every(item => 
+               !item || 
+               item === 'No content generated' || 
+               item.includes('No ') && item.includes(' generated')
+             )
+    })
+    
+    // Check exit ticket content
+    const hasExitTicketContent = data.exit_ticket && (
+      (data.exit_ticket.questions && data.exit_ticket.questions.length > 0 && 
+       !data.exit_ticket.questions.every(q => !q || q.includes('No ') || q === 'What did you learn today?')) ||
+      (data.exit_ticket.language_supports && data.exit_ticket.language_supports.length > 0) ||
+      (data.exit_ticket.visual_supports && data.exit_ticket.visual_supports.length > 0) ||
+      (data.exit_ticket.accommodations && data.exit_ticket.accommodations.length > 0) ||
+      (data.exit_ticket.alternative_formats && data.exit_ticket.alternative_formats.length > 0)
+    )
+    
+    return hasArrayContent || hasExitTicketContent
   }
 
   return (
@@ -289,35 +375,45 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <AdaptationCard
-                  title={differentiationData.below_grade.title}
-                  type="below"
-                  data={differentiationData.below_grade}
-                />
+                {hasContent(differentiationData.below_grade) && (
+                  <AdaptationCard
+                    title={differentiationData.below_grade.title}
+                    type="below"
+                    data={differentiationData.below_grade}
+                  />
+                )}
                 
-                <AdaptationCard
-                  title={differentiationData.at_grade.title}
-                  type="at"
-                  data={differentiationData.at_grade}
-                />
+                {hasContent(differentiationData.at_grade) && (
+                  <AdaptationCard
+                    title={differentiationData.at_grade.title}
+                    type="at"
+                    data={differentiationData.at_grade}
+                  />
+                )}
                 
-                <AdaptationCard
-                  title={differentiationData.above_grade.title}
-                  type="above"
-                  data={differentiationData.above_grade}
-                />
+                {hasContent(differentiationData.above_grade) && (
+                  <AdaptationCard
+                    title={differentiationData.above_grade.title}
+                    type="above"
+                    data={differentiationData.above_grade}
+                  />
+                )}
                 
-                <AdaptationCard
-                  title={differentiationData.esl_adaptations.title}
-                  type="esl"
-                  data={differentiationData.esl_adaptations}
-                />
+                {hasContent(differentiationData.esl_adaptations) && (
+                  <AdaptationCard
+                    title={differentiationData.esl_adaptations.title}
+                    type="esl"
+                    data={differentiationData.esl_adaptations}
+                  />
+                )}
                 
-                <AdaptationCard
-                  title={differentiationData.iep_adaptations.title}
-                  type="iep"
-                  data={differentiationData.iep_adaptations}
-                />
+                {hasContent(differentiationData.iep_adaptations) && (
+                  <AdaptationCard
+                    title={differentiationData.iep_adaptations.title}
+                    type="iep"
+                    data={differentiationData.iep_adaptations}
+                  />
+                )}
               </div>
             </div>
           )}
