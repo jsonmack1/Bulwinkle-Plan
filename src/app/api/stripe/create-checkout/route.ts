@@ -22,8 +22,10 @@ export async function POST(request: NextRequest) {
     { error: 'Stripe checkout not yet configured' },
     { status: 501 }
   );
+}
 
-  /* TODO: Uncomment when ready to implement Stripe
+/* TODO: Uncomment when ready to implement Stripe
+export async function POST(request: NextRequest) {
   try {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     
