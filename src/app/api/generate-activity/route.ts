@@ -787,14 +787,39 @@ ${isAPCourse
   : `Help students see bigger connections and applications of ${topic}.`}
 ${useCER ? '- Students deepen their reasoning and consider alternative explanations using guided prompting' : ''}
 
-**Wrap-Up & ${isAPCourse ? `Self-Assessment` : `Check Understanding`} (${Math.ceil(parseInt(duration) * 0.15)} minutes)**
+**Exit Ticket & ${isAPCourse ? `Self-Assessment` : `Check Understanding`} (${Math.ceil(parseInt(duration) * 0.15)} minutes)**
+
+**EXIT TICKET (Required for all lessons):**
+Generate an appropriate exit ticket that helps solidify today's learning about ${topic}. The exit ticket should:
+- Be quick to complete (2-3 minutes maximum)
+- Directly assess the key learning objectives
+- Be appropriate for ${gradeLevel} students
+- Help students reflect on their understanding of ${topic}
+- Allow teachers to quickly gauge learning effectiveness
+
+Choose ONE format that best fits this ${topic} lesson:
 ${isAPCourse 
-  ? `College-level closure and self-evaluation:
+  ? `**AP-Level Exit Ticket Options:**
+- **Analytical Response:** One focused question requiring evidence-based reasoning about ${topic} with college-level expectations
+- **Connection Challenge:** Connect today's ${topic} learning to broader course themes and real-world applications  
+- **Self-Assessment Matrix:** Students evaluate their mastery against specific AP learning objectives
+- **Essential Question Reflection:** Address how today's work advances their understanding of course essential questions`
+  : `**Exit Ticket Format Options:**
+- **3-2-1 Ticket:** 3 things learned about ${topic}, 2 questions remaining, 1 connection to real life
+- **Quick Check Questions:** 2-3 focused questions directly testing ${topic} understanding
+- **Reflection Prompt:** One thoughtful question about today's ${topic} learning
+- **Apply & Explain:** Brief scenario where students apply ${topic} knowledge and explain their thinking
+- **Scale & Explain:** Rate understanding 1-5 and explain what helped or challenged them with ${topic}`}
+
+${isAPCourse 
+  ? `**College-level closure and self-evaluation:**
 - Students assess their work against AP/college standards
 - Identify areas for continued growth and development
 - Connect learning to upcoming coursework and assessments
 - Reflect on skill development and academic growth`
-  : `Simple but effective ways to assess learning using basic classroom methods.`}
+  : `**Additional wrap-up activities:**
+- Simple but effective ways to assess learning using basic classroom methods
+- Quick discussion of key takeaways`}
 ${useCER ? '- Quick opportunity for students to share their strongest claim and evidence about ' + topic : ''}
 
 **${isAPCourse ? `Scaffolded Support Options` : `Differentiation Options`}**
@@ -949,9 +974,27 @@ ${useCER && !isElementary ? '**If students want to explain their thinking:** "Wr
 **Students do:** [Simple reading activity with written response about ${topic}]
 **Your job:** Help with reading difficulties, encourage thoughtful responses
 
-**Closing Circle (${Math.ceil(parseInt(duration) * 0.2)} minutes)**
+**Exit Ticket & Closing (${Math.ceil(parseInt(duration) * 0.2)} minutes)**
+
+**QUICK EXIT TICKET (2-3 minutes):**
+**Say:** "Before we finish, everyone will complete a quick exit ticket about ${topic}."
+**Give students a simple exit ticket - choose the easiest option:**
+
+**Option A: 3-2-1 Exit Ticket**
+Write on board: "3 things you learned about ${topic}, 2 questions you have, 1 way this connects to your life"
+
+**Option B: Simple Reflection**  
+Write on board: "What's the most important thing you learned about ${topic} today? Explain why."
+
+**Option C: Quick Check**
+Ask 2 simple questions about ${topic} that students can answer based on today's work
+
+**Students do:** Write responses quietly on paper (2-3 minutes max)
+**Your job:** Walk around, encourage complete sentences, collect papers when done
+
+**Closing Circle (2-3 minutes)**
 **Say:** "Let's share one new thing we learned about ${topic} today."
-**Students do:** Take turns sharing one insight (keep it quick)
+**Students do:** Take turns sharing one insight (keep it quick)  
 **Write on board:** "New Learning About ${topic}:" [List 3-4 key insights]
 **End with:** "Great thinking today! Your teacher will be impressed with your learning."
 
@@ -1122,7 +1165,10 @@ ${generateApplicationPhase(activityData.topic, activityData.subject, activityDat
 **Phase 3: Connect & Extend (${Math.ceil(duration * 0.15)} minutes)**
 ${generateExtensionPhase(activityData.topic, activityData.subject, activityData.gradeLevel, isAP)}
 
-**Wrap-Up & Assessment (${Math.ceil(duration * 0.15)} minutes)**
+**Exit Ticket & Assessment (${Math.ceil(duration * 0.15)} minutes)**
+${generateExitTicketPhase(activityData.topic, activityData.subject, activityData.gradeLevel, isAP)}
+
+**Additional Wrap-Up:**
 ${generateWrapUpPhase(activityData.topic, activityData.subject, isAP)}
 
 **Differentiation Options**
@@ -1169,7 +1215,10 @@ ${practiceProblems}` : ''}
 **Main Activity (${Math.ceil(duration * 0.6)} minutes)**
 ${generateSubstituteMainActivity(activityData.topic, activityData.subject, duration)}
 
-**Closing (${Math.ceil(duration * 0.2)} minutes)**
+**Exit Ticket & Closing (${Math.ceil(duration * 0.2)} minutes)**
+${generateSubstituteExitTicket(activityData.topic)}
+
+**Wrap-up:**
 ${generateSubstituteClosing(activityData.topic)}
 
 **Classroom Management**
@@ -1225,11 +1274,44 @@ function generateExtensionPhase(topic: string, subject: string, gradeLevel: stri
   return `Help students connect ${topic} to other areas of study and real-world applications. Discuss how this knowledge builds toward future learning.`
 }
 
+function generateExitTicketPhase(topic: string, subject: string, gradeLevel: string, isAP: boolean): string {
+  const grade = gradeLevel.toLowerCase();
+  
+  if (isAP) {
+    return `**EXIT TICKET: ${topic} Analysis (3-4 minutes)**
+Create one focused question that requires students to analyze or synthesize their ${topic} learning:
+- Connect ${topic} to broader course themes and real-world applications
+- Require evidence-based reasoning appropriate for college-level work  
+- Assess mastery of today's specific ${topic} learning objectives
+- Example: "Based on today's investigation of ${topic}, construct an argument for how this concept applies to [relevant real-world scenario]. Support your reasoning with specific evidence from our work."
+
+Students complete individually and submit - this provides immediate feedback on lesson effectiveness and individual understanding.`
+  } else if (grade.includes('elementary') || grade.includes('1st') || grade.includes('2nd') || grade.includes('3rd') || grade.includes('4th') || grade.includes('5th')) {
+    return `**EXIT TICKET: ${topic} Check-In (2-3 minutes)**
+Use a simple, engaging format appropriate for elementary students:
+- **Picture & Explain:** Draw one thing you learned about ${topic} and write one sentence explaining it
+- **Thumbs Up Check:** Rate your understanding of ${topic} (thumbs up, sideways, down) and write why
+- **Simple Question:** Ask one focused question that checks if students understood the main ${topic} concept
+- Keep language simple and provide visual supports if helpful
+
+This quick check helps you see who grasped the key ${topic} ideas and who might need additional support tomorrow.`
+  } else {
+    return `**EXIT TICKET: ${topic} Reflection (2-3 minutes)**
+Choose the format that best assesses today's ${topic} learning:
+- **3-2-1 Ticket:** 3 things learned about ${topic}, 2 questions remaining, 1 real-world connection
+- **Quick Application:** Brief scenario where students apply ${topic} knowledge and explain their thinking  
+- **Scale & Justify:** Rate understanding 1-5 and explain what helped or challenged them with ${topic}
+- **Key Concept Check:** 1-2 focused questions that directly assess the main ${topic} learning objectives
+
+Students complete on paper - collect these to inform tomorrow's instruction and identify who needs additional ${topic} support.`
+  }
+}
+
 function generateWrapUpPhase(topic: string, subject: string, isAP: boolean): string {
   if (isAP) {
     return `Students assess their own work against college-level standards and identify areas for continued growth. Connect to upcoming coursework and college preparation.`
   }
-  return `Review key concepts through quick assessment strategies. Use exit tickets or brief discussions to gauge understanding.`
+  return `Review key concepts through quick discussion. Ask students to share one insight that will stick with them about ${topic}.`
 }
 
 function generateDifferentiation(gradeLevel: string, isAP: boolean): string {
@@ -1281,6 +1363,24 @@ Students think and write about ${topic}. Walk around quietly, encourage detailed
 
 **Option B: Independent Reading (${Math.ceil(duration * 0.6)} minutes)**
 Students read about ${topic} and respond to simple questions. Help with reading difficulties.`
+}
+
+function generateSubstituteExitTicket(topic: string): string {
+  return `**QUICK EXIT TICKET (2-3 minutes):**
+**Say:** "Before we finish, everyone will complete a quick exit ticket about ${topic}."
+**Choose the simplest option:**
+
+**Option A: 3-2-1 Exit Ticket**
+Write on board: "3 things you learned about ${topic}, 2 questions you have, 1 way this connects to your life"
+
+**Option B: Simple Reflection**  
+Write on board: "What's the most important thing you learned about ${topic} today? Explain why."
+
+**Option C: Quick Check**
+Ask 2 simple questions about ${topic} that students can answer based on today's work
+
+**Students do:** Write responses quietly on paper (2-3 minutes max)
+**Your job:** Walk around, encourage complete sentences, collect papers when done`
 }
 
 function generateSubstituteClosing(topic: string): string {

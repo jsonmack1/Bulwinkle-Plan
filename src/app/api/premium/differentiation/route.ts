@@ -16,18 +16,33 @@ interface DifferentiationContent {
   instructions: string[];
   modifications: string[];
   materials_changes?: string[];
+  exit_ticket: {
+    format: string;
+    questions: string[];
+    time_needed: string;
+  };
 }
 
 interface ESLAdaptations {
   vocabulary_support: string[];
   visual_aids: string[];
   language_scaffolds: string[];
+  exit_ticket: {
+    format: string;
+    language_supports: string[];
+    visual_supports: string[];
+  };
 }
 
 interface IEPAdaptations {
   behavioral_supports: string[];
   sensory_accommodations: string[];
   cognitive_modifications: string[];
+  exit_ticket: {
+    format: string;
+    accommodations: string[];
+    alternative_formats: string[];
+  };
 }
 
 interface DifferentiationResponse {
@@ -168,6 +183,10 @@ ${requestedTypes.includes('below_grade') ? `
 - [Reduced complexity while maintaining core learning]
 - [Additional support strategies]
 **Materials Changes:** [Simplified or additional support materials]
+**Exit Ticket Adaptation:**
+- **Format:** [Choose: Simple Choice, Picture Response, or One Question - describe the specific format]
+- **Questions:** [1-2 very simple questions about ${data.topic} using basic vocabulary]
+- **Time Needed:** [Usually 1-2 minutes for below-grade students]
 ` : ''}
 
 ${requestedTypes.includes('at_grade') ? `
@@ -183,6 +202,10 @@ ${requestedTypes.includes('at_grade') ? `
 - [Core standards alignment]
 - [Appropriate expectations]
 **Materials Changes:** [Standard materials]
+**Exit Ticket Adaptation:**
+- **Format:** [Choose: 3-2-1, Quick Check, or Reflection - describe the specific format for ${data.topic}]
+- **Questions:** [2-3 grade-level appropriate questions about ${data.topic}]
+- **Time Needed:** [Usually 2-3 minutes for grade-level students]
 ` : ''}
 
 ${requestedTypes.includes('above_grade') ? `
@@ -198,6 +221,10 @@ ${requestedTypes.includes('above_grade') ? `
 - [Higher-order thinking challenges]
 - [Creative and analytical extensions]
 **Materials Changes:** [Advanced or additional materials]
+**Exit Ticket Adaptation:**
+- **Format:** [Choose: Analysis & Synthesis, Extension Challenge, or Connection Making - describe the specific format]
+- **Questions:** [2-3 higher-order thinking questions about ${data.topic} requiring analysis, evaluation, or creation]
+- **Time Needed:** [Usually 3-4 minutes for above-grade students to complete thoughtful responses]
 ` : ''}
 
 ${requestedTypes.includes('esl_adaptations') ? `
@@ -212,6 +239,10 @@ ${requestedTypes.includes('esl_adaptations') ? `
 **Language Scaffolds:**
 - [Sentence frames and communication supports]
 - [Peer partnership strategies]
+**Exit Ticket Adaptation:**
+- **Format:** [Choose: Picture + Word, Sentence Frames, or Native Language Support - describe the specific format]
+- **Language Supports:** [Simplified vocabulary, sentence starters, key terms in native language if helpful]
+- **Visual Supports:** [Icons, diagrams, or pictures to support understanding of ${data.topic} questions]
 ` : ''}
 
 ${shouldGenerateIEP ? `
@@ -243,6 +274,12 @@ Create 4-5 cognitive modifications that specifically address the thinking demand
 - What memory strategies work best for ${data.subject} content?
 - How can abstract ${data.topic} ideas be made more concrete and accessible?
 - What organizational tools specifically support ${data.activityType} learning?
+
+**Exit Ticket Adaptation:**
+Create a specific exit ticket format that addresses the unique needs of students with IEP accommodations for ${data.topic}:
+- **Format:** [Choose: Alternative Response, Modified Questions, or Multi-modal Options - describe the specific format]
+- **Accommodations:** [Specific accommodations for completing the exit ticket - extended time, alternative format, assistive technology, etc.]
+- **Alternative Formats:** [Different ways students can demonstrate ${data.topic} understanding - verbal, visual, hands-on, digital, etc.]
 
 IMPORTANT: Generate SPECIFIC, CONTEXTUAL accommodations based on the actual lesson content, not generic IEP strategies. Each accommodation should clearly connect to the specific challenges and opportunities within this ${data.topic} lesson.
 ` : ''}
@@ -434,7 +471,12 @@ function extractSection(content: string, sectionTitle: string): DifferentiationC
         `Adapt content difficulty as appropriate`,
         `Provide additional time if needed`,
         `Offer alternative ways to demonstrate understanding`
-      ]
+      ],
+      exit_ticket: {
+        format: 'Simple reflection format appropriate for learning level',
+        questions: ['What did you learn today?', 'What questions do you have?'],
+        time_needed: '2-3 minutes'
+      }
     };
   }
 
@@ -446,7 +488,12 @@ function extractSection(content: string, sectionTitle: string): DifferentiationC
     talk_track: extractList(sectionContent, 'Teacher Talk Track'),
     instructions: extractList(sectionContent, 'Modified Instructions'),
     modifications: extractList(sectionContent, 'Key Modifications'),
-    materials_changes: extractList(sectionContent, 'Materials Changes')
+    materials_changes: extractList(sectionContent, 'Materials Changes'),
+    exit_ticket: {
+      format: extractField(sectionContent, 'Format') || 'Standard reflection format',
+      questions: extractList(sectionContent, 'Questions'),
+      time_needed: extractField(sectionContent, 'Time Needed') || '2-3 minutes'
+    }
   };
   
   console.log(`📋 Final extracted data for ${sectionTitle}:`, extracted);
@@ -463,7 +510,12 @@ function extractESLSection(content: string): ESLAdaptations & { title: string } 
       title: 'ESL-Friendly Version',
       vocabulary_support: ['No vocabulary support generated'],
       visual_aids: ['No visual aids generated'],
-      language_scaffolds: ['No language scaffolds generated']
+      language_scaffolds: ['No language scaffolds generated'],
+      exit_ticket: {
+        format: 'Simple picture and word format',
+        language_supports: ['Use simple vocabulary', 'Provide sentence frames'],
+        visual_supports: ['Include pictures or icons', 'Use graphic organizers']
+      }
     };
   }
 
@@ -473,7 +525,12 @@ function extractESLSection(content: string): ESLAdaptations & { title: string } 
     title: extractField(sectionContent, 'Adaptation Title') || 'ESL-Friendly Version',
     vocabulary_support: extractList(sectionContent, 'Vocabulary Support'),
     visual_aids: extractList(sectionContent, 'Visual Aids'),
-    language_scaffolds: extractList(sectionContent, 'Language Scaffolds')
+    language_scaffolds: extractList(sectionContent, 'Language Scaffolds'),
+    exit_ticket: {
+      format: extractField(sectionContent, 'Format') || 'Picture and word format',
+      language_supports: extractList(sectionContent, 'Language Supports'),
+      visual_supports: extractList(sectionContent, 'Visual Supports')
+    }
   };
 }
 
@@ -487,7 +544,12 @@ function extractIEPSection(content: string): IEPAdaptations & { title: string } 
       title: 'IEP Accommodations Version',
       behavioral_supports: ['No behavioral supports generated'],
       sensory_accommodations: ['No sensory accommodations generated'],
-      cognitive_modifications: ['No cognitive modifications generated']
+      cognitive_modifications: ['No cognitive modifications generated'],
+      exit_ticket: {
+        format: 'Multi-modal response options',
+        accommodations: ['Extended time if needed', 'Alternative response formats'],
+        alternative_formats: ['Verbal response', 'Visual demonstration', 'Digital submission']
+      }
     };
   }
 
@@ -497,7 +559,12 @@ function extractIEPSection(content: string): IEPAdaptations & { title: string } 
     title: extractField(sectionContent, 'Adaptation Title') || 'IEP Accommodations Version',
     behavioral_supports: extractList(sectionContent, 'Behavioral Supports'),
     sensory_accommodations: extractList(sectionContent, 'Sensory Accommodations'),
-    cognitive_modifications: extractList(sectionContent, 'Cognitive Modifications')
+    cognitive_modifications: extractList(sectionContent, 'Cognitive Modifications'),
+    exit_ticket: {
+      format: extractField(sectionContent, 'Format') || 'Multi-modal response options',
+      accommodations: extractList(sectionContent, 'Accommodations'),
+      alternative_formats: extractList(sectionContent, 'Alternative Formats')
+    }
   };
 }
 
