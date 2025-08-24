@@ -111,32 +111,30 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     processed = processed.replace(/^## (.*$)/gm, '<h2>$1</h2>')
     processed = processed.replace(/^# (.*$)/gm, '<h1>$1</h1>')
 
-    // Convert markdown bold to HTML
-    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-
-    // Enhance EXIT TICKET sections with prominent styling
+    // Enhance EXIT TICKET sections with prominent styling BEFORE converting bold
     processed = processed.replace(
-      /(EXIT TICKET[^:]*:?.*?)(\n(?:(?!^(?:\*\*|#|Activity|Phase|Materials|Duration|**[A-Z])).)*)/gims,
+      /\*\*(EXIT TICKET[^*]*)\*\*/gi,
       '<div class="exit-ticket-section">' +
       '<div class="exit-ticket-header">' +
       '<span class="exit-ticket-icon">🎯</span>' +
       '<strong>$1</strong>' +
       '</div>' +
-      '<div class="exit-ticket-content">$2</div>' +
       '</div>'
     )
     
     // Also catch variations like "Exit Ticket & Assessment", "Quick Exit Ticket", etc.
     processed = processed.replace(
-      /((?:Exit Ticket|Quick Exit Ticket)[^:]*:?.*?)(\n(?:(?!^(?:\*\*|#|Activity|Phase|Materials|Duration|**[A-Z])).)*)/gims,
+      /\*\*((?:Exit Ticket|Quick Exit Ticket)[^*]*)\*\*/gi,
       '<div class="exit-ticket-section">' +
       '<div class="exit-ticket-header">' +
       '<span class="exit-ticket-icon">🎯</span>' +
       '<strong>$1</strong>' +
       '</div>' +
-      '<div class="exit-ticket-content">$2</div>' +
       '</div>'
     )
+
+    // Convert remaining markdown bold to HTML
+    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 
     // Process bullet lists and paragraphs more intelligently
     const lines = processed.split('\n')
