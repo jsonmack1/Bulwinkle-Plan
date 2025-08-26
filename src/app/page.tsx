@@ -1209,8 +1209,8 @@ export default function ActivityLessonBuilder() {
               
               {/* Desktop Hero Layout - Left Text, Right CTA */}
               <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 lg:h-[50vh] lg:items-center mb-8">
-                {/* Left Column - Header and Subtext */}
-                <div className="flex flex-col justify-center space-y-3 pl-8">
+                {/* Left Column - Header, Subtext, and Value Props */}
+                <div className="flex flex-col justify-center space-y-6 pl-8">
                   {/* Main Title - Left Half */}
                   <h1 className={`font-bebas text-left ${formState.isSubMode ? 'text-[75px] xl:text-[90px]' : 'text-[70px] xl:text-[85px]'} font-normal leading-[0.9] bg-gradient-to-r ${
                     formState.isSubMode 
@@ -1227,64 +1227,80 @@ export default function ActivityLessonBuilder() {
                       : 'Plan engaging lessons in minutes, and step into the classroom confident and prepared.'
                     }
                   </p>
+
+                  {/* Value Propositions - List format with green checkmarks */}
+                  <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20">
+                    <div className="space-y-3">
+                      {formState.isSubMode ? (
+                        // Sub Mode Value Props
+                        <>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">No prep required - just print and go</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">Step-by-step scripts any substitute can follow</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">Works for any subject, K-12, any time of year</span>
+                          </div>
+                        </>
+                      ) : (
+                        // Teacher Mode Value Props
+                        <>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">Rich, engaging activities that excite students</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">Complete teaching support with tips and scripts</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-lg text-gray-700 font-medium">Standards-aligned curriculum requirements</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Right Column - CTA Button */}
                 <div className="flex flex-col items-center justify-center">
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                    className={`${
-                      formState.isSubMode 
-                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
-                    } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6`}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500 text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6"
                   >
                     <span className="mr-3 text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
                     <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
                   </button>
-                  
-                  {/* Feature Cards - Bottom portion, below CTA */}
-                  <div className="mt-12 grid grid-cols-3 gap-6 max-w-4xl">
-                    {formState.isSubMode ? (
-                      // Sub Mode Features
-                      <>
-                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
-                          <div className="text-3xl mb-3">✅</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">No Prep Required</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Just print and go. Everything you need is ready to use.</p>
-                        </div>
-                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
-                          <div className="text-3xl mb-3">📝</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Step-by-Step Scripts</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Clear instructions that any substitute can follow perfectly.</p>
-                        </div>
-                        <div className="bg-white rounded-xl p-6 border-2 border-green-100 text-center">
-                          <div className="text-3xl mb-3">🎯</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Any Subject</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Works for K-12, any topic, any time of year.</p>
-                        </div>
-                      </>
-                    ) : (
-                      // Teacher Mode Features
-                      <>
-                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
-                          <div className="text-3xl mb-3">✨</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
-                        </div>
-                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
-                          <div className="text-3xl mb-3">🤝</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
-                        </div>
-                        <div className="bg-white rounded-xl p-6 border-2 border-blue-200 text-center">
-                          <div className="text-3xl mb-3">📚</div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
-                        </div>
-                      </>
-                    )}
-                  </div>
                 </div>
               </div>
               
@@ -1306,65 +1322,81 @@ export default function ActivityLessonBuilder() {
                     : 'Plan engaging lessons in minutes, and step into the classroom confident and prepared.'
                   }
                 </p>
+
+                {/* Value Propositions - Mobile/Tablet with green checkmarks */}
+                <div className="px-4 mb-8">
+                  <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 shadow-lg border border-white/20">
+                    <div className="space-y-4">
+                      {formState.isSubMode ? (
+                        // Sub Mode Value Props - Mobile
+                        <>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">No prep required - just print and go</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">Step-by-step scripts any substitute can follow</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">Works for any subject, K-12, any time of year</span>
+                          </div>
+                        </>
+                      ) : (
+                        // Teacher Mode Value Props - Mobile
+                        <>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">Rich, engaging activities that excite students</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">Complete teaching support with tips and scripts</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className="text-base sm:text-lg text-gray-700 font-medium">Standards-aligned curriculum requirements</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 
                 {/* CTA Button - Mobile Optimized */}
                 <div className="px-4 mb-12">
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                    className={`w-full ${
-                      formState.isSubMode 
-                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:ring-green-500' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500'
-                    } text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]`}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500 text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]"
                   >
                     <span className="mr-3 text-2xl sm:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
                     <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
                   </button>
-                </div>
-              </div>
-
-              {/* Mobile/Tablet Feature Cards */}
-              <div className="lg:hidden flex justify-center">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl px-4">
-                {formState.isSubMode ? (
-                  // Sub Mode Features - Mobile Optimized
-                  <>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✅</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">No Prep Required</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Just print and go. Everything you need is ready to use.</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📝</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Step-by-Step Scripts</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Clear instructions that any substitute can follow perfectly.</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-green-100 text-center sm:text-left sm:col-span-2 lg:col-span-1">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🎯</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Any Subject</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Works for K-12, any topic, any time of year.</p>
-                    </div>
-                  </>
-                ) : (
-                  // Teacher Mode Features - Mobile Optimized
-                  <>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">✨</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Rich Activities</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Engaging lessons that get students excited to learn.</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">🤝</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Teaching Support</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Helpful tips and scripts to guide you through each lesson.</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 sm:p-6  border-2 border-blue-200 text-center sm:text-left sm:col-span-2 lg:col-span-1">
-                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">📚</div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 leading-tight">Standards-Aligned</h3>
-                      <p className="text-gray-600 text-sm sm:text-sm leading-relaxed">Activities that meet your curriculum requirements.</p>
-                    </div>
-                  </>
-                )}
                 </div>
               </div>
               

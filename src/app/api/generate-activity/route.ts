@@ -20,8 +20,26 @@ interface ActivityData {
 }
 
 function isMathSubject(subject: string, gradeLevel: string): boolean {
-  const subj = subject.toLowerCase();
-  const grade = gradeLevel.toLowerCase();
+  const subj = subject.toLowerCase().trim();
+  const grade = gradeLevel.toLowerCase().trim();
+  
+  // First, explicitly exclude non-math subjects
+  const nonMathSubjects = [
+    'english', 'ela', 'language arts', 'literature', 'reading', 'writing',
+    'science', 'biology', 'chemistry', 'physics', 'earth science',
+    'social studies', 'history', 'geography', 'civics', 'government',
+    'art', 'music', 'pe', 'physical education', 'health',
+    'advisory', 'sel', 'social emotional', 'counseling',
+    'foreign language', 'spanish', 'french', 'german', 'chinese',
+    'computer science', 'technology', 'engineering', 'stem',
+    'business', 'economics', 'psychology', 'philosophy'
+  ];
+  
+  // If it's explicitly a non-math subject, return false
+  const isNonMathSubject = nonMathSubjects.some(nonMath => 
+    subj.includes(nonMath) || subj === nonMath
+  );
+  if (isNonMathSubject) return false;
   
   // Comprehensive math subject detection
   const mathKeywords = [
@@ -32,16 +50,54 @@ function isMathSubject(subject: string, gradeLevel: string): boolean {
   ];
   
   const mathGrades = [
-    'ap calculus', 'ap statistics', 'ap computer science a'  // CS A has significant math
+    'ap calculus', 'ap statistics'
+    // Removed 'ap computer science a' as it should use regular CS handling
   ];
   
   // Check subject name
-  const hasSubjectMath = mathKeywords.some(keyword => subj.includes(keyword));
+  const hasSubjectMath = mathKeywords.some(keyword => 
+    subj === keyword || subj.includes(keyword + ' ') || subj.includes(' ' + keyword)
+  );
   
   // Check grade level
   const hasGradeMath = mathGrades.some(gradeKeyword => grade.includes(gradeKeyword));
   
   return hasSubjectMath || hasGradeMath;
+}
+
+function sanitizeContentForNonMath(content: string): string {
+  if (!content) return content;
+  
+  let sanitized = content;
+  
+  // Remove any [math] tags and their content completely
+  sanitized = sanitized.replace(/\[math\]([\s\S]*?)\[\/math\]/g, '');
+  
+  // Remove LaTeX expressions and notation
+  sanitized = sanitized.replace(/\\frac{[^}]*}{[^}]*}/g, '');
+  sanitized = sanitized.replace(/\\sqrt{[^}]*}/g, '');
+  sanitized = sanitized.replace(/\\begin{cases}[\s\S]*?\\end{cases}/g, '');
+  sanitized = sanitized.replace(/\\int_[^\\]*?dx/g, '');
+  sanitized = sanitized.replace(/\\lim_{[^}]*}/g, '');
+  sanitized = sanitized.replace(/\\[a-zA-Z]+{[^}]*}/g, '');
+  sanitized = sanitized.replace(/\\[a-zA-Z]+/g, '');
+  
+  // Remove mathematical symbols and expressions
+  const mathSymbols = ['∫', '∑', '∏', '∞', 'π', 'α', 'β', 'γ', 'δ', 'ε', 'θ', 'λ', 'μ', 'σ', 'φ', 'ω', '→', '←', '≤', '≥', '≠', '±', '×', '·', '÷', '≈', '≡', '∝', '∈', '⊂', '∪', '∩'];
+  mathSymbols.forEach(symbol => {
+    sanitized = sanitized.replace(new RegExp(symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
+  });
+  
+  // Remove mathematical notation patterns
+  sanitized = sanitized.replace(/f\([a-zA-Z]\)\s*=/g, '');
+  sanitized = sanitized.replace(/[a-zA-Z]\^\d+/g, '');
+  sanitized = sanitized.replace(/[a-zA-Z]_\d+/g, '');
+  
+  // Clean up any double spaces or empty lines that might result from removals
+  sanitized = sanitized.replace(/\s{2,}/g, ' ');
+  sanitized = sanitized.replace(/\n\s*\n\s*\n/g, '\n\n');
+  
+  return sanitized.trim();
 }
 
 function generateMathEnhancedPrompt(subject: string, gradeLevel: string, topic: string, activityType: string = ''): string {
@@ -571,25 +627,38 @@ function createSubjectSpecificPrompt(subject: string, gradeLevel: string, topic:
 
 function generateNonMathSubjectPrompt(subject: string, gradeLevel: string, topic: string, activityType: string): string {
   return `
-**NON-MATHEMATICAL CONTENT GENERATION:**
+**CRITICAL: NON-MATHEMATICAL CONTENT GENERATION**
 
-This is a ${subject} lesson for ${gradeLevel} students. ABSOLUTELY NO mathematical notation should be included.
+This is a ${subject} lesson for ${gradeLevel} students. ABSOLUTELY NO mathematical notation, expressions, or symbols should be included anywhere in the lesson plan.
 
-**FORMATTING REQUIREMENTS:**
-- Use regular text formatting only
-- NO [math]...[/math] tags
-- NO LaTeX notation
-- NO fraction notation like \\frac{}{} 
-- NO mathematical expressions or equations
-- Focus on ${subject}-appropriate content and terminology
+**STRICTLY FORBIDDEN CONTENT:**
+- NO [math]...[/math] tags of any kind
+- NO LaTeX notation (\\frac, \\sqrt, etc.)
+- NO fraction notation like \\frac{a}{b} or a/b presented as mathematical expressions
+- NO mathematical equations or formulas
+- NO mathematical symbols (∫, ∑, π, α, β, etc.)
+- NO mathematical expressions using variables (x, y, f(x), etc.)
+- NO numerical expressions presented as equations
+- NO mathematical problem-solving content
 
-**Subject-Specific Content for ${topic}:**
-- Use ${subject} vocabulary and concepts
-- Include ${subject}-appropriate examples and applications
-- Focus on skills and knowledge relevant to ${subject}
-- Create engaging activities that connect to ${topic} in meaningful ways
+**REQUIRED FORMATTING:**
+- Use only regular text formatting (bold, italic, lists)
+- Use plain language appropriate for ${subject}
+- Focus exclusively on ${subject}-specific vocabulary and concepts
+- All numerical references should be in plain text context, not as mathematical expressions
+- Any fractions should be written in words (e.g., "one-half" not "1/2" as a mathematical expression)
 
-This lesson should feel authentically designed for ${subject} students, not borrowed from mathematics curriculum.`;
+**${subject.toUpperCase()} CONTENT REQUIREMENTS:**
+- Use authentic ${subject} terminology and concepts
+- Include ${subject}-appropriate examples and real-world applications
+- Focus on skills and knowledge directly relevant to ${subject} curriculum
+- Create activities that genuinely connect to ${topic} within the ${subject} domain
+- Ensure content feels naturally designed for ${subject} students
+
+**QUALITY CHECK:**
+Before finalizing, verify that NO mathematical notation, symbols, or expressions appear anywhere in the lesson. This content should be indistinguishable from what a ${subject} specialist would create.
+
+This is a ${subject} lesson, NOT a mathematics lesson. Keep it authentic to the subject area.`;
 }
 
 function generateSELEnhancementPrompt(subject: string, gradeLevel: string, topic: string, activityType: string): string {
@@ -598,12 +667,16 @@ function generateSELEnhancementPrompt(subject: string, gradeLevel: string, topic
 
 This is NOT a formal lesson - it's a facilitated conversation for relationship and community building. You are creating content that feels like a caring adult having a thoughtful chat with young people.
 
-**CRITICAL FORMATTING RULE:**
-- ABSOLUTELY NO mathematical notation or equations
-- NO [math]...[/math] tags
-- NO LaTeX expressions like \\frac{}{} 
+**CRITICAL FORMATTING RULE - STRICTLY ENFORCED:**
+- ABSOLUTELY NO mathematical notation, expressions, equations, or symbols of any kind
+- NO [math]...[/math] tags anywhere in the content
+- NO LaTeX expressions (\\frac{}{}, \\sqrt{}, etc.)
+- NO mathematical variables (x, y, f(x), etc.) or equations
+- NO mathematical symbols (∫, ∑, π, α, β, fractions, etc.)
+- NO numerical expressions presented as mathematical problems
 - Use ONLY conversational language and regular text formatting
-- This is social-emotional learning, not mathematics
+- This is social-emotional learning and relationship building, NOT mathematics or academics
+- Any numbers mentioned should be in plain conversational context only
 
 **CONVERSATIONAL PHILOSOPHY:**
 - Teacher is a conversation facilitator, NOT an instructor delivering content
@@ -1084,7 +1157,13 @@ function generateIntelligentFallbackActivity(activityData: ActivityData) {
   const heroMathContent = isMath ? getAdvancedTopicMathContent(activityData.topic, activityData.subject, activityData.gradeLevel) : ''
   const practiceProblems = isMath ? getAdvancedTopicProblems(activityData.topic, activityData.subject, activityData.gradeLevel) : ''
   
-  const fallbackActivity = isSubMode ? generateSubstituteFallback(activityData, heroMathContent, practiceProblems) : generateTeacherFallback(activityData, heroMathContent, practiceProblems)
+  let fallbackActivity = isSubMode ? generateSubstituteFallback(activityData, heroMathContent, practiceProblems) : generateTeacherFallback(activityData, heroMathContent, practiceProblems)
+  
+  // Apply sanitization for non-math subjects in fallback system too
+  if (!isMath) {
+    console.log('🧹 Sanitizing fallback content to remove any mathematical expressions...');
+    fallbackActivity = sanitizeContentForNonMath(fallbackActivity);
+  }
   
   // Generate unique ID
   const activityId = `fallback_activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -1816,7 +1895,22 @@ export async function POST(request: NextRequest) {
     }
     console.log('🎉 Activity with engaging name generated! Length:', data.content?.[0]?.text?.length || 0);
     
-    const generatedActivity = data.content?.[0]?.text || 'Error: No activity content received';
+    let generatedActivity = data.content?.[0]?.text || 'Error: No activity content received';
+    
+    // Apply content sanitization for non-math subjects to prevent math formatting leakage
+    const isMath = isMathSubject(activityData.subject, activityData.gradeLevel);
+    const isSEL = activityData.subject.toLowerCase().includes('advisory') || activityData.subject.toLowerCase().includes('sel');
+    
+    if (!isMath) {
+      console.log('🧹 Sanitizing non-math content to remove any mathematical expressions...');
+      const beforeLength = generatedActivity.length;
+      generatedActivity = sanitizeContentForNonMath(generatedActivity);
+      const afterLength = generatedActivity.length;
+      
+      if (beforeLength !== afterLength) {
+        console.log(`✨ Sanitization removed ${beforeLength - afterLength} characters of mathematical content from ${activityData.subject} lesson`);
+      }
+    }
 
     // Generate unique ID
     const activityId = `activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
