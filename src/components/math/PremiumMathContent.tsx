@@ -5,6 +5,65 @@ import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import ProfessionalMathProcessor from '../../utils/professionalMathProcessor'
 
+// Helper function to determine if content is for a math subject
+function isMathSubject(subject?: string, gradeLevel?: string): boolean {
+  if (!subject) return false;
+  
+  const subj = subject.toLowerCase().trim();
+  const grade = gradeLevel?.toLowerCase().trim() || '';
+  
+  // First, explicitly exclude non-math subjects - EXPANDED LIST
+  const nonMathSubjects = [
+    'english', 'ela', 'language arts', 'literature', 'reading', 'writing',
+    'science', 'biology', 'chemistry', 'physics', 'earth science', 'environmental science',
+    'social studies', 'history', 'geography', 'civics', 'government', 'world history', 'us history', 'american history',
+    'art', 'music', 'pe', 'physical education', 'health', 'wellness',
+    'advisory', 'sel', 'social emotional', 'counseling', 'guidance',
+    'foreign language', 'spanish', 'french', 'german', 'chinese', 'japanese', 'latin',
+    'computer science', 'technology', 'engineering', 'programming', 'coding',
+    'business', 'economics', 'psychology', 'philosophy', 'sociology',
+    'drama', 'theater', 'theatre', 'band', 'choir', 'orchestra',
+    'culinary', 'cooking', 'woodshop', 'auto', 'automotive'
+  ];
+  
+  // Check for partial matches in subject names (more comprehensive)
+  const isNonMathSubject = nonMathSubjects.some(nonMath => 
+    subj.includes(nonMath) || nonMath.includes(subj) || subj === nonMath
+  );
+  if (isNonMathSubject) return false;
+  
+  // STEM subjects that might contain math but aren't pure math should be excluded
+  const stemNonMath = ['stem', 'steam', 'robotics', 'engineering', 'computer', 'technology'];
+  const isStemNonMath = stemNonMath.some(stem => subj.includes(stem));
+  if (isStemNonMath) return false;
+  
+  // Only allow explicitly mathematical subjects
+  const mathKeywords = [
+    'math', 'mathematics', 'calculus', 'algebra', 'geometry', 
+    'trigonometry', 'statistics', 'precalculus', 'pre-calculus',
+    'arithmetic', 'number theory', 'discrete math', 'linear algebra',
+    'differential equations', 'integral calculus', 'finite math'
+  ];
+  
+  const mathGrades = [
+    'ap calculus', 'ap statistics', 'ib math', 'honors math'
+  ];
+  
+  // Check subject name - must be an EXACT or very close match
+  const hasSubjectMath = mathKeywords.some(keyword => 
+    subj === keyword || 
+    subj === keyword + 's' || 
+    subj.startsWith(keyword + ' ') || 
+    subj.endsWith(' ' + keyword) ||
+    (keyword === 'math' && (subj === 'mathematics' || subj === 'maths'))
+  );
+  
+  // Check grade level
+  const hasGradeMath = mathGrades.some(gradeKeyword => grade.includes(gradeKeyword));
+  
+  return hasSubjectMath || hasGradeMath;
+}
+
 interface PremiumMathContentProps {
   /** Content that may contain mathematical expressions */
   content: string
@@ -28,6 +87,10 @@ interface PremiumMathContentProps {
     url?: string
     durationSeconds: number
   }>
+  /** Subject area - if provided, will determine whether to apply math processing */
+  subject?: string
+  /** Grade level - used with subject to determine math processing */
+  gradeLevel?: string
 }
 
 /**
@@ -44,7 +107,9 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     smartSubscripts: true,
     professionalSpacing: true
   },
-  selectedVideos = []
+  selectedVideos = [],
+  subject,
+  gradeLevel
 }) => {
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -52,53 +117,73 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
   const processedContent = useMemo(() => {
     if (!content) return 'No content available'
 
-    console.log('📝 Starting fresh math processing...')
+    // Check if this is actually a math subject
+    const isActualMathSubject = isMathSubject(subject, gradeLevel)
+    console.log(`📝 Processing content for subject: ${subject}, grade: ${gradeLevel}, isMath: ${isActualMathSubject}`)
     
     let processed = content
     
-    // STEP 1: Handle standard LaTeX delimiters before cleaning
-    processed = processed.replace(/\$\$(.*?)\$\$/gs, '[display]$1[/display]');
-    processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
-    
-    // STEP 2: Clean any existing math tags to start fresh
-    processed = processed.replace(/\[math\]|\[\/math\]|\[display\]|\[\/display\]/g, '')
-    console.log('🧹 Cleaned existing math tags')
-    
-    // STEP 2: Handle LaTeX fractions - wrap them properly
-    processed = processed.replace(/\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, (match, num, den) => {
-      const result = '[math]\\frac{' + num + '}{' + den + '}[/math]'
-      console.log('🔄 Wrapping fraction:', match, '→', result)
-      return result
-    })
-    
-    // STEP 3: Handle Greek letters
-    const greekLetters = ['\\\\theta', '\\\\pi', '\\\\alpha', '\\\\beta', '\\\\gamma', '\\\\delta', '\\\\phi', '\\\\omega']
-    greekLetters.forEach(letter => {
-      const pattern = new RegExp(letter + '\\\\b', 'g')
-      processed = processed.replace(pattern, (match) => {
-        const result = '[math]' + match + '[/math]'
-        console.log('🔄 Wrapping Greek letter:', match, '→', result)
+    // Only apply mathematical processing if this is actually a math subject
+    if (isActualMathSubject) {
+      console.log('🧮 Starting math-specific processing...')
+      
+      // STEP 1: Handle standard LaTeX delimiters before cleaning
+      processed = processed.replace(/\$\$(.*?)\$\$/gs, '[display]$1[/display]');
+      processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
+      
+      // STEP 2: Clean any existing math tags to start fresh
+      processed = processed.replace(/\[math\]|\[\/math\]|\[display\]|\[\/display\]/g, '')
+      console.log('🧹 Cleaned existing math tags')
+      
+      // STEP 3: Handle LaTeX fractions - wrap them properly
+      processed = processed.replace(/\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, (match, num, den) => {
+        const result = '[math]\\frac{' + num + '}{' + den + '}[/math]'
+        console.log('🔄 Wrapping fraction:', match, '→', result)
         return result
       })
-    })
-    
-    // STEP 4: Handle degree symbols
-    processed = processed.replace(/(\d+)°/g, '[math]$1^{\\circ}[/math]')
-    
-    // STEP 5: Handle other math symbols and advanced patterns
-    processed = processed.replace(/\\sin|\\cos|\\tan|\\sqrt\{[^}]+\}/g, (match) => {
-      return '[math]' + match + '[/math]'
-    })
-    
-    // STEP 6: Wrap additional math patterns
-    processed = processed.replace(/\\int|\\sum|\\prod|\\lim/g, (match) => '[math]' + match + '[/math]');
-    processed = processed.replace(/\\begin\{(matrix|pmatrix|bmatrix|cases|aligned|gather)\}(.*?)\\end\{\1\}/gs, '[display]$0[/display]');
+      
+      // STEP 4: Handle Greek letters
+      const greekLetters = ['\\\\theta', '\\\\pi', '\\\\alpha', '\\\\beta', '\\\\gamma', '\\\\delta', '\\\\phi', '\\\\omega']
+      greekLetters.forEach(letter => {
+        const pattern = new RegExp(letter + '\\\\b', 'g')
+        processed = processed.replace(pattern, (match) => {
+          const result = '[math]' + match + '[/math]'
+          console.log('🔄 Wrapping Greek letter:', match, '→', result)
+          return result
+        })
+      })
+      
+      // STEP 5: Handle degree symbols
+      processed = processed.replace(/(\d+)°/g, '[math]$1^{\\circ}[/math]')
+      
+      // STEP 6: Handle other math symbols and advanced patterns
+      processed = processed.replace(/\\sin|\\cos|\\tan|\\sqrt\{[^}]+\}/g, (match) => {
+        return '[math]' + match + '[/math]'
+      })
+      
+      // STEP 7: Wrap additional math patterns
+      processed = processed.replace(/\\int|\\sum|\\prod|\\lim/g, (match) => '[math]' + match + '[/math]');
+      processed = processed.replace(/\\begin\{(matrix|pmatrix|bmatrix|cases|aligned|gather)\}(.*?)\\end\{\1\}/gs, '[display]$0[/display]');
 
-    console.log('📝 Content after math wrapping:', processed.substring(0, 200))
+      console.log('📝 Content after math wrapping:', processed.substring(0, 200))
 
-    // Process with professional math processor AFTER our initial wrapping
-    processed = ProfessionalMathProcessor.processContent(processed, processingOptions)
-    console.log('📝 Content after ProfessionalMathProcessor:', processed.substring(0, 200))
+      // Process with professional math processor AFTER our initial wrapping
+      processed = ProfessionalMathProcessor.processContent(processed, processingOptions)
+      console.log('📝 Content after ProfessionalMathProcessor:', processed.substring(0, 200))
+    } else {
+      console.log('📝 Skipping math processing for non-math subject')
+      
+      // For non-math subjects, remove any unwanted math notation
+      processed = processed.replace(/\\frac\{[^{}]*\}\{[^{}]*\}/g, '') // Remove fractions
+      processed = processed.replace(/\\[a-zA-Z]+\{[^}]*\}/g, '') // Remove LaTeX commands
+      processed = processed.replace(/\\[a-zA-Z]+/g, '') // Remove single LaTeX commands
+      processed = processed.replace(/\[math\][\s\S]*?\[\/math\]/g, '') // Remove [math] tags and content
+      processed = processed.replace(/\[display\][\s\S]*?\[\/display\]/g, '') // Remove [display] tags and content
+      
+      // Clean up any double spaces or empty lines that might result
+      processed = processed.replace(/\s{2,}/g, ' ')
+      processed = processed.replace(/\n\s*\n\s*\n/g, '\n\n')
+    }
 
     // Process activity names first (before headers)
     processed = processed
@@ -133,8 +218,44 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
       '</div>'
     )
 
-    // Convert remaining markdown bold to HTML
-    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Convert section headers (bold text that appears to be headers) to proper headers
+    // Look for **text** that appears on its own line or starts with common section words
+    processed = processed.replace(/^\*\*([^*]+)\*\*$/gm, (match, content) => {
+      const text = content.trim();
+      const isLikelySectionHeader = /^(Learning Objectives?|Materials?|Instructions?|Procedures?|Activities?|Assessment|Evaluation|Differentiation|Extensions?|Vocabulary|Standards?|Tips?|Notes?|Phase \d+|Step \d+|Part \d+)/i.test(text) ||
+        text.length < 50; // Short bold text is likely a header
+      
+      if (isLikelySectionHeader) {
+        return `\n\n<strong class="section-header">${text}</strong>`;
+      } else {
+        return `<strong>${text}</strong>`;
+      }
+    });
+
+    // Convert remaining inline markdown bold to HTML - add extra spacing for section headers
+    let firstSectionHeader = true;
+    processed = processed.replace(/\*\*(.*?)\*\*/g, (match, content) => {
+      const text = content.trim();
+      // Check if this looks like a section header
+      const isLikelySectionHeader = /^(Learning Objectives?|Materials?|Instructions?|Procedures?|Activities?|Assessment|Evaluation|Differentiation|Extensions?|Vocabulary|Standards?|Tips?|Notes?|Phase \d+|Step \d+|Part \d+)/i.test(text) ||
+        text.length < 50; // Short bold text is likely a header
+      
+      // Check if this is EXIT TICKET section
+      const isExitTicket = /EXIT TICKET|Exit Ticket/i.test(text);
+      
+      if (isLikelySectionHeader) {
+        if (firstSectionHeader) {
+          firstSectionHeader = false;
+          return `<strong>${content}</strong>`;
+        } else if (isExitTicket) {
+          return `<br><br><br><br><br><br><strong>${content}</strong>`;
+        } else {
+          return `<br><br><br><br><strong>${content}</strong>`;
+        }
+      } else {
+        return `<strong>${content}</strong>`;
+      }
+    })
 
     // Process bullet lists and paragraphs more intelligently
     const lines = processed.split('\n')
@@ -170,8 +291,13 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         } else if (trimmed.startsWith('<')) {
           // Already HTML - keep as is
           processedLines.push(line)
-        } else if (trimmed.match(/^\*\*.*\*\*$/) && !trimmed.includes(' ')) {
+        } else if (trimmed.match(/^\*\*.*\*\*$/)) {
           // Section headers (lines that are just **Header**)
+          // Add empty line before section headers for better spacing
+          const prevLine = processedLines[processedLines.length - 1]
+          if (prevLine && prevLine.trim() !== '' && !prevLine.includes('<br>')) {
+            processedLines.push('<br>')
+          }
           processedLines.push(line) // Let the bold processing handle it
         } else {
           // Regular content lines - only wrap in <p> if it looks like a standalone paragraph
@@ -206,6 +332,13 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
   // KaTeX rendering with proper DOM manipulation
   useEffect(() => {
     if (!contentRef.current) return
+    
+    // Only render math if this is actually a math subject
+    const isActualMathSubject = isMathSubject(subject, gradeLevel)
+    if (!isActualMathSubject) {
+      console.log('🚫 Skipping KaTeX rendering for non-math subject')
+      return
+    }
 
     const renderMathWithKaTeX = () => {
       const container = contentRef.current
@@ -333,7 +466,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     return () => {
       clearTimeout(timeoutId)
     }
-  }, [processedContent])
+  }, [processedContent, subject, gradeLevel])
 
   // Generate container classes
   const containerClasses = [
@@ -436,6 +569,25 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         .premium-math-content strong {
           font-weight: 600;
           color: #111827;
+        }
+
+        /* Add spacing for section headers - fix to only apply to actual section headers */
+        .premium-math-content .section-header {
+          display: block;
+          margin: 30px 0 15px 0;
+          padding: 10px 0 8px 0;
+          border-bottom: 1px solid #e5e7eb;
+          font-weight: 600;
+          color: #111827;
+        }
+        
+        /* Ensure inline strong elements stay inline */
+        .premium-math-content p strong:not(.section-header),
+        .premium-math-content li strong:not(.section-header) {
+          display: inline;
+          margin: 0;
+          padding: 0;
+          border: none;
         }
 
         /* List Styling */

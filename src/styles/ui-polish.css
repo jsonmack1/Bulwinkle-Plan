@@ -1,0 +1,357 @@
+/* iOS-like UI Polish and Smoothness Enhancements */
+
+/* Remove global transforms that affect layout - too aggressive */
+
+/* Remove transitions from elements that shouldn't have them */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+textarea,
+select {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+/* Improved scrolling to prevent field interaction issues */
+html {
+  scroll-behavior: smooth;
+  -webkit-scroll-behavior: smooth;
+}
+
+body {
+  /* Better text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Better scroll control to prevent field interference */
+  -webkit-overflow-scrolling: auto;
+  overscroll-behavior: contain;
+}
+
+/* Prevent scroll momentum from interfering with form interactions */
+.form-container,
+.activity-form,
+.lesson-builder-form {
+  /* Stop scroll momentum when interacting with forms */
+  -webkit-overflow-scrolling: auto;
+  scroll-behavior: auto;
+  
+  /* Ensure form interactions are prioritized */
+  touch-action: manipulation;
+}
+
+/* Aggressively lock field focus - prevent ANY scroll interference */
+input:focus,
+select:focus,
+textarea:focus {
+  /* Maximum priority to prevent focus loss */
+  position: relative !important;
+  z-index: 9999 !important;
+  
+  /* Lock interaction handling */
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  
+  /* Prevent any layout shifts during scroll */
+  will-change: auto;
+  backface-visibility: hidden;
+  
+  /* Force browser to maintain focus */
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+
+/* Enhanced button interactions */
+button,
+.btn,
+[role="button"],
+.clickable {
+  /* Ensure proper touch targets */
+  min-height: 44px;
+  min-width: 44px;
+  
+  /* Remove default button styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Smooth interactions */
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform: translateZ(0);
+  
+  /* Better touch feedback */
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  
+  /* Prevent text selection on buttons */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Cursor pointer */
+  cursor: pointer;
+}
+
+/* Active states for better feedback */
+button:active,
+.btn:active,
+[role="button"]:active,
+.clickable:active {
+  transform: scale(0.98) translateZ(0);
+  transition: transform 0.1s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Hover states for desktop */
+@media (hover: hover) {
+  button:hover,
+  .btn:hover,
+  [role="button"]:hover,
+  .clickable:hover {
+    transform: translateY(-1px) translateZ(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  button:hover:active,
+  .btn:hover:active,
+  [role="button"]:hover:active,
+  .clickable:hover:active {
+    transform: scale(0.98) translateY(-1px) translateZ(0);
+  }
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+.btn:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  transition: outline-offset 0.1s ease;
+}
+
+/* Enhanced input field interactions - with better visibility */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  /* Smooth border transitions */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  
+  /* Better touch targets */
+  min-height: 44px;
+  
+  /* Better visibility - distinct from background */
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  
+  /* Prevent zoom on iOS */
+  font-size: 16px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  transform: translateZ(0);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Dropdown/Select enhancements - improved scroll momentum handling */
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  padding-right: 40px;
+  
+  /* Prevent scroll interference with dropdown */
+  touch-action: manipulation;
+}
+
+/* Aggressive select dropdown protection */
+select:focus {
+  /* Maximum priority to keep dropdown open */
+  position: relative !important;
+  z-index: 99999 !important;
+  
+  /* Lock all interactions */
+  pointer-events: auto !important;
+  touch-action: none !important;
+  
+  /* Force dropdown to stay open */
+  scroll-behavior: auto !important;
+}
+
+/* Force dropdown options to be accessible during scroll */
+select option {
+  touch-action: none !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 99999 !important;
+}
+
+/* Prevent any scroll behavior from affecting open dropdowns */
+select[data-focused="true"],
+select:focus-within {
+  scroll-behavior: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Improved scrollbar styling - wider for desktop usability */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Card/Panel hover effects */
+.card,
+.panel,
+.lesson-content-wrapper {
+  transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+@media (hover: hover) {
+  .card:hover,
+  .panel:hover {
+    transform: translateY(-2px) translateZ(0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Modal and overlay animations */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), backdrop-filter 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.modal-content {
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  button:active,
+  .btn:active,
+  [role="button"]:active,
+  .clickable:active {
+    transform: none;
+  }
+}
+
+/* Lighter performance optimizations - only when needed */
+.gpu-accelerated {
+  will-change: auto;
+}
+
+/* Better touch feedback on mobile */
+@media (max-width: 768px) {
+  button,
+  .btn,
+  [role="button"],
+  .clickable {
+    /* Larger touch targets on mobile */
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Enhanced active states on touch devices */
+  button:active,
+  .btn:active,
+  [role="button"]:active,
+  .clickable:active {
+    transform: scale(0.95) translateZ(0);
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Smooth state changes for forms */
+.form-field {
+  position: relative;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  transition: all 0.2s ease;
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  transform: translateZ(0);
+}
+
+/* Enhanced button variants */
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.15);
+}

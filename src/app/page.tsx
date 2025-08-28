@@ -10,6 +10,7 @@ import { useMemoryBank } from '../lib/memoryBank'
 import Navigation from '../components/Navigation'
 import AnimatedLoadingScreen from '../components/ui/AnimatedLoadingScreen'
 import { useAnimatedLoading } from '../hooks/useAnimatedLoading'
+import { useScrollMomentumFix } from '../hooks/useScrollMomentumFix'
 
 // Lazy load heavy components
 const ActivityCreationModal = lazy(() => import('../components/modals/ActivityCreationModal'))
@@ -148,6 +149,42 @@ const RotatingMessages: React.FC = () => {
 };
 
 export default function ActivityLessonBuilder() {
+  // Fix scroll momentum interfering with form fields
+  useScrollMomentumFix()
+  
+  // Direct inline fix for field deselection
+  useEffect(() => {
+    const preventFieldBlur = (e: FocusEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'SELECT' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        console.log('🚫 BLOCKING blur on', target.tagName, target.id || 'unnamed')
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        setTimeout(() => target.focus(), 1)
+        return false
+      }
+    }
+
+    const handleScroll = (e: Event) => {
+      const activeElement = document.activeElement as HTMLElement
+      if (activeElement && (activeElement.tagName === 'SELECT' || activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        console.log('📜 Maintaining focus during scroll on', activeElement.tagName)
+        e.stopPropagation()
+        setTimeout(() => activeElement.focus(), 1)
+      }
+    }
+
+    document.addEventListener('blur', preventFieldBlur, true)
+    document.addEventListener('scroll', handleScroll, true)
+    window.addEventListener('scroll', handleScroll, true)
+
+    return () => {
+      document.removeEventListener('blur', preventFieldBlur, true)
+      document.removeEventListener('scroll', handleScroll, true)
+      window.removeEventListener('scroll', handleScroll, true)
+    }
+  }, [])
+  
   // Consolidated form state with useReducer
   const [formState, dispatch] = useReducer(formReducer, initialFormState)
   const [parsedContent, setParsedContent] = useState<ParsedActivityContent | null>(null)
@@ -2160,6 +2197,8 @@ export default function ActivityLessonBuilder() {
                               <PremiumMathContent 
                                 content={formState.generatedActivity} 
                                 selectedVideos={selectedVideos}
+                                subject={formState.subject}
+                                gradeLevel={formState.gradeLevel}
                               />
                             </div>
                           </div>
@@ -2201,6 +2240,8 @@ export default function ActivityLessonBuilder() {
                             <PremiumMathContent 
                               content={formState.generatedActivity} 
                               selectedVideos={selectedVideos}
+                              subject={formState.subject}
+                              gradeLevel={formState.gradeLevel}
                             />
                           </div>
                         </div>

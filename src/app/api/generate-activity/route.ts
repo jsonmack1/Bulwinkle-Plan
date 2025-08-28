@@ -23,25 +23,32 @@ function isMathSubject(subject: string, gradeLevel: string): boolean {
   const subj = subject.toLowerCase().trim();
   const grade = gradeLevel.toLowerCase().trim();
   
-  // First, explicitly exclude non-math subjects
+  // First, explicitly exclude non-math subjects - EXPANDED LIST
   const nonMathSubjects = [
     'english', 'ela', 'language arts', 'literature', 'reading', 'writing',
-    'science', 'biology', 'chemistry', 'physics', 'earth science',
-    'social studies', 'history', 'geography', 'civics', 'government',
-    'art', 'music', 'pe', 'physical education', 'health',
-    'advisory', 'sel', 'social emotional', 'counseling',
-    'foreign language', 'spanish', 'french', 'german', 'chinese',
-    'computer science', 'technology', 'engineering', 'stem',
-    'business', 'economics', 'psychology', 'philosophy'
+    'science', 'biology', 'chemistry', 'physics', 'earth science', 'environmental science',
+    'social studies', 'history', 'geography', 'civics', 'government', 'world history', 'us history', 'american history',
+    'art', 'music', 'pe', 'physical education', 'health', 'wellness',
+    'advisory', 'sel', 'social emotional', 'counseling', 'guidance',
+    'foreign language', 'spanish', 'french', 'german', 'chinese', 'japanese', 'latin',
+    'computer science', 'technology', 'engineering', 'programming', 'coding',
+    'business', 'economics', 'psychology', 'philosophy', 'sociology',
+    'drama', 'theater', 'theatre', 'band', 'choir', 'orchestra',
+    'culinary', 'cooking', 'woodshop', 'auto', 'automotive'
   ];
   
-  // If it's explicitly a non-math subject, return false
+  // Check for partial matches in subject names (more comprehensive)
   const isNonMathSubject = nonMathSubjects.some(nonMath => 
-    subj.includes(nonMath) || subj === nonMath
+    subj.includes(nonMath) || nonMath.includes(subj) || subj === nonMath
   );
   if (isNonMathSubject) return false;
   
-  // Comprehensive math subject detection
+  // STEM subjects that might contain math but aren't pure math should be excluded
+  const stemNonMath = ['stem', 'steam', 'robotics', 'engineering', 'computer', 'technology'];
+  const isStemNonMath = stemNonMath.some(stem => subj.includes(stem));
+  if (isStemNonMath) return false;
+  
+  // Only allow explicitly mathematical subjects
   const mathKeywords = [
     'math', 'mathematics', 'calculus', 'algebra', 'geometry', 
     'trigonometry', 'statistics', 'precalculus', 'pre-calculus',
@@ -50,13 +57,16 @@ function isMathSubject(subject: string, gradeLevel: string): boolean {
   ];
   
   const mathGrades = [
-    'ap calculus', 'ap statistics'
-    // Removed 'ap computer science a' as it should use regular CS handling
+    'ap calculus', 'ap statistics', 'ib math', 'honors math'
   ];
   
-  // Check subject name
+  // Check subject name - must be an EXACT or very close match
   const hasSubjectMath = mathKeywords.some(keyword => 
-    subj === keyword || subj.includes(keyword + ' ') || subj.includes(' ' + keyword)
+    subj === keyword || 
+    subj === keyword + 's' || 
+    subj.startsWith(keyword + ' ') || 
+    subj.endsWith(' ' + keyword) ||
+    (keyword === 'math' && (subj === 'mathematics' || subj === 'maths'))
   );
   
   // Check grade level

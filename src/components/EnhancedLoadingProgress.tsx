@@ -1,5 +1,42 @@
 import React, { useState, useEffect } from 'react'
 
+// Add smooth animation styles
+const smoothAnimationStyles = `
+  .loading-step {
+    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transform: translateZ(0);
+  }
+  
+  .loading-step.active {
+    transform: scale(1.02) translateZ(0);
+  }
+  
+  .progress-bar {
+    transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transform: translateZ(0);
+  }
+  
+  .loading-icon {
+    transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    animation: pulse-subtle 2s infinite;
+  }
+  
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .step-complete {
+    animation: check-bounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  @keyframes check-bounce {
+    0% { transform: scale(0) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+    100% { transform: scale(1) rotate(360deg); }
+  }
+`;
+
 interface EnhancedLoadingProgressProps {
   isSubMode: boolean
   duration: string
@@ -114,7 +151,9 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
   }, [currentStep, steps])
 
   return (
-    <div className="text-center py-12 max-w-2xl mx-auto">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: smoothAnimationStyles }} />
+      <div className="text-center py-12 max-w-2xl mx-auto gpu-accelerated">
       {/* Main Progress Icon */}
       <div className="text-8xl sm:text-[12rem] mb-6 animate-bounce">
         {steps[currentStep]?.icon || "🎯"}
@@ -221,6 +260,7 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
         </div>
       </div>
     </div>
+    </>
   )
 }
 
