@@ -1457,14 +1457,17 @@ export default function ActivityLessonBuilder() {
         <div className="relative max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 sm:mb-8">See How It Works</h2>
           
-          {/* YouTube Video Placeholder */}
+          {/* YouTube Video Embed */}
           <div className="relative max-w-4xl mx-auto">
-            <div className="aspect-video bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex items-center justify-center">
-              <div className="text-center text-gray-600">
-                <div className="text-6xl mb-4">▶️</div>
-                <p className="text-xl font-semibold">YouTube Video Placeholder</p>
-                <p className="text-sm mt-2">Video embed will be placed here</p>
-              </div>
+            <div className="relative rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '54%' }}>
+              <iframe
+                src="https://www.youtube.com/embed/OAcZY4fxdv0?autoplay=1&loop=1&playlist=OAcZY4fxdv0&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
+                title="How It Works - Lesson Plan Builder Demo"
+                className="absolute top-0 left-0 w-full h-full"
+                style={{ height: '105%', top: '-2.5%' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
         </div>
