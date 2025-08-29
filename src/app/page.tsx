@@ -1461,7 +1461,7 @@ export default function ActivityLessonBuilder() {
           <div className="relative max-w-4xl mx-auto">
             <div className="relative rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '54%' }}>
               <iframe
-                src="https://www.youtube.com/embed/OAcZY4fxdv0?autoplay=1&loop=1&playlist=OAcZY4fxdv0&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
+                src="https://www.youtube.com/embed/3cXjPsI4WZw?autoplay=1&loop=1&playlist=3cXjPsI4WZw&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
                 title="How It Works - Lesson Plan Builder Demo"
                 className="absolute top-0 left-0 w-full h-full"
                 style={{ height: '105%', top: '-2.5%' }}
