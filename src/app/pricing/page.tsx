@@ -142,21 +142,6 @@ export default function PricingPage() {
               Save hours every week with AI-powered lesson planning designed for real teachers
             </p>
             
-            {/* Social proof */}
-            <div className="flex flex-wrap justify-center items-center gap-8 text-gray-500 mb-12">
-              <div className="flex items-center">
-                <span className="text-yellow-400 text-lg mr-2">⭐⭐⭐⭐⭐</span>
-                <span className="font-medium">4.9/5 from 2,000+ teachers</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-2xl mr-2">📚</span>
-                <span className="font-medium">50,000+ lessons created</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-2xl mr-2">⏰</span>
-                <span className="font-medium">Average saved: 6.2 hours/week</span>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -407,37 +392,58 @@ export default function PricingPage() {
             <h2 className="text-4xl font-bold text-center mb-12">What Teachers Are Saying</h2>
             
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  <div className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</div>
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "Peabody Pro saved my career! I was burning out from spending 10+ hours every weekend planning. Now I spend 2 hours and get better, more engaging lessons."
+              {/* Testimonial 1 - Layla */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl shadow-lg border border-blue-100">
+                <div className="text-4xl text-blue-500 mb-4">"</div>
+                <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                  The Intelligent Sub Plans are a life saver! Full scripts and activities that keep the class in order and actually fun!
                 </p>
-                <div className="font-semibold text-gray-900">Sarah M.</div>
-                <div className="text-sm text-gray-600">4th Grade Teacher, Austin, TX</div>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    L
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold text-gray-900">Layla</div>
+                    <div className="text-gray-600 text-sm">2nd Grade Teacher Special Ed</div>
+                    <div className="text-gray-600 text-xs">Flowery Branch, GA</div>
+                  </div>
+                </div>
               </div>
               
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  <div className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</div>
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "The differentiation feature is a game-changer. My ESL students and IEP kids finally get activities perfectly suited to their level. It's like having a co-teacher!"
+              {/* Testimonial 2 - Cindy */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border border-purple-100">
+                <div className="text-4xl text-purple-500 mb-4">"</div>
+                <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                  The fact that these are standards aligned is the cherry on top, no going back for me!
                 </p>
-                <div className="font-semibold text-gray-900">Carlos R.</div>
-                <div className="text-sm text-gray-600">High School Science, Los Angeles, CA</div>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    C
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold text-gray-900">Cindy</div>
+                    <div className="text-gray-600 text-sm">11th Grade Chemistry</div>
+                    <div className="text-gray-600 text-xs">Valley Stream, NY</div>
+                  </div>
+                </div>
               </div>
               
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  <div className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</div>
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "Best investment I've made as a teacher. The Memory Bank keeps all my successful lessons organized, and the CER scripts help me lead better discussions."
+              {/* Testimonial 3 - Danielle */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-lg border border-green-100">
+                <div className="text-4xl text-green-500 mb-4">"</div>
+                <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                  Removes the headaches of lesson planning, it even does the differentiation! So simple.
                 </p>
-                <div className="font-semibold text-gray-900">Jennifer K.</div>
-                <div className="text-sm text-gray-600">8th Grade ELA, Denver, CO</div>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    D
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold text-gray-900">Danielle</div>
+                    <div className="text-gray-600 text-sm">8th Grade Science</div>
+                    <div className="text-gray-600 text-xs">Huntington, NY</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -470,12 +476,6 @@ export default function PricingPage() {
                 </p>
               </div>
               
-              <div>
-                <h3 className="font-bold text-xl mb-3">Do you offer school or district pricing?</h3>
-                <p className="text-gray-600">
-                  Yes! We offer volume discounts for schools and districts. Contact us at schools@peabody.app for custom pricing and admin features like usage analytics and teacher management.
-                </p>
-              </div>
               
               <div>
                 <h3 className="font-bold text-xl mb-3">Is there a money-back guarantee?</h3>

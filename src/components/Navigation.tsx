@@ -141,7 +141,7 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                       onClick={() => onToggleMode(true)}
                       className={`px-3 py-1 rounded-full text-sm font-bold transition-all duration-200 ${
                         isSubMode 
-                          ? 'bg-blue-600 text-white shadow-sm' 
+                          ? 'bg-green-600 text-white shadow-sm' 
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >

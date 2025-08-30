@@ -1329,11 +1329,25 @@ export default function ActivityLessonBuilder() {
                   </div>
                 </div>
                 
-                {/* Right Column - CTA Button */}
-                <div className="flex flex-col items-center justify-center">
+                {/* Right Column - Video + CTA Button */}
+                <div className="flex flex-col items-center justify-center space-y-4">
+                  {/* YouTube Video */}
+                  <div className="relative max-w-lg w-full">
+                    <div className="relative rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '54%' }}>
+                      <iframe
+                        src="https://www.youtube.com/embed/3cXjPsI4WZw?autoplay=1&loop=1&playlist=3cXjPsI4WZw&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
+                        title="How It Works - Lesson Plan Builder Demo"
+                        className="absolute top-0 left-0 w-full h-full"
+                        style={{ height: '110%', top: '-5%' }}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                  
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500 text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6"
+                    className={`${formState.isSubMode ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-500' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500'} text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6`}
                   >
                     <span className="mr-3 text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
                     <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
@@ -1425,11 +1439,25 @@ export default function ActivityLessonBuilder() {
                   </div>
                 </div>
                 
-                {/* CTA Button - Mobile Optimized */}
+                {/* Video + CTA Button - Mobile Optimized */}
                 <div className="px-4 mb-12">
+                  {/* Video - Mobile */}
+                  <div className="relative max-w-md mx-auto mb-4">
+                    <div className="relative rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '54%' }}>
+                      <iframe
+                        src="https://www.youtube.com/embed/3cXjPsI4WZw?autoplay=1&loop=1&playlist=3cXjPsI4WZw&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
+                        title="How It Works - Lesson Plan Builder Demo"
+                        className="absolute top-0 left-0 w-full h-full"
+                        style={{ height: '110%', top: '-5%' }}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                  
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500 text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]"
+                    className={`w-full ${formState.isSubMode ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-500' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500'} text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]`}
                   >
                     <span className="mr-3 text-2xl sm:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
                     <span className="leading-tight">{formState.isSubMode ? 'Get Sub Plans Now' : 'Start Creating Now'}</span>
@@ -1442,36 +1470,6 @@ export default function ActivityLessonBuilder() {
         </div>
       )}
 
-      {/* Beige Ribbon Section with YouTube Video */}
-      <div className="relative bg-amber-50 py-8 sm:py-12 md:py-16 overflow-hidden">
-        {/* Dotted Circle Pattern Background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-8 left-12 w-4 h-4 border-2 border-dotted border-amber-200 rounded-full"></div>
-          <div className="absolute top-20 right-16 w-6 h-6 border-2 border-dotted border-amber-300 rounded-full"></div>
-          <div className="absolute bottom-12 left-1/4 w-3 h-3 border-2 border-dotted border-amber-200 rounded-full"></div>
-          <div className="absolute bottom-8 right-1/3 w-5 h-5 border-2 border-dotted border-amber-300 rounded-full"></div>
-          <div className="absolute top-1/2 left-8 w-4 h-4 border-2 border-dotted border-amber-200 rounded-full"></div>
-          <div className="absolute top-1/3 right-8 w-3 h-3 border-2 border-dotted border-amber-300 rounded-full"></div>
-        </div>
-        
-        <div className="relative max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-6 sm:mb-8">See How It Works</h2>
-          
-          {/* YouTube Video Embed */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '54%' }}>
-              <iframe
-                src="https://www.youtube.com/embed/3cXjPsI4WZw?autoplay=1&loop=1&playlist=3cXjPsI4WZw&mute=1&controls=1&showinfo=0&rel=0&modestbranding=1&vq=hd720"
-                title="How It Works - Lesson Plan Builder Demo"
-                className="absolute top-0 left-0 w-full h-full"
-                style={{ height: '105%', top: '-2.5%' }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Testimonials Section */}
       <div className="relative bg-white py-12 md:py-16">
@@ -1481,7 +1479,7 @@ export default function ActivityLessonBuilder() {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 - Kayla */}
+            {/* Testimonial 1 - Layla */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl shadow-lg border border-blue-100">
               <div className="text-4xl text-blue-500 mb-4">"</div>
               <p className="text-gray-700 text-lg leading-relaxed mb-6">
@@ -1489,10 +1487,10 @@ export default function ActivityLessonBuilder() {
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                  K
+                  L
                 </div>
                 <div className="ml-4">
-                  <div className="font-semibold text-gray-900">Kayla</div>
+                  <div className="font-semibold text-gray-900">Layla</div>
                   <div className="text-gray-600 text-sm">2nd Grade Teacher Special Ed</div>
                   <div className="text-gray-600 text-xs">Flowery Branch, GA</div>
                 </div>
