@@ -105,12 +105,11 @@ const UserMenu: React.FC = () => {
                   className="w-full flex items-center px-4 py-2 text-sm text-purple-700 hover:bg-purple-50 transition-colors"
                   onClick={() => {
                     setIsOpen(false)
-                    // In real app, would open upgrade flow
-                    console.log('Upgrade to Premium')
+                    window.location.href = '/pricing'
                   }}
                 >
                   <span className="mr-3">⭐</span>
-                  Upgrade to Premium
+                  PRO starting at $9.99/mo
                 </button>
               )}
 

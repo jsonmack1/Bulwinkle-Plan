@@ -145,46 +145,31 @@ const VideoCard: React.FC<VideoCardProps> = ({
               
               {/* Buttons Container - Right of Thumbnail */}
               <div className="flex flex-col gap-2">
-                {/* Toggle Add/Remove Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (isSelected) {
-                      onRemove(video.id)
-                    } else {
-                      onSelect(video.id)
-                    }
-                  }}
-                  disabled={!canAddVideo}
-                  className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
-                    !canAddVideo 
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : isSelected 
+                {/* Toggle Add/Remove Button - Only show for premium users */}
+                {canAddVideo && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isSelected) {
+                        onRemove(video.id)
+                      } else {
+                        onSelect(video.id)
+                      }
+                    }}
+                    className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
+                      isSelected 
                         ? 'bg-red-500 hover:bg-red-600 text-white'
                         : 'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-                  title={
-                    !canAddVideo 
-                      ? 'Premium required for videos over 2 minutes'
-                      : isSelected 
-                        ? 'Remove video from lesson plan' 
-                        : 'Add video to lesson plan'
-                  }
-                >
-                  {!canAddVideo ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0h2m-2 0H10m4-4.5V9a2 2 0 10-4 0v2.5M8 12h8" />
-                    </svg>
-                  ) : isSelected ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  )}
-                </button>
+                    }`}
+                    title={isSelected ? 'Remove video from lesson plan' : 'Insert video into lesson plan'}
+                  >
+                    {isSelected ? (
+                      <span className="text-xs font-medium">Remove</span>
+                    ) : (
+                      <span className="text-xs font-medium">Insert</span>
+                    )}
+                  </button>
+                )}
                 
                 {/* Preview Button */}
                 <button
@@ -258,48 +243,33 @@ const VideoCard: React.FC<VideoCardProps> = ({
             </div>
           )}
           
-          {/* Toggle Add/Remove Button - Next to Thumbnail */}
-          <div className="absolute top-3 right-3">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                if (isSelected) {
-                  onRemove(video.id)
-                } else {
-                  onSelect(video.id)
-                }
-              }}
-              disabled={!canAddVideo}
-              className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
-                !canAddVideo 
-                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : isSelected 
+          {/* Toggle Add/Remove Button - Next to Thumbnail - Only show for premium users */}
+          {canAddVideo && (
+            <div className="absolute top-3 right-3">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (isSelected) {
+                    onRemove(video.id)
+                  } else {
+                    onSelect(video.id)
+                  }
+                }}
+                className={`p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
+                  isSelected 
                     ? 'bg-red-500 hover:bg-red-600 text-white'
                     : 'bg-green-500 hover:bg-green-600 text-white'
-              }`}
-              title={
-                !canAddVideo 
-                  ? 'Premium required for video access'
-                  : isSelected 
-                    ? 'Remove video from lesson plan' 
-                    : 'Add video to lesson plan'
-              }
-            >
-              {!canAddVideo ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0h2m-2 0H10m4-4.5V9a2 2 0 10-4 0v2.5M8 12h8" />
-                </svg>
-              ) : isSelected ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              )}
-            </button>
-          </div>
+                }`}
+                title={isSelected ? 'Remove video from lesson plan' : 'Add video to lesson plan'}
+              >
+                {isSelected ? (
+                  <span className="text-xs font-medium">Remove</span>
+                ) : (
+                  <span className="text-xs font-medium">Insert</span>
+                )}
+              </button>
+            </div>
+          )}
           
           {/* Duration overlay */}
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">

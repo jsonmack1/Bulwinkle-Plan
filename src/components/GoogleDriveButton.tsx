@@ -323,26 +323,41 @@ export function GoogleDriveButton({ lessonData, lessonContentId, className = '',
               </p>
             </div>
             
-            <div className="bg-blue-50 p-4 rounded-lg mb-6">
-              <h3 className="font-semibold text-blue-800 mb-2">✨ Teacher Pro Export Features:</h3>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Export to Google Docs with formatting</li>
-                <li>• Save to Google Drive automatically</li>
-                <li>• Share easily with colleagues</li>
-                <li>• Print-ready formatting</li>
-              </ul>
+            {/* Export-focused Value Propositions */}
+            <div className="text-left mb-6 space-y-3">
+              <div className="flex items-center text-sm">
+                <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Export to Google Docs with formatting</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Share easily with colleagues</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Print-ready formatting</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Unlimited lesson generation</span>
+              </div>
             </div>
             
             <button
               onClick={() => {
-                setShowUpgradeModal(false)
-                if (onUpgradeClick) {
-                  onUpgradeClick()
-                }
+                window.location.href = '/pricing'
               }}
               className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-4"
             >
-              Upgrade for $7.99/month
+              PRO starting at $9.99/mo
             </button>
             
             <button 

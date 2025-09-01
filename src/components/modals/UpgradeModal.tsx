@@ -41,14 +41,14 @@ const PRICING_PLANS: PricingPlan[] = [
   {
     id: 'annual',
     name: 'School Year',
-    price: 79.90,
+    price: 95.88,
     billing: 'annual',
-    savings: 'Save $39.98',
+    savings: 'Save $24.00',
     stripePrice: process.env.NEXT_PUBLIC_STRIPE_ANNUAL_PRICE_ID || 'price_annual',
     features: [
       'Everything in Monthly',
-      'Best value - $6.66/month',
-      '33% savings vs monthly',
+      'Best value - $7.99/month',
+      '20% savings vs monthly',
       'Perfect for school year',
       'Cancel anytime'
     ],
@@ -147,8 +147,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
       };
     } else {
       return {
-        title: '🚀 You\'ve reached your limit!',
-        subtitle: 'You\'ve used all 3 free lessons this month. Upgrade for unlimited access',
+        title: '🎉 You\'ve been busy, Great work!',
+        subtitle: 'You\'ve used all 5 free lessons this month. Upgrade for unlimited access',
         ctaText: 'Get Unlimited Access',
         showComparison: true
       };
@@ -175,7 +175,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-red-800">Free Lessons Used</span>
-              <span className="text-sm font-bold text-red-600">{currentUsage}/3</span>
+              <span className="text-sm font-bold text-red-600">{currentUsage}/5</span>
             </div>
             <div className="w-full bg-red-200 rounded-full h-3">
               <div 
@@ -190,6 +190,41 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
               }
             </p>
           </div>
+
+          {/* Value propositions for warning modal */}
+          {modalType === 'warning' && (
+            <div className="mt-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-purple-900 mb-4 text-center">
+                🚀 Why Upgrade to Teacher Pro?
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center text-sm">
+                  <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Unlimited lesson generation</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Save hours of prep time weekly</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Auto-differentiation for all learners</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Commercial-free video streaming</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Error display */}
@@ -235,7 +270,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     <p className="text-sm font-medium text-green-600 mt-1">{plan.savings}</p>
                   )}
                   {plan.billing === 'annual' && (
-                    <p className="text-sm text-gray-500 mt-1">Just $6.66 per month</p>
+                    <p className="text-sm text-gray-500 mt-1">Just $7.99 per month</p>
                   )}
                 </div>
 

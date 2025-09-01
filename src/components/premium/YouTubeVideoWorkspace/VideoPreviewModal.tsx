@@ -158,20 +158,48 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
                   className="w-full h-full object-cover filter blur-md"
                 />
                 
-                {/* Paywall overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-                  <div className="text-center text-white bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 max-w-sm">
+                {/* Enhanced Paywall overlay with value propositions */}
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+                  <div className="text-center text-white bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 max-w-md">
                     <div className="text-4xl mb-4">🎬</div>
-                    <h3 className="text-xl font-bold mb-2">Video Preview - Teacher Pro</h3>
-                    <p className="mb-4 text-gray-100">Watch unlimited educational videos with full access</p>
+                    <h3 className="text-xl font-bold mb-2">🚀 Unlock Video Access</h3>
+                    <p className="mb-6 text-gray-100">Watch unlimited educational videos with Teacher Pro</p>
+                    
+                    {/* Video-focused Value Propositions */}
+                    <div className="text-left mb-6 space-y-3">
+                      <div className="flex items-center text-sm">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Commercial-free video streaming</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Age-appropriate & safety verified</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Instant lesson plan integration</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>No more searching YouTube for hours</span>
+                      </div>
+                    </div>
+                    
                     <button
                       onClick={() => {
-                        // You can add upgrade logic here
-                        alert('🔒 Upgrade to Teacher Pro to watch videos!')
+                        window.location.href = '/pricing'
                       }}
-                      className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                      className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors w-full"
                     >
-                      Upgrade to Watch
+                      PRO starting at $9.99/mo
                     </button>
                   </div>
                 </div>

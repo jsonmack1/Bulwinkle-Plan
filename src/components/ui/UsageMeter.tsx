@@ -35,9 +35,7 @@ export const UsageMeter: React.FC<UsageMeterProps> = ({
       userId
     });
     
-    if (onUpgradeClick) {
-      onUpgradeClick();
-    }
+    window.location.href = '/pricing';
   };
 
   const getStatusColor = () => {
@@ -136,7 +134,7 @@ export const UsageMeter: React.FC<UsageMeterProps> = ({
                 : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
             }`}
           >
-            {isOverLimit ? 'Upgrade Now' : 'Go Premium'}
+            {isOverLimit ? 'PRO starting at $9.99/mo' : 'PRO starting at $9.99/mo'}
           </button>
         )}
       </div>
@@ -151,9 +149,26 @@ export const UsageMeter: React.FC<UsageMeterProps> = ({
       {/* Call to action for over-limit users */}
       {isOverLimit && subscriptionStatus === 'free' && (
         <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
-          <div className="text-sm text-red-700 mb-2">
+          <div className="text-sm text-red-700 mb-3">
             You've reached your free limit for this month.
           </div>
+          
+          {/* Usage-focused Value Propositions */}
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center text-xs">
+              <svg className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span>Unlimited lesson generation</span>
+            </div>
+            <div className="flex items-center text-xs">
+              <svg className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span>Auto-differentiation engine</span>
+            </div>
+          </div>
+          
           <div className="flex items-center justify-between">
             <span className="text-xs text-red-600">
               Next reset: {formatResetDate()}
@@ -162,7 +177,7 @@ export const UsageMeter: React.FC<UsageMeterProps> = ({
               onClick={handleUpgradeClick}
               className="text-xs bg-red-600 text-white px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
             >
-              Get Unlimited
+              PRO starting at $9.99/mo
             </button>
           </div>
         </div>

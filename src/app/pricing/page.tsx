@@ -22,14 +22,14 @@ interface PricingConfig {
 
 const PRICING_CONFIG: PricingConfig = {
   annual: {
-    price: 6.65,
-    billedAmount: 79.90,
-    savings: '17% Savings',
+    price: 7.99,
+    billedAmount: 95.88,
+    savings: 'Save $24.00',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_ANNUAL_PRICE_ID || 'price_annual'
   },
   monthly: {
-    price: 7.99,
-    billedAmount: 7.99,
+    price: 9.99,
+    billedAmount: 9.99,
     savings: null,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_monthly'
   }

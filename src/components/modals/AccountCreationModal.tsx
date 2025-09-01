@@ -216,16 +216,26 @@ export const AccountCreationModal: React.FC<AccountCreationModalProps> = ({
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading 
-              ? (isLogin ? 'Signing In...' : 'Creating Account...') 
-              : (isLogin ? 'Sign In' : 'Create Free Account')
-            }
-          </button>
+          {!isLogin ? (
+            // Upgrade to PRO button (redirect to pricing)
+            <button
+              type="button"
+              onClick={() => window.location.href = '/pricing'}
+              disabled={loading}
+              className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              PRO starting at $9.99/mo
+            </button>
+          ) : (
+            // Regular sign in button
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+          )}
         </form>
 
         {/* Social auth options */}
