@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
-import stripe from '../../../../lib/stripe';
 
 interface CreateCheckoutRequest {
   userId?: string;
@@ -25,6 +24,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Dynamic import of Stripe to avoid build-time errors
+    const stripe = (await import('../../../../lib/stripe')).default;
 
     const body: CreateCheckoutRequest = await request.json();
     const { userId, priceId, billingPeriod = 'annual', successUrl, cancelUrl, email, fingerprintHash, sessionId } = body;
