@@ -89,7 +89,7 @@ function DashboardContent() {
               >
                 <div className="text-4xl mb-4">📚</div>
                 <h3 className="text-xl font-semibold mb-2">Create Lessons</h3>
-                <p className="text-gray-600">Generate new lesson plans with AI</p>
+                <p className="text-gray-600">Generate new lesson plans with intelligence</p>
               </Link>
 
               <Link 

@@ -2,7 +2,7 @@
  * UsageTracker - Core freemium system usage tracking with anti-circumvention
  * 
  * This class implements multi-layered usage tracking to prevent users from
- * bypassing the 3 lessons per month limit through various methods.
+ * bypassing the 5 lessons per month limit through various methods.
  */
 
 export interface UsageData {
@@ -40,9 +40,9 @@ export interface TrackingContext {
 export class UsageTracker {
   private static instance: UsageTracker;
   private context: TrackingContext | null = null;
-  private readonly FREE_LIMIT = 3;
-  private readonly ACCOUNT_PROMPT_THRESHOLD = 2; // Show account creation at 2nd lesson
-  private readonly PAYWALL_THRESHOLD = 3; // Show paywall at 4th lesson (after limit)
+  private readonly FREE_LIMIT = 5;
+  private readonly ACCOUNT_PROMPT_THRESHOLD = 3; // Show account creation at 3rd lesson
+  private readonly PAYWALL_THRESHOLD = 5; // Show paywall at 6th lesson (after limit)
 
   private constructor() {
     // Private constructor for singleton
@@ -384,7 +384,14 @@ export class UsageTracker {
       });
 
       if (!response.ok) {
-        throw new Error(`Usage tracking failed: ${response.status}`);
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          errorText = `Failed to read error response: ${e}`;
+        }
+        console.error('Usage tracking error details:', errorText || `HTTP ${response.status} ${response.statusText}`);
+        throw new Error(`Usage tracking failed: ${response.status}${errorText ? ` - ${errorText}` : ''}`);
       }
 
       const data = await response.json();
@@ -415,20 +422,35 @@ export class UsageTracker {
     } catch (error) {
       console.error('❌ Failed to track lesson generation:', error);
       
-      // Return safe defaults - assume over limit to prevent abuse
+      // Fallback to localStorage for demo/development
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const fallbackKey = `peabody_usage_${currentYear}_${currentMonth}`;
+      
+      let fallbackCount = parseInt(localStorage.getItem(fallbackKey) || '0');
+      fallbackCount = Math.min(fallbackCount + 1, 6); // Cap at 6
+      localStorage.setItem(fallbackKey, fallbackCount.toString());
+      
       const usageData: UsageData = {
         userId,
-        lessonCount: this.FREE_LIMIT + 1,
-        remainingLessons: 0,
-        isOverLimit: true,
+        lessonCount: fallbackCount,
+        remainingLessons: Math.max(0, this.FREE_LIMIT - fallbackCount),
+        isOverLimit: fallbackCount > this.FREE_LIMIT,
         subscriptionStatus: 'free',
-        canAccess: false,
+        canAccess: fallbackCount <= this.FREE_LIMIT,
         resetDate: new Date(this.getNextMonthStart())
       };
 
+      let shouldShowModal: 'account' | 'paywall' | null = null;
+      if (!userId && fallbackCount >= this.ACCOUNT_PROMPT_THRESHOLD) {
+        shouldShowModal = 'account';
+      } else if (fallbackCount > this.FREE_LIMIT) {
+        shouldShowModal = 'paywall';
+      }
+
       return {
-        success: false,
-        shouldShowModal: userId ? 'paywall' : 'account',
+        success: fallbackCount <= this.FREE_LIMIT, // Allow generation if under limit
+        shouldShowModal,
         usageData
       };
     }

@@ -225,6 +225,23 @@ mjx-container[display="true"] {
   }
 }
 
+/* Copy protection styles */
+.copy-protected {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.copy-protected::selection {
+  background: transparent;
+}
+
+.copy-protected::-moz-selection {
+  background: transparent;
+}
+
 /* Print styles */
 @media print {
   .no-print {

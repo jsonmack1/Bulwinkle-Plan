@@ -85,7 +85,7 @@ export const FeatureTeaser: React.FC<FeatureTeaserProps> = ({
   const getFeatureDetails = (feature: string) => {
     const features: Record<string, { title: string; description: string; icon: string; benefits: string[] }> = {
       differentiation: {
-        title: 'AI Differentiation Engine',
+        title: 'Intelligence Differentiation Engine',
         description: 'Automatically create versions for ESL learners, IEP students, and different grade levels',
         icon: '🎯',
         benefits: [

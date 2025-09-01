@@ -22,14 +22,14 @@ interface PricingConfig {
 
 const PRICING_CONFIG: PricingConfig = {
   annual: {
-    price: 7.99,
+    price: 6.65,
     billedAmount: 79.90,
-    savings: '20% Savings',
+    savings: '17% Savings',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_ANNUAL_PRICE_ID || 'price_annual'
   },
   monthly: {
-    price: 9.99,
-    billedAmount: 9.99,
+    price: 7.99,
+    billedAmount: 7.99,
     savings: null,
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_monthly'
   }
@@ -139,7 +139,7 @@ export default function PricingPage() {
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Superpower</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8">
-              Save hours every week with AI-powered lesson planning designed for real teachers
+              Save hours every week with intelligence-powered lesson planning designed for real teachers
             </p>
             
           </div>
@@ -220,7 +220,7 @@ export default function PricingPage() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
                   <span className="text-green-500 text-xl mr-3 mt-0.5">✓</span>
-                  <span className="text-gray-700">3 lesson plans per month</span>
+                  <span className="text-gray-700">5 lesson plans per month</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-green-500 text-xl mr-3 mt-0.5">✓</span>
@@ -230,17 +230,21 @@ export default function PricingPage() {
                   <span className="text-green-500 text-xl mr-3 mt-0.5">✓</span>
                   <span className="text-gray-700">Print & copy functionality</span>
                 </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 text-xl mr-3 mt-0.5">✓</span>
+                  <span className="text-gray-700">5-second differentiation previews</span>
+                </li>
                 <li className="flex items-start opacity-50">
                   <span className="text-gray-300 text-xl mr-3 mt-0.5">✗</span>
-                  <span className="text-gray-400">No differentiation features</span>
+                  <span className="text-gray-400">No Google Docs export</span>
                 </li>
                 <li className="flex items-start opacity-50">
                   <span className="text-gray-300 text-xl mr-3 mt-0.5">✗</span>
                   <span className="text-gray-400">No Memory Bank access</span>
                 </li>
-                <li className="flex items-start opacity-50">
-                  <span className="text-gray-300 text-xl mr-3 mt-0.5">✗</span>
-                  <span className="text-gray-400">No CER teacher scripts</span>
+                <li className="flex items-start">
+                  <span className="text-green-500 text-xl mr-3 mt-0.5">✓</span>
+                  <span className="text-gray-700">CER teacher scripts</span>
                 </li>
               </ul>
 
@@ -294,7 +298,7 @@ export default function PricingPage() {
                 <li className="flex items-start">
                   <span className="text-blue-500 text-xl mr-3 mt-0.5">✓</span>
                   <div>
-                    <span className="text-gray-700 font-semibold">AI Differentiation Engine</span>
+                    <span className="text-gray-700 font-semibold">Full Intelligence Differentiation Engine</span>
                     <p className="text-sm text-gray-500 mt-1">{FEATURE_DESCRIPTIONS.differentiation}</p>
                   </div>
                 </li>
@@ -303,13 +307,6 @@ export default function PricingPage() {
                   <div>
                     <span className="text-gray-700 font-semibold">Memory Bank - Save & organize lessons</span>
                     <p className="text-sm text-gray-500 mt-1">{FEATURE_DESCRIPTIONS.memoryBank}</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-orange-500 text-xl mr-3 mt-0.5">✓</span>
-                  <div>
-                    <span className="text-gray-700 font-semibold">CER Teacher Scripts & conversation guides</span>
-                    <p className="text-sm text-gray-500 mt-1">{FEATURE_DESCRIPTIONS.cerScripts}</p>
                   </div>
                 </li>
                 <li className="flex items-start">

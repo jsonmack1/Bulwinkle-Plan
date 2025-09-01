@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import "../styles/animations.css";
 import { AuthProvider } from "../contexts/AuthContext";
+import { StripeProvider } from "../contexts/StripeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,9 +68,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} antialiased min-h-full text-render-optimized bg-background text-foreground`}
       >
         <AuthProvider>
-          <div className="flex flex-col min-h-screen-mobile relative">
-            {children}
-          </div>
+          <StripeProvider>
+            <div className="flex flex-col min-h-screen-mobile relative">
+              {children}
+            </div>
+          </StripeProvider>
         </AuthProvider>
       </body>
     </html>

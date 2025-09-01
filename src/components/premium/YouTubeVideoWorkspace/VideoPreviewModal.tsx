@@ -139,17 +139,44 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
         
         <div className="p-6">
           {/* Video Player */}
-          <div className="aspect-video mb-6 bg-black rounded-lg overflow-hidden">
-            <iframe
-              src={getEmbedUrl(video.id)}
-              className="w-full h-full"
-              allowFullScreen
-              title={video.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; ch-ua-form-factors"
-              referrerPolicy="strict-origin-when-cross-origin"
-              frameBorder="0"
-              sandbox="allow-same-origin allow-scripts allow-presentation"
-            />
+          <div className="aspect-video mb-6 bg-black rounded-lg overflow-hidden relative">
+            {isPremium ? (
+              <iframe
+                src={getEmbedUrl(video.id)}
+                className="w-full h-full"
+                allowFullScreen
+                title={video.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; ch-ua-form-factors"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            ) : (
+              <>
+                {/* Blurred thumbnail background */}
+                <img
+                  src={video.thumbnailUrl}
+                  alt={video.title}
+                  className="w-full h-full object-cover filter blur-md"
+                />
+                
+                {/* Paywall overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                  <div className="text-center text-white bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 max-w-sm">
+                    <div className="text-4xl mb-4">🎬</div>
+                    <h3 className="text-xl font-bold mb-2">Video Preview - Teacher Pro</h3>
+                    <p className="mb-4 text-gray-100">Watch unlimited educational videos with full access</p>
+                    <button
+                      onClick={() => {
+                        // You can add upgrade logic here
+                        alert('🔒 Upgrade to Teacher Pro to watch videos!')
+                      }}
+                      className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                    >
+                      Upgrade to Watch
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           
           {/* Video Information Grid */}
@@ -212,7 +239,7 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
 
             {/* Right Column - Enhanced Details */}
             <div className="space-y-4">
-              {/* Relevancy Explanation - Only show if different from AI analysis */}
+              {/* Relevancy Explanation - Only show if different from Intelligence analysis */}
               {video.relevancyReason && !video.intelligentMetadata?.analysisReason && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Why This Video?</h4>
@@ -236,7 +263,7 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
                 </div>
               )}
 
-              {/* AI Search Analysis - Consolidated */}
+              {/* Intelligence Search Analysis - Consolidated */}
               {video.intelligentMetadata && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">🧠 Intelligent Analysis</h4>

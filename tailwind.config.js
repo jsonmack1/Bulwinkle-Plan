@@ -25,6 +25,10 @@ module.exports = {
       'no-touch': {'raw': '(hover: hover) and (pointer: fine)'},
     },
     extend: {
+      // Font family extensions
+      fontFamily: {
+        'bebas': ['var(--font-bebas-neue)', 'Bebas Neue', 'Arial Black', 'sans-serif'],
+      },
       // Mobile-first spacing system
       spacing: {
         'safe-top': 'env(safe-area-inset-top)',

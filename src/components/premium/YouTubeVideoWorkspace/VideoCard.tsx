@@ -33,12 +33,12 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const [showPreview, setShowPreview] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   
-  // Check if video can be added based on freemium restrictions
-  const canAddVideo = isPremium || video.durationSeconds <= 120 // 2 minutes = 120 seconds
+  // All videos require premium subscription
+  const canAddVideo = isPremium
   const isLocked = !canAddVideo
   
-  // Freemium title blurring for videos >2 minutes
-  const shouldBlurTitle = !isPremium && video.durationSeconds > 120
+  // All videos show locked titles for non-premium users
+  const shouldBlurTitle = !isPremium
   
   // Generate subtly blurred title for freemium users
   const getDisplayTitle = (originalTitle: string): string => {
@@ -279,7 +279,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
               }`}
               title={
                 !canAddVideo 
-                  ? 'Premium required for videos over 2 minutes'
+                  ? 'Premium required for video access'
                   : isSelected 
                     ? 'Remove video from lesson plan' 
                     : 'Add video to lesson plan'

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 interface IncrementUsageRequest {
   userId?: string;
@@ -17,11 +17,37 @@ interface IncrementUsageRequest {
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 Usage tracking API called');
+    
+    // Use service role key for API routes to bypass RLS
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+    
+    // Prefer service role key for backend operations, fallback to anon key
+    const supabaseKey = supabaseServiceKey || supabaseAnonKey;
+    
+    console.log('🔧 Environment check:', {
+      supabaseUrl: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
+      usingServiceKey: !!supabaseServiceKey,
+      usingAnonKey: !supabaseServiceKey && !!supabaseAnonKey,
+      keyPresent: !!supabaseKey
+    });
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error(`Missing Supabase credentials: URL=${!!supabaseUrl}, KEY=${!!supabaseKey}`);
+    }
+    
+    // Create Supabase client with appropriate key
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
     const body: IncrementUsageRequest = await request.json();
     const { userId, fingerprintHash, sessionId, userAgent, lessonData, timestamp } = body;
+    console.log('📊 Request body:', { userId: userId ? 'present' : 'null', fingerprintHash: fingerprintHash ? 'present' : 'null', sessionId: sessionId ? 'present' : 'null' });
 
     // Validate required fields
     if (!fingerprintHash || !sessionId) {
+      console.log('❌ Missing required tracking data');
       return NextResponse.json(
         { error: 'Missing required tracking data' },
         { status: 400 }
@@ -34,14 +60,49 @@ export async function POST(request: NextRequest) {
     const userAgentHash = hashString(userAgent || '');
     const currentMonth = getCurrentMonth();
     const currentYear = new Date().getFullYear();
+    
+    // Check if this is localhost/development environment
+    const isLocalhost = clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === 'unknown';
+    
+    console.log('🏷️ Generated hashes and dates:', { 
+      currentMonth, 
+      currentYear, 
+      clientIP: isLocalhost ? 'localhost' : 'external',
+      isLocalhost 
+    });
+
+    // Test Supabase connection with simpler query
+    console.log('🔗 Testing Supabase connection...');
+    try {
+      const { error: testError } = await supabase.from('usage_tracking').select('id').limit(1);
+      if (testError) {
+        console.error('❌ Supabase connection test failed:', testError);
+        throw new Error(`Supabase connection failed: ${testError.message}`);
+      }
+      console.log('✅ Supabase connected successfully');
+    
+    // Add logging to track actual lesson count progression
+    console.log('📈 Current user session:', { 
+      userId: userId === 'null' ? 'anonymous' : userId,
+      fingerprintHash: fingerprintHash.substring(0, 8) + '...'
+    });
+    } catch (supabaseError) {
+      console.error('❌ Supabase connection error:', supabaseError);
+      throw supabaseError;
+    }
 
     // Check if user is premium first (unlimited access)
     if (userId) {
-      const { data: userData } = await supabase
+      console.log('👤 Checking premium status for user:', userId);
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('subscription_status, subscription_end_date')
         .eq('id', userId)
         .single();
+      
+      if (userError) {
+        console.log('❌ User lookup error:', userError);
+      }
 
       if (userData) {
         const isSubscriptionActive = userData.subscription_end_date 
@@ -66,19 +127,103 @@ export async function POST(request: NextRequest) {
     }
 
     // For free users, check current usage and enforce limits
-    const FREE_LIMIT = 3;
+    const FREE_LIMIT = 5;
 
     // Get existing usage - check all tracking methods to prevent circumvention
-    const { data: usageRecords, error: fetchError } = await supabase
-      .from('usage_tracking')
-      .select('*')
-      .eq('month', currentMonth)
-      .or(`user_id.eq.${userId || 'null'},fingerprint_hash.eq.${fingerprintHash},ip_hash.eq.${ipHash}`);
+    console.log('📊 Querying usage tracking for month:', currentMonth);
+    console.log('🔍 Search parameters:', {
+      month: currentMonth,
+      fingerprintHash: fingerprintHash?.substring(0, 10) + '...',
+      ipHash: ipHash?.substring(0, 10) + '...',
+      userId: userId === 'null' ? null : userId
+    });
+    
+    // For localhost/development, use localStorage-based tracking to avoid database issues
+    if (isLocalhost) {
+      console.log('🏠 Using localhost/development mode - localStorage tracking');
+      
+      // Use a simple key based on fingerprint hash for consistency
+      const localStorageKey = `usage_${currentMonth}_${fingerprintHash.substring(0, 16)}`;
+      
+      // Get existing count from a mock storage (we'll simulate this with the fallback mechanism)
+      const existingCountFromStorage = 0; // This will be handled by fallback logic
+      
+      // Force fallback mode for localhost
+      throw new Error('LOCALHOST_FALLBACK_MODE');
+    }
+    
+    // For production environments only
+    let usageRecords = [];
+    let fetchError = null;
+    
+    {
+      // For production, use multiple tracking methods
+      const queries = [];
+      
+      queries.push(
+        supabase
+          .from('usage_tracking')
+          .select('*')
+          .eq('month', currentMonth)
+          .eq('fingerprint_hash', fingerprintHash)
+      );
+      
+      queries.push(
+        supabase
+          .from('usage_tracking')
+          .select('*')
+          .eq('month', currentMonth)
+          .eq('ip_hash', ipHash)
+      );
+      
+      if (userId && userId !== 'null') {
+        queries.push(
+          supabase
+            .from('usage_tracking')
+            .select('*')
+            .eq('month', currentMonth)
+            .eq('user_id', userId)
+        );
+      }
+      
+      const queryResults = await Promise.all(queries);
+      const allRecords = queryResults.flatMap(result => result.data || []);
+      usageRecords = allRecords.filter((record, index, arr) => 
+        arr.findIndex(r => r.id === record.id) === index
+      );
+      
+      fetchError = queryResults.find(result => result.error)?.error;
+    }
 
     if (fetchError) {
-      console.error('Usage fetch error:', fetchError);
+      console.error('❌ Usage fetch error:', fetchError);
       throw fetchError;
     }
+    
+    console.log('📈 Found usage records:', usageRecords?.length || 0);
+    console.log('📊 Usage records details:', usageRecords?.map(r => ({ 
+      id: r.id, 
+      user_id: r.user_id, 
+      lesson_count: r.lesson_count,
+      fingerprint_hash: r.fingerprint_hash?.substring(0, 8) + '...',
+      ip_hash: r.ip_hash?.substring(0, 8) + '...'
+    })));
+    
+    // DEBUG: Query all records for this month to see what exists
+    const { data: allRecords } = await supabase
+      .from('usage_tracking')
+      .select('*')
+      .eq('month', currentMonth);
+    
+    console.log('🔍 DEBUG - All records in database for month:', currentMonth, ':', allRecords?.length || 0);
+    console.log('🔍 DEBUG - All record details:', allRecords?.map(r => ({
+      id: r.id,
+      user_id: r.user_id,
+      lesson_count: r.lesson_count,
+      fingerprint_hash: r.fingerprint_hash?.substring(0, 10) + '...',
+      ip_hash: r.ip_hash?.substring(0, 10) + '...',
+      month: r.month
+    })));
 
     // Calculate current usage from all tracking methods
     let currentUsage = 0;
@@ -89,7 +234,15 @@ export async function POST(request: NextRequest) {
       currentUsage = Math.max(...usageRecords.map(record => record.lesson_count || 0));
       
       // Prefer user-specific record if available
-      existingRecord = usageRecords.find(record => record.user_id === userId) || usageRecords[0];
+      existingRecord = usageRecords.find(record => record.user_id === (userId === 'null' ? null : userId)) || usageRecords[0];
+      
+      console.log('📊 Existing record found:', {
+        id: existingRecord?.id,
+        currentUsage,
+        will_update: true
+      });
+    } else {
+      console.log('📊 No existing records - will create new record');
     }
 
     // Check if user has already exceeded the limit
@@ -98,7 +251,7 @@ export async function POST(request: NextRequest) {
       await supabase
         .from('feature_usage')
         .insert({
-          user_id: userId || null,
+          user_id: (userId && userId !== 'null') ? userId : null,
           feature_name: 'lesson_generation',
           feature_category: 'generation',
           action: 'blocked',
@@ -116,7 +269,7 @@ export async function POST(request: NextRequest) {
       await supabase
         .from('analytics_events')
         .insert({
-          user_id: userId || null,
+          user_id: (userId && userId !== 'null') ? userId : null,
           session_id: sessionId,
           event_name: 'paywall_encountered',
           event_category: 'conversion_funnel',
@@ -151,7 +304,7 @@ export async function POST(request: NextRequest) {
         .from('usage_tracking')
         .update({
           lesson_count: newLessonCount,
-          user_id: userId || existingRecord.user_id, // Update user_id if user just signed up
+          user_id: (userId && userId !== 'null') ? userId : existingRecord.user_id, // Update user_id if user just signed up
           last_use_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -163,24 +316,35 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Create new usage record
-      const { error: insertError } = await supabase
+      const insertData = {
+        user_id: (userId && userId !== 'null') ? userId : null,
+        month: currentMonth,
+        year: currentYear,
+        lesson_count: newLessonCount,
+        fingerprint_hash: fingerprintHash,
+        ip_hash: ipHash,
+        user_agent_hash: userAgentHash,
+        session_token: sessionId,
+        first_use_at: new Date().toISOString(),
+        last_use_at: new Date().toISOString()
+      };
+      
+      console.log('💾 Inserting new record:', {
+        ...insertData,
+        fingerprint_hash: insertData.fingerprint_hash?.substring(0, 10) + '...',
+        ip_hash: insertData.ip_hash?.substring(0, 10) + '...'
+      });
+      
+      const { data: insertResult, error: insertError } = await supabase
         .from('usage_tracking')
-        .insert({
-          user_id: userId || null,
-          month: currentMonth,
-          year: currentYear,
-          lesson_count: newLessonCount,
-          fingerprint_hash: fingerprintHash,
-          ip_hash: ipHash,
-          user_agent_hash: userAgentHash,
-          session_token: sessionId,
-          first_use_at: new Date().toISOString(),
-          last_use_at: new Date().toISOString()
-        });
+        .insert(insertData)
+        .select('*');
 
       if (insertError) {
         console.error('Usage insert error:', insertError);
         throw insertError;
+      } else {
+        console.log('✅ Successfully inserted record:', insertResult?.[0]?.id);
       }
     }
 
@@ -206,7 +370,7 @@ export async function POST(request: NextRequest) {
 
     // Track analytics events based on usage
     let eventName = 'lesson_generated';
-    if (newLessonCount === 2 && !userId) {
+    if (newLessonCount === 3 && !userId) {
       eventName = 'account_prompt_trigger'; // Trigger account creation prompt
     } else if (newLessonCount === FREE_LIMIT) {
       eventName = 'limit_warning_shown'; // Last free lesson
@@ -223,34 +387,84 @@ export async function POST(request: NextRequest) {
           lessonCount: newLessonCount,
           remainingLessons,
           isLastFreeLesson: newLessonCount === FREE_LIMIT,
-          shouldPromptAccount: newLessonCount === 2 && !userId
+          shouldPromptAccount: newLessonCount === 3 && !(userId && userId !== 'null')
         },
         fingerprint_hash: fingerprintHash,
         ip_hash: ipHash,
         user_agent: userAgent
       });
 
-    return NextResponse.json({
+    const responseData = {
       success: true,
       lessonCount: newLessonCount,
       remainingLessons,
       canAccess,
       subscriptionStatus: 'free',
       resetDate: getNextMonthStart().toISOString(),
-      shouldPromptAccount: newLessonCount >= 2 && !userId,
+      shouldPromptAccount: newLessonCount >= 3 && !(userId && userId !== 'null'),
       isLastFreeLesson: newLessonCount === FREE_LIMIT,
-      userId
-    });
+      userId: (userId && userId !== 'null') ? userId : null
+    };
+    
+    console.log('✅ Usage tracking successful:', responseData);
+    
+    return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('Usage increment failed:', error);
-    return NextResponse.json(
-      { 
-        error: 'Usage tracking failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    console.error('❌ Usage increment failed:', error);
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      type: typeof error
+    });
+    
+    // Fallback response for development/demo mode
+    // Use already parsed body data
+    const fallbackUserId = body.userId;
+    const fallbackFingerprintHash = body.fingerprintHash;
+    const fallbackSessionId = body.sessionId;
+    
+    console.log('🏠 LOCALHOST FALLBACK MODE - Using memory-based tracking');
+    
+    // For localhost, use a file-based counter to persist across requests
+    const fs = require('fs');
+    const path = require('path');
+    const tmpDir = require('os').tmpdir();
+    const currentMonth = getCurrentMonth();
+    
+    // Create a unique counter file based on session and month
+    const counterFile = path.join(tmpDir, `usage_${currentMonth}_${fallbackFingerprintHash.substring(0, 16)}.txt`);
+    
+    let fallbackLessonCount = 1;
+    try {
+      if (fs.existsSync(counterFile)) {
+        const existingCount = parseInt(fs.readFileSync(counterFile, 'utf8') || '0');
+        fallbackLessonCount = existingCount + 1;
+        console.log('📁 Found existing localhost counter:', existingCount, '→', fallbackLessonCount);
+      } else {
+        console.log('📁 Creating new localhost counter file');
+      }
+      
+      // Write updated count back to file
+      fs.writeFileSync(counterFile, fallbackLessonCount.toString());
+      console.log('💾 Updated localhost counter to:', fallbackLessonCount);
+    } catch (fileError) {
+      console.warn('📁 File-based counter failed, using session-based fallback:', fileError);
+      fallbackLessonCount = 1; // Default fallback
+    }
+    const FREE_LIMIT = 5;
+    
+    return NextResponse.json({
+      success: true,
+      lessonCount: fallbackLessonCount,
+      remainingLessons: Math.max(0, FREE_LIMIT - fallbackLessonCount),
+      canAccess: fallbackLessonCount <= FREE_LIMIT,
+      subscriptionStatus: 'free',
+      resetDate: getNextMonthStart().toISOString(),
+      shouldPromptAccount: fallbackLessonCount >= 3 && !(fallbackUserId && fallbackUserId !== 'null'),
+      isLastFreeLesson: fallbackLessonCount === FREE_LIMIT,
+      userId: (fallbackUserId && fallbackUserId !== 'null') ? fallbackUserId : null
+    });
   }
 }
 

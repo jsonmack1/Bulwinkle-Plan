@@ -213,6 +213,42 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
               </Link>
             )}
             
+            {/* Teacher/Sub Mode Toggle - Mobile */}
+            {onToggleMode && (
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="bg-gray-50 rounded-lg p-1">
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => {
+                        onToggleMode(false)
+                        closeMobileMenu()
+                      }}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-bold transition-all duration-200 ${
+                        !isSubMode 
+                          ? 'bg-blue-600 text-white shadow-sm' 
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Teacher Plans
+                    </button>
+                    <button
+                      onClick={() => {
+                        onToggleMode(true)
+                        closeMobileMenu()
+                      }}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-bold transition-all duration-200 ${
+                        isSubMode 
+                          ? 'bg-green-600 text-white shadow-sm' 
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Sub Plans
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {!user && (
               <button
                 onClick={() => {

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useSubscription } from '../../../lib/subscription-mock'
 
 interface DifferentiationItemProps {
   type: 'below_grade' | 'at_grade' | 'above_grade' | 'esl_adaptations' | 'iep_adaptations'
@@ -38,7 +39,10 @@ const DifferentiationItem: React.FC<DifferentiationItemProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(5)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { isPremium } = useSubscription()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,6 +57,41 @@ const DifferentiationItem: React.FC<DifferentiationItemProps> = ({
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showActions])
+
+  // Preview system for non-premium users
+  const startPreview = () => {
+    setShowPreview(true)
+    setIsExpanded(true)
+    setTimeLeft(5)
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setShowPreview(false)
+          setIsExpanded(false)
+          showUpgradeModal()
+          return 5
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const showUpgradeModal = () => {
+    alert('🔒 Upgrade to Teacher Pro to access full Intelligence Differentiation features!')
+  }
+
+  const handleActionClick = () => {
+    if (!isPremium) {
+      startPreview()
+      return
+    }
+    
+    if (onAddToPlan) {
+      onAddToPlan()
+    }
+  }
 
   const getTypeConfig = () => {
     switch (type) {
@@ -229,11 +268,12 @@ const DifferentiationItem: React.FC<DifferentiationItemProps> = ({
                   </button>
                 ) : (
                   <button
-                    onClick={onAddToPlan}
+                    onClick={handleActionClick}
                     disabled={isAdded}
-                    className={`${config.buttonColor} disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs px-3 py-1 rounded font-medium transition-colors`}
+                    className={`${config.buttonColor} disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs px-3 py-1 rounded font-medium transition-colors flex items-center gap-1`}
                   >
-                    {isAdded ? 'Added' : 'Add to Plan'}
+                    {isAdded ? 'Added' : isPremium ? 'Add to Plan' : 'Preview'}
+                    {!isPremium && !isAdded && <span className="text-xs">▶️</span>}
                   </button>
                 )}
               </>
@@ -258,8 +298,18 @@ const DifferentiationItem: React.FC<DifferentiationItemProps> = ({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="border-t border-gray-200 p-4 bg-white bg-opacity-50">
-          <div className="space-y-3">
+        <div className="border-t border-gray-200 p-4 bg-white bg-opacity-50 relative">
+          {/* Preview Timer for Non-Premium Users */}
+          {!isPremium && showPreview && (
+            <div className="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold z-10 shadow-lg">
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                <span>Preview: {timeLeft}s</span>
+              </div>
+            </div>
+          )}
+          
+          <div className={`space-y-3 ${!isPremium && showPreview ? 'copy-protected' : ''}`}>
             {getContentSections().map((section, index) => (
               <div key={index}>
                 <div className="flex items-center mb-1">
@@ -277,6 +327,19 @@ const DifferentiationItem: React.FC<DifferentiationItemProps> = ({
               </div>
             ))}
           </div>
+          
+          {/* Non-premium overlay when not in preview */}
+          {!isPremium && !showPreview && (
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent flex items-end justify-center pb-4">
+              <button
+                onClick={startPreview}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2 shadow-lg"
+              >
+                <span>▶️</span>
+                <span>Preview (5 seconds)</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

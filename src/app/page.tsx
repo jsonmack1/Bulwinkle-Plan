@@ -7,6 +7,7 @@ import GoogleDriveButton from '../components/GoogleDriveButton'
 import { useActivityGeneration } from '../hooks/useActivityGeneration'
 import { useSubscription } from '../lib/subscription-mock'
 import { useMemoryBank } from '../lib/memoryBank'
+import { useFreemiumSystem } from '../hooks/useFreemiumSystem'
 import Navigation from '../components/Navigation'
 import AnimatedLoadingScreen from '../components/ui/AnimatedLoadingScreen'
 import { useAnimatedLoading } from '../hooks/useAnimatedLoading'
@@ -218,6 +219,17 @@ export default function ActivityLessonBuilder() {
   const { generateActivity: generateActivityAPI, parseActivityContent } = useActivityGeneration()
   const { isPremium, canUseDifferentiation } = useSubscription()
   const { saveLesson } = useMemoryBank()
+  const { 
+    usageData, 
+    showAccountModal, 
+    showUpgradeModal: showFreemiumUpgradeModal, 
+    upgradeModalType,
+    trackLessonGeneration, 
+    handleAccountCreated, 
+    handleUpgradeCompleted, 
+    closeModals,
+    isOverLimit 
+  } = useFreemiumSystem()
 
   // Differentiation handlers for inline menu
   const handleAddDifferentiation = useCallback((type: string, data: unknown) => {
@@ -934,6 +946,31 @@ export default function ActivityLessonBuilder() {
     console.log('🚀 Starting activity generation with enhanced features...')
     
     try {
+      // Check usage limits before generating (but don't block on failure)
+      let shouldContinue = true
+      try {
+        const usageCheck = await trackLessonGeneration({
+          topic: formState.topic,
+          subject: formState.subject,
+          gradeLevel: formState.gradeLevel
+        })
+        
+        // If usage check shows we can't generate, stop here
+        if (!usageCheck.canGenerate) {
+          console.log('❌ Generation blocked due to usage limits')
+          return
+        }
+        
+        // If modal is shown but generation is allowed, continue with generation
+        shouldContinue = true
+      } catch (trackingError) {
+        console.warn('Usage tracking failed, continuing with generation:', trackingError)
+        // Continue with generation even if tracking fails
+        shouldContinue = true
+      }
+      
+      if (!shouldContinue) return
+      
       dispatch({ type: 'SET_PROCESSING', payload: true })
       dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: false })
       
@@ -1097,7 +1134,7 @@ export default function ActivityLessonBuilder() {
         }
       }
     }
-  }, [formState, generateActivityAPI, showLoading, hideLoading])
+  }, [formState, generateActivityAPI, showLoading, hideLoading, trackLessonGeneration])
 
   return (
     <>
@@ -1358,11 +1395,11 @@ export default function ActivityLessonBuilder() {
               {/* Mobile/Tablet Layout - Stacked */}
               <div className="lg:hidden">
                 {/* Main Title - Mobile Optimized */}
-                <h1 className={`font-bebas text-center sm:text-left ${formState.isSubMode ? 'text-[11rem] sm:text-8xl md:text-9xl' : 'text-[10rem] sm:text-7xl md:text-8xl'} font-normal mb-4 leading-tight bg-gradient-to-r ${
+                <h1 className={`font-bebas text-center sm:text-left ${formState.isSubMode ? 'text-4xl sm:text-8xl md:text-9xl' : 'text-4xl sm:text-8xl md:text-8xl'} font-normal mb-4 leading-tight bg-gradient-to-r ${
                   formState.isSubMode 
                     ? 'from-green-600 to-emerald-600' 
                     : 'from-blue-600 to-indigo-600'
-                } bg-clip-text text-transparent px-4 text-render-optimized`}>
+                } bg-clip-text text-transparent px-4`} style={{ fontFamily: 'var(--font-bebas-neue), Bebas Neue, Arial Black, sans-serif' }}>
                   {formState.isSubMode ? 'Emergency Sub Plans That Actually Work' : 'Lesson Planning Doesn\'t Have to Feel Overwhelming'}
                 </h1>
                 
@@ -2264,6 +2301,127 @@ export default function ActivityLessonBuilder() {
       {/* Premium Feature Lock Modal */}
       <Suspense fallback={null}>
         {showPremiumLock && <PremiumFeatureLock onClose={() => setShowPremiumLock(false)} />}
+      </Suspense>
+
+      {/* Freemium Usage Modals */}
+      <Suspense fallback={null}>
+        {showAccountModal && (
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-[60]">
+            {/* Blurred App Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-50">
+              <div className="absolute inset-0 filter blur-sm opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)' }}>
+                <div className="p-8 max-w-4xl mx-auto">
+                  <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-20 bg-gray-100 rounded"></div>
+                      <div className="h-20 bg-gray-100 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-0 backdrop-blur-sm"></div>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full relative shadow-2xl">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">👋</div>
+                <h2 className="text-2xl font-bold mb-2">You're doing great!</h2>
+                <p className="text-gray-600">
+                  You've generated {usageData?.lessonCount || 3} lessons. Create a free account to track your progress and get premium features.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  handleAccountCreated()
+                  closeModals()
+                }}
+                className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-4"
+              >
+                Create Free Account
+              </button>
+              <button 
+                onClick={() => {
+                  closeModals()
+                  // Continue with lesson generation after modal dismissal
+                  setTimeout(() => {
+                    if (!formState.showPreview && !formState.processing) {
+                      console.log('🔄 Resuming lesson generation after modal dismissal')
+                      // The generation should continue automatically since tracking was successful
+                    }
+                  }, 100)
+                }}
+                className="w-full text-gray-500 hover:text-gray-700"
+              >
+                Continue Without Account
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {showFreemiumUpgradeModal && (
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-[60]">
+            {/* Blurred App Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50">
+              <div className="absolute inset-0 filter blur-sm opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(239, 68, 68, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(249, 115, 22, 0.1) 0%, transparent 50%)' }}>
+                <div className="p-8 max-w-4xl mx-auto">
+                  <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+                    <div className="h-6 bg-gray-400 rounded mb-3"></div>
+                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-0 backdrop-blur-sm"></div>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full relative shadow-2xl">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">⚡</div>
+                <h2 className="text-2xl font-bold mb-2">
+                  {upgradeModalType === 'warning' 
+                    ? 'Last Free Lesson This Month!' 
+                    : "You've Used All 5 Free Lessons"}
+                </h2>
+                <p className="text-gray-600">
+                  {upgradeModalType === 'warning'
+                    ? 'This is your final free lesson this month. Upgrade for unlimited access.'
+                    : 'Upgrade to Teacher Pro for unlimited lesson generation and premium features.'}
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 p-4 rounded-lg mb-6">
+                <h3 className="font-semibold text-purple-800 mb-2">✨ Teacher Pro Features:</h3>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  <li>• Unlimited lesson plans</li>
+                  <li>• Full Intelligence Differentiation Engine</li>
+                  <li>• Memory Bank lesson library</li>
+                  <li>• Google Docs export</li>
+                </ul>
+              </div>
+              
+              <button
+                onClick={() => {
+                  window.location.href = '/pricing'
+                }}
+                className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-4"
+              >
+                Upgrade for $7.99/month
+              </button>
+              
+              <button 
+                onClick={closeModals}
+                className="w-full text-gray-500 hover:text-gray-700"
+              >
+                {upgradeModalType === 'warning' ? 'Use Last Free Lesson' : 'Maybe Later'}
+              </button>
+            </div>
+          </div>
+        )}
       </Suspense>
 
       {/* Animated Loading Screen */}

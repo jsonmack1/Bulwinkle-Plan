@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
+import stripe from '../../../../lib/stripe';
 
 interface CreateCheckoutRequest {
   userId?: string;
@@ -17,18 +18,7 @@ interface CreateCheckoutRequest {
  * POST /api/stripe/create-checkout
  */
 export async function POST(request: NextRequest) {
-  // Temporary response until Stripe is configured
-  return NextResponse.json(
-    { error: 'Stripe checkout not yet configured' },
-    { status: 501 }
-  );
-}
-
-/* TODO: Uncomment when ready to implement Stripe
-export async function POST(request: NextRequest) {
   try {
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-    
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
         { error: 'Stripe configuration missing' },
@@ -239,5 +229,3 @@ function getClientIP(request: NextRequest): string {
   
   return cfConnectingIP || xRealIP || xForwardedFor?.split(',')[0] || 'unknown';
 }
-
-*/

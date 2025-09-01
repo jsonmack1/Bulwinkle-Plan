@@ -48,9 +48,9 @@ const MemoryBankPremiumLock: React.FC<MemoryBankPremiumLockProps> = ({
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-center text-white">
           <div className="text-4xl mb-3">💎</div>
-          <h2 className="text-2xl font-bold mb-2">Unlock Memory Bank</h2>
+          <h2 className="text-2xl font-bold mb-2">Unlock Your Memory Bank</h2>
           <p className="text-blue-100 text-sm">
-            Save, organize, and reuse your best lesson activities
+            Never lose a great lesson again! Save, organize, and reuse your best activities.
           </p>
         </div>
 
@@ -119,7 +119,7 @@ const MemoryBankPremiumLock: React.FC<MemoryBankPremiumLockProps> = ({
               ) : (
                 <>
                   <span>💎</span>
-                  <span>Unlock Memory Bank</span>
+                  <span>Unlock Memory Bank - $7.99/month</span>
                 </>
               )}
             </button>

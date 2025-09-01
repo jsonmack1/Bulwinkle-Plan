@@ -14,22 +14,22 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionStatus, SubscriptionInfo> = 
   free: {
     status: 'free',
     plan: 'Free Plan',
-    features: ['Basic activity generation', 'Standard templates', 'Print activities'],
+    features: ['5 lesson plans per month', 'CER teacher scripts', '5-second differentiation previews', 'Basic activity generation', 'Standard templates', 'Print activities'],
     monthlyPrice: undefined
   },
   premium: {
     status: 'premium',
     plan: 'Premium Plan',
     features: [
-      'Advanced differentiation engine',
+      'Unlimited lesson plans',
+      'Full Intelligence Differentiation Engine',
       'ESL & IEP adaptations', 
-      'CER teacher scripts',
       'Memory Bank lesson library',
+      'Google Docs export',
       'Activity search and reuse',
-      'Unlimited activities',
       'Priority support'
     ],
-    monthlyPrice: '$9.99'
+    monthlyPrice: '$7.99'
   },
   school: {
     status: 'school',
@@ -70,7 +70,7 @@ export const mockSubscription = {
   },
   
   canUseDifferentiation: (): boolean => {
-    return mockSubscription.isPremium()
+    return true // Allow all users to access differentiation (free users get preview)
   },
   
   getRemainingFeatures: (): string[] => {

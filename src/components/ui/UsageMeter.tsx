@@ -58,7 +58,7 @@ export const UsageMeter: React.FC<UsageMeterProps> = ({
       return '⚠️ Last free lesson this month!';
     }
     if (remaining === 0) {
-      return '🎯 3 free lessons used - Upgrade now';
+      return '🎯 5 free lessons used - Upgrade now';
     }
     return `${remaining} free lesson${remaining !== 1 ? 's' : ''} remaining`;
   };

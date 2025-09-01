@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import AdaptationCard from './AdaptationCard'
+import DifferentiationPreview from './DifferentiationPreview'
 
 interface DifferentiationEngineProps {
   activityContent: string
@@ -9,6 +10,8 @@ interface DifferentiationEngineProps {
   activityType: string
   duration: string
   onClose: () => void
+  isPremium?: boolean
+  onUpgradeClick?: () => void
 }
 
 interface DifferentiationContent {
@@ -61,7 +64,9 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
   topic,
   activityType,
   duration,
-  onClose
+  onClose,
+  isPremium = false,
+  onUpgradeClick
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [differentiationData, setDifferentiationData] = useState<DifferentiationData | null>(null)
@@ -263,7 +268,7 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                🎯 Enhanced Differentiation Engine
+                🎯 Enhanced Differentiation Intelligence
               </h2>
               <p className="text-gray-600 text-sm">
                 Generate 5 specialized adaptations for: <strong>{topic}</strong> ({gradeLevel} {subject})
@@ -376,42 +381,72 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {hasContent(differentiationData.below_grade) && (
-                  <AdaptationCard
-                    title={differentiationData.below_grade.title}
-                    type="below"
-                    data={differentiationData.below_grade}
+                  <DifferentiationPreview
+                    isPremium={isPremium}
+                    onUpgradeClick={onUpgradeClick}
+                    content={
+                      <AdaptationCard
+                        title={differentiationData.below_grade.title}
+                        type="below"
+                        data={differentiationData.below_grade}
+                      />
+                    }
                   />
                 )}
                 
                 {hasContent(differentiationData.at_grade) && (
-                  <AdaptationCard
-                    title={differentiationData.at_grade.title}
-                    type="at"
-                    data={differentiationData.at_grade}
+                  <DifferentiationPreview
+                    isPremium={isPremium}
+                    onUpgradeClick={onUpgradeClick}
+                    content={
+                      <AdaptationCard
+                        title={differentiationData.at_grade.title}
+                        type="at"
+                        data={differentiationData.at_grade}
+                      />
+                    }
                   />
                 )}
                 
                 {hasContent(differentiationData.above_grade) && (
-                  <AdaptationCard
-                    title={differentiationData.above_grade.title}
-                    type="above"
-                    data={differentiationData.above_grade}
+                  <DifferentiationPreview
+                    isPremium={isPremium}
+                    onUpgradeClick={onUpgradeClick}
+                    content={
+                      <AdaptationCard
+                        title={differentiationData.above_grade.title}
+                        type="above"
+                        data={differentiationData.above_grade}
+                      />
+                    }
                   />
                 )}
                 
                 {hasContent(differentiationData.esl_adaptations) && (
-                  <AdaptationCard
-                    title={differentiationData.esl_adaptations.title}
-                    type="esl"
-                    data={differentiationData.esl_adaptations}
+                  <DifferentiationPreview
+                    isPremium={isPremium}
+                    onUpgradeClick={onUpgradeClick}
+                    content={
+                      <AdaptationCard
+                        title={differentiationData.esl_adaptations.title}
+                        type="esl"
+                        data={differentiationData.esl_adaptations}
+                      />
+                    }
                   />
                 )}
                 
                 {hasContent(differentiationData.iep_adaptations) && (
-                  <AdaptationCard
-                    title={differentiationData.iep_adaptations.title}
-                    type="iep"
-                    data={differentiationData.iep_adaptations}
+                  <DifferentiationPreview
+                    isPremium={isPremium}
+                    onUpgradeClick={onUpgradeClick}
+                    content={
+                      <AdaptationCard
+                        title={differentiationData.iep_adaptations.title}
+                        type="iep"
+                        data={differentiationData.iep_adaptations}
+                      />
+                    }
                   />
                 )}
               </div>

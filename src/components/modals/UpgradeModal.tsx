@@ -32,7 +32,7 @@ const PRICING_PLANS: PricingPlan[] = [
     stripePrice: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_monthly',
     features: [
       'Unlimited lesson plans',
-      'AI Differentiation Engine',
+      'Intelligence Differentiation Engine',
       'Memory Bank - Save & reuse',
       'CER Teacher Scripts',
       'Priority support'
@@ -158,7 +158,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const content = getModalContent();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
@@ -289,7 +289,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-purple-600 mb-2">🎯 AI Differentiation</h4>
+                  <h4 className="font-semibold text-purple-600 mb-2">🎯 Intelligence Differentiation</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
                     <li>• Automatic ESL adaptations</li>
                     <li>• IEP-friendly modifications</li>

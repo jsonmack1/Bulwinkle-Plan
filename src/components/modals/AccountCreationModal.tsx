@@ -108,7 +108,7 @@ export const AccountCreationModal: React.FC<AccountCreationModalProps> = ({
   const canSkip = mode === 'prompt' && remainingLessons > 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
         {/* Header */}
         <div className="text-center mb-6">
@@ -128,13 +128,13 @@ export const AccountCreationModal: React.FC<AccountCreationModalProps> = ({
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">Free lessons used</span>
             <span className="text-sm font-semibold text-purple-600">
-              {currentLesson} of 3
+              {currentLesson} of 5
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
               className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentLesson / 3) * 100}%` }}
+              style={{ width: `${(currentLesson / 5) * 100}%` }}
             ></div>
           </div>
         </div>

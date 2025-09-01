@@ -78,18 +78,52 @@ export async function POST(request: NextRequest) {
     }
 
     // For free users, check usage across multiple tracking methods
-    const { data: usageData, error: usageError } = await supabase
-      .from('usage_tracking')
-      .select('lesson_count, user_id')
-      .eq('month', currentMonth)
-      .or(`user_id.eq.${userId || 'null'},fingerprint_hash.eq.${fingerprintHash},ip_hash.eq.${ipHash}`);
+    const queries = [];
+    
+    // Query by fingerprint hash
+    queries.push(
+      supabase
+        .from('usage_tracking')
+        .select('lesson_count, user_id')
+        .eq('month', currentMonth)
+        .eq('fingerprint_hash', fingerprintHash)
+    );
+    
+    // Query by IP hash
+    queries.push(
+      supabase
+        .from('usage_tracking')
+        .select('lesson_count, user_id')
+        .eq('month', currentMonth)
+        .eq('ip_hash', ipHash)
+    );
+    
+    // Query by user ID if available
+    if (userId && userId !== 'null') {
+      queries.push(
+        supabase
+          .from('usage_tracking')
+          .select('lesson_count, user_id')
+          .eq('month', currentMonth)
+          .eq('user_id', userId)
+      );
+    }
+    
+    // Execute all queries and combine results
+    const queryResults = await Promise.all(queries);
+    const allRecords = queryResults.flatMap(result => result.data || []);
+    const usageData = allRecords.filter((record, index, arr) => 
+      arr.findIndex(r => r.user_id === record.user_id) === index // Remove duplicates by user_id
+    );
+    
+    const usageError = queryResults.find(result => result.error)?.error;
 
     if (usageError) {
       console.error('Usage check error:', usageError);
       // Return conservative defaults on error
       return NextResponse.json({
         userId,
-        lessonCount: 3,
+        lessonCount: 5,
         remainingLessons: 0,
         isOverLimit: true,
         subscriptionStatus: 'free',
@@ -111,7 +145,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const FREE_LIMIT = 3;
+    const FREE_LIMIT = 5;
     const remainingLessons = Math.max(0, FREE_LIMIT - totalUsage);
     const isOverLimit = totalUsage >= FREE_LIMIT;
 
@@ -149,13 +183,21 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Usage check failed:', error);
-    return NextResponse.json(
-      { 
-        error: 'Usage check failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    
+    // Fallback response for development/demo mode
+    const FREE_LIMIT = 5;
+    const fallbackLessonCount = 0;
+    
+    return NextResponse.json({
+      lessonCount: fallbackLessonCount,
+      remainingLessons: FREE_LIMIT - fallbackLessonCount,
+      isOverLimit: false,
+      subscriptionStatus: 'free',
+      canAccess: true,
+      resetDate: getNextMonthStart().toISOString(),
+      shouldPromptAccount: false,
+      userId: null
+    });
   }
 }
 
@@ -207,12 +249,19 @@ export async function PUT(request: NextRequest) {
     }
 
     // For free users, increment usage count
-    const { data: existingUsage, error: fetchError } = await supabase
+    let usageQuery = supabase
       .from('usage_tracking')
       .select('*')
-      .eq('month', currentMonth)
-      .or(`user_id.eq.${userId || 'null'},fingerprint_hash.eq.${fingerprintHash},ip_hash.eq.${ipHash}`)
-      .single();
+      .eq('month', currentMonth);
+
+    // Handle null userId properly
+    if (userId && userId !== 'null') {
+      usageQuery = usageQuery.or(`user_id.eq.${userId},fingerprint_hash.eq.${fingerprintHash},ip_hash.eq.${ipHash}`);
+    } else {
+      usageQuery = usageQuery.or(`user_id.is.null,fingerprint_hash.eq.${fingerprintHash},ip_hash.eq.${ipHash}`);
+    }
+    
+    const { data: existingUsage, error: fetchError } = await usageQuery.maybeSingle();
 
     let newLessonCount = 1;
 
@@ -256,7 +305,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    const FREE_LIMIT = 3;
+    const FREE_LIMIT = 5;
     const remainingLessons = Math.max(0, FREE_LIMIT - newLessonCount);
     const canAccess = newLessonCount <= FREE_LIMIT;
 

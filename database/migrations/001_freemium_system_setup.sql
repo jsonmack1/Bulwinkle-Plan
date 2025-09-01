@@ -64,13 +64,7 @@ CREATE TABLE IF NOT EXISTS usage_tracking (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
     -- Composite unique constraint to prevent duplicate tracking
-    UNIQUE(user_id, month, fingerprint_hash, ip_hash),
-    
-    -- Index for efficient queries
-    INDEX idx_usage_tracking_month (month),
-    INDEX idx_usage_tracking_user_month (user_id, month),
-    INDEX idx_usage_tracking_fingerprint (fingerprint_hash),
-    INDEX idx_usage_tracking_ip (ip_hash)
+    UNIQUE(user_id, month, fingerprint_hash, ip_hash)
 );
 
 -- Lessons table (enhanced existing structure)
@@ -98,12 +92,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes
-    INDEX idx_lessons_user (user_id),
-    INDEX idx_lessons_created_at (created_at),
-    INDEX idx_lessons_subject_grade (subject, grade_level)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Subscription events log for audit trail
@@ -120,12 +109,7 @@ CREATE TABLE IF NOT EXISTS subscription_events (
     stripe_object_id VARCHAR(255),
     
     -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes
-    INDEX idx_subscription_events_user (user_id),
-    INDEX idx_subscription_events_type (event_type),
-    INDEX idx_subscription_events_stripe (stripe_event_id)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Feature usage analytics
@@ -147,12 +131,7 @@ CREATE TABLE IF NOT EXISTS feature_usage (
     ip_hash VARCHAR(64),
     
     -- Timing
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes
-    INDEX idx_feature_usage_user (user_id),
-    INDEX idx_feature_usage_feature (feature_name),
-    INDEX idx_feature_usage_date (created_at)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Analytics events for conversion funnel
@@ -178,14 +157,31 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     ip_hash VARCHAR(64),
     
     -- Timing
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes
-    INDEX idx_analytics_events_name (event_name),
-    INDEX idx_analytics_events_user (user_id),
-    INDEX idx_analytics_events_session (session_id),
-    INDEX idx_analytics_events_date (created_at)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Create indexes separately after table creation
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_month ON usage_tracking (month);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_user_month ON usage_tracking (user_id, month);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_fingerprint ON usage_tracking (fingerprint_hash);
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_ip ON usage_tracking (ip_hash);
+
+CREATE INDEX IF NOT EXISTS idx_lessons_user ON lessons (user_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_created_at ON lessons (created_at);
+CREATE INDEX IF NOT EXISTS idx_lessons_subject_grade ON lessons (subject, grade_level);
+
+CREATE INDEX IF NOT EXISTS idx_subscription_events_user ON subscription_events (user_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_events_type ON subscription_events (event_type);
+CREATE INDEX IF NOT EXISTS idx_subscription_events_stripe ON subscription_events (stripe_event_id);
+
+CREATE INDEX IF NOT EXISTS idx_feature_usage_user ON feature_usage (user_id);
+CREATE INDEX IF NOT EXISTS idx_feature_usage_feature ON feature_usage (feature_name);
+CREATE INDEX IF NOT EXISTS idx_feature_usage_date ON feature_usage (created_at);
+
+CREATE INDEX IF NOT EXISTS idx_analytics_events_name ON analytics_events (event_name);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_user ON analytics_events (user_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_session ON analytics_events (session_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_date ON analytics_events (created_at);
 
 -- Monthly usage summary view (for performance)
 CREATE MATERIALIZED VIEW monthly_usage_summary AS

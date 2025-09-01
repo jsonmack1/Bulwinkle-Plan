@@ -56,7 +56,7 @@ export const FreemiumLanding: React.FC<FreemiumLandingProps> = ({
               <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> into Minutes</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Create engaging activities your students will love with AI-powered lesson plans, differentiation, and teacher scripts.
+              Create engaging activities your students will love with intelligence-powered lesson plans, differentiation, and teacher scripts.
             </p>
           </div>
 
@@ -113,9 +113,9 @@ export const FreemiumLanding: React.FC<FreemiumLandingProps> = ({
                 <span className="text-green-600 text-2xl">🎯</span>
               </div>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Try 3 Lessons Free</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Try 5 Lessons Free</h3>
             <p className="text-gray-600">
-              No credit card required. Experience the power of AI-driven lesson planning with your first 3 activities completely free.
+              No credit card required. Experience the power of intelligence-driven lesson planning with your first 5 activities completely free.
             </p>
           </div>
         </div>
@@ -197,7 +197,7 @@ export const FreemiumLanding: React.FC<FreemiumLandingProps> = ({
                 </li>
                 <li className="flex items-center">
                   <span className="text-purple-500 mr-3 text-xl">✓</span>
-                  <span className="text-lg"><strong>AI Differentiation Engine</strong> (ESL, IEP, grade levels)</span>
+                  <span className="text-lg"><strong>Intelligence Differentiation Engine</strong> (ESL, IEP, grade levels)</span>
                 </li>
                 <li className="flex items-center">
                   <span className="text-purple-500 mr-3 text-xl">✓</span>
