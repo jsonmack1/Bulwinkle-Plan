@@ -117,7 +117,7 @@ export default function PricingPage() {
       userId: user?.id,
       source: 'pricing_page'
     });
-    window.location.href = '/';
+    window.location.href = '/?builder=true';
   };
 
   const handleUpgrade = async (selectedBillingPeriod: 'monthly' | 'annual') => {
