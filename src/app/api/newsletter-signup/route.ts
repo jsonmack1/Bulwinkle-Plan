@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper function to create Supabase client
+const getSupabaseClient = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!url || !key) {
+    throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  }
+  
+  return createClient(url, key);
+};
 
 // Helper function to hash sensitive data
 const hashData = (data: string): string => {
@@ -15,6 +21,18 @@ const hashData = (data: string): string => {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Supabase is configured
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Newsletter signup attempted but Supabase is not configured');
+      return NextResponse.json(
+        { error: 'Newsletter service is temporarily unavailable' },
+        { status: 503 }
+      );
+    }
+
     const { email, source = 'landing_page' } = await request.json();
 
     if (!email || !email.includes('@')) {
@@ -23,6 +41,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Initialize Supabase client
+    const supabase = getSupabaseClient();
 
     // Get request context for tracking
     const forwarded = request.headers.get('x-forwarded-for');
@@ -106,6 +127,17 @@ export async function POST(request: NextRequest) {
 // Optional: Add a GET endpoint to retrieve newsletter statistics (admin only)
 export async function GET(request: NextRequest) {
   try {
+    // Check if Supabase is configured
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { error: 'Newsletter service is not configured' },
+        { status: 503 }
+      );
+    }
+
     // Simple authentication check - you can enhance this with proper admin auth
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -116,12 +148,15 @@ export async function GET(request: NextRequest) {
     }
     
     const token = authHeader.split(' ')[1];
-    if (token !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (token !== supabaseKey) {
       return NextResponse.json(
         { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       );
     }
+
+    // Initialize Supabase client
+    const supabase = getSupabaseClient();
 
     // Get newsletter statistics
     const { data: stats, error: statsError } = await supabase
