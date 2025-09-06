@@ -199,8 +199,9 @@ const VideoPreviewModal: React.FC<VideoPreviewModalProps> = ({
                       }}
                       className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors w-full"
                     >
-                      PRO starting at $9.99/mo
+                      PRO as low as $7.99/mo*
                     </button>
+                    <p className="text-xs text-white/80 mt-2">*With annual plan</p>
                   </div>
                 </div>
               </>

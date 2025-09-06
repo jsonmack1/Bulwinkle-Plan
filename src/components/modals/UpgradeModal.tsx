@@ -261,16 +261,16 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-center mb-4">
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
                   <div className="text-3xl font-bold text-purple-600">
-                    ${plan.price}
+                    {plan.billing === 'annual' ? 'as low as $7.99' : `$${plan.price}`}
                     <span className="text-lg font-normal text-gray-500">
-                      /{plan.billing === 'annual' ? 'year' : 'month'}
+                      /month{plan.billing === 'annual' ? '*' : ''}
                     </span>
                   </div>
                   {plan.savings && (
                     <p className="text-sm font-medium text-green-600 mt-1">{plan.savings}</p>
                   )}
                   {plan.billing === 'annual' && (
-                    <p className="text-sm text-gray-500 mt-1">Just $7.99 per month</p>
+                    <p className="text-sm text-gray-500 mt-1">*With annual plan ($79.90/year)</p>
                   )}
                 </div>
 

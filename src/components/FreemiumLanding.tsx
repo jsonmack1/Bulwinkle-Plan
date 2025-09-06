@@ -185,9 +185,9 @@ export const FreemiumLanding: React.FC<FreemiumLandingProps> = ({
                 <h3 className="text-2xl font-bold text-purple-700 mb-2">Teacher Pro</h3>
                 <p className="text-purple-600">Everything you need to excel</p>
                 <div className="text-4xl font-bold text-purple-700 mt-4">
-                  $7.99<span className="text-lg font-normal">/month</span>
+                  as low as $7.99<span className="text-lg font-normal">/month*</span>
                 </div>
-                <p className="text-sm text-purple-600 mt-1">School year pricing ($79.90 annually)</p>
+                <p className="text-sm text-purple-600 mt-1">*With annual plan ($79.90/year)</p>
               </div>
               
               <ul className="space-y-4 mb-8">

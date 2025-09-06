@@ -101,11 +101,11 @@ const PremiumFeatureLock: React.FC<PremiumFeatureLockProps> = ({
           {/* Pricing */}
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full px-4 py-2 mb-3">
-              <span className="text-sm text-gray-600 mr-2">Starting at</span>
+              <span className="text-sm text-gray-600 mr-2">as low as</span>
               <span className="text-2xl font-bold text-purple-600">{premiumPlan.monthlyPrice}</span>
-              <span className="text-sm text-gray-600 ml-1">/month</span>
+              <span className="text-sm text-gray-600 ml-1">/month*</span>
             </div>
-            <p className="text-xs text-gray-500">Cancel anytime • 30-day money-back guarantee</p>
+            <p className="text-xs text-gray-500">*With annual plan • Cancel anytime • 30-day money-back guarantee</p>
           </div>
 
           {/* Action Buttons */}

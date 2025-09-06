@@ -357,8 +357,9 @@ export function GoogleDriveButton({ lessonData, lessonContentId, className = '',
               }}
               className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-4"
             >
-              PRO starting at $9.99/mo
+              PRO as low as $7.99/mo*
             </button>
+            <p className="text-xs text-gray-500 text-center mb-4">*With annual plan</p>
             
             <button 
               onClick={() => setShowUpgradeModal(false)}

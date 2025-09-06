@@ -35,38 +35,57 @@ function DashboardContent() {
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Success Message */}
+        {/* Premium Success Message */}
         {showSuccessMessage && (
-          <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-6">
-            <div className="flex items-center">
-              <div className="text-4xl mr-4">🎉</div>
-              <div>
-                <h2 className="text-2xl font-bold text-green-900 mb-2">
-                  Welcome to Peabody Pro!
-                </h2>
-                <p className="text-green-700 mb-4">
-                  Your subscription is now active. You have unlimited access to all premium features!
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <Link 
-                    href="/"
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    🚀 Start Creating Lessons
-                  </Link>
-                  <Link 
-                    href="/memory-bank"
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                  >
-                    💾 Explore Memory Bank
-                  </Link>
-                  <button
-                    onClick={() => setShowSuccessMessage(false)}
-                    className="text-green-600 hover:text-green-700 px-4 py-2"
-                  >
-                    Dismiss
-                  </button>
+          <div className="mb-8 bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 border-2 border-purple-200 rounded-xl p-8 shadow-xl">
+            <div className="text-center">
+              <div className="text-6xl mb-4">✨🎉✨</div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                🚀 Welcome to Your Teaching Superpower! 
+              </h2>
+              <p className="text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
+                You've just unlocked unlimited lesson planning, intelligent differentiation, and your personal Memory Bank. 
+                Time to transform how you teach! 
+              </p>
+              
+              {/* Premium Features Highlight */}
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white/80 rounded-lg p-4 shadow-sm">
+                  <div className="text-2xl mb-2">🎯</div>
+                  <h3 className="font-semibold text-purple-700">Smart Differentiation</h3>
+                  <p className="text-sm text-gray-600">5 versions per lesson automatically</p>
                 </div>
+                <div className="bg-white/80 rounded-lg p-4 shadow-sm">
+                  <div className="text-2xl mb-2">💾</div>
+                  <h3 className="font-semibold text-purple-700">Memory Bank</h3>
+                  <p className="text-sm text-gray-600">Save & organize your best work</p>
+                </div>
+                <div className="bg-white/80 rounded-lg p-4 shadow-sm">
+                  <div className="text-2xl mb-2">∞</div>
+                  <h3 className="font-semibold text-purple-700">Unlimited Access</h3>
+                  <p className="text-sm text-gray-600">Create as many lessons as you need</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link 
+                  href="/"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg transform hover:scale-105"
+                >
+                  🚀 Create Your First Pro Lesson
+                </Link>
+                <Link 
+                  href="/memory-bank"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg transform hover:scale-105"
+                >
+                  💾 Explore Memory Bank
+                </Link>
+                <button
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="text-purple-600 hover:text-purple-700 px-6 py-3 font-medium"
+                >
+                  Continue to Dashboard
+                </button>
               </div>
             </div>
           </div>
