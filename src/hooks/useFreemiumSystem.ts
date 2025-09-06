@@ -128,8 +128,16 @@ export const useFreemiumSystem = (): FreemiumSystemHook => {
         }
       }
       
-      // For premium users or when tracking fails gracefully, allow generation
-      return { canGenerate: true, shouldShowModal: false };
+      // CRITICAL FIX: When tracking fails, only allow if user is confirmed premium
+      // This prevents bypassing freemium restrictions when API fails
+      if (isPremium) {
+        return { canGenerate: true, shouldShowModal: false };
+      } else {
+        // For free users when tracking fails, show paywall to prevent bypass
+        setUpgradeModalType('paywall');
+        setShowUpgradeModal(true);
+        return { canGenerate: false, shouldShowModal: true };
+      }
     } finally {
       setIsLoading(false);
     }

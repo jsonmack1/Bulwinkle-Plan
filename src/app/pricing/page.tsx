@@ -5,6 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { trackAnalyticsEvent, usageTracker } from '../../lib/usageTracker';
 import Navigation from '../../components/Navigation';
 import PromoCodeInput from '../../components/premium/PromoCodeInput';
+import { AccountCreationModal } from '../../components/modals/AccountCreationModal';
+import { useSubscription } from '../../lib/subscription-mock';
+import Link from 'next/link';
 
 interface PricingConfig {
   annual: {
@@ -45,12 +48,15 @@ const FEATURE_DESCRIPTIONS = {
 
 export default function PricingPage() {
   const { user } = useAuth();
+  const { isPremium, isHydrated } = useSubscription();
   const [monthlyLoading, setMonthlyLoading] = useState(false);
   const [annualLoading, setAnnualLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedPromo, setAppliedPromo] = useState<any>(null);
   const [discountPreview, setDiscountPreview] = useState<any>(null);
   const [fingerprint, setFingerprint] = useState<string>('');
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
 
   useEffect(() => {
     // Track pricing page view
@@ -100,6 +106,12 @@ export default function PricingPage() {
     setDiscountPreview(null);
   };
 
+  const handleAccountCreated = async (newUserId: string) => {
+    setShowAccountModal(false);
+    // Now proceed to checkout with the authenticated user
+    await proceedToStripeCheckout(selectedPlan);
+  };
+
   const handleFreePlan = () => {
     trackAnalyticsEvent('free_plan_selected', {
       userId: user?.id,
@@ -109,6 +121,24 @@ export default function PricingPage() {
   };
 
   const handleUpgrade = async (selectedBillingPeriod: 'monthly' | 'annual') => {
+    // Check if user is already premium
+    if (isPremium) {
+      setError('You are already a PRO member! Visit your account settings to manage your subscription.');
+      return;
+    }
+
+    // Check if user has account first
+    if (!user?.id) {
+      setSelectedPlan(selectedBillingPeriod);
+      setShowAccountModal(true);
+      return;
+    }
+    
+    // Proceed to Stripe checkout
+    await proceedToStripeCheckout(selectedBillingPeriod);
+  };
+
+  const proceedToStripeCheckout = async (selectedBillingPeriod: 'monthly' | 'annual') => {
     const isMonthly = selectedBillingPeriod === 'monthly';
     const setLoadingFunc = isMonthly ? setMonthlyLoading : setAnnualLoading;
     
@@ -193,6 +223,24 @@ export default function PricingPage() {
       <Navigation />
       
       <div className="pricing-page">
+        {/* Premium User Alert */}
+        {isPremium && isHydrated && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200 py-4 px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="inline-flex items-center bg-green-100 rounded-full px-4 py-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                <span className="text-green-800 font-semibold">You're already a PRO member!</span>
+              </div>
+              <p className="text-green-700 mt-2">
+                Enjoying your premium features? 
+                <Link href="/account-settings" className="ml-1 text-green-600 hover:text-green-500 font-medium underline">
+                  Manage your subscription
+                </Link>
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Hero Section */}
         <section className="text-center py-16 px-4">
           <div className="max-w-4xl mx-auto">
@@ -328,10 +376,19 @@ export default function PricingPage() {
 
               <button
                 onClick={() => handleUpgrade('monthly')}
-                disabled={monthlyLoading}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                disabled={monthlyLoading || isPremium}
+                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                  isPremium 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white cursor-default'
+                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+                }`}
               >
-                {monthlyLoading ? (
+                {isPremium ? (
+                  <div className="flex items-center justify-center">
+                    <span className="mr-2">✅</span>
+                    Subscribed
+                  </div>
+                ) : monthlyLoading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Processing...
@@ -404,10 +461,19 @@ export default function PricingPage() {
 
               <button
                 onClick={() => handleUpgrade('annual')}
-                disabled={annualLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-orange-600 hover:to-purple-700 transition-all duration-200 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                disabled={annualLoading || isPremium}
+                className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                  isPremium 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white cursor-default'
+                    : 'bg-gradient-to-r from-orange-500 to-purple-600 text-white hover:from-orange-600 hover:to-purple-700'
+                }`}
               >
-                {annualLoading ? (
+                {isPremium ? (
+                  <div className="flex items-center justify-center">
+                    <span className="mr-2">✅</span>
+                    Subscribed
+                  </div>
+                ) : annualLoading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Processing...
@@ -576,17 +642,25 @@ export default function PricingPage() {
               </button>
               <button
                 onClick={() => handleUpgrade('monthly')}
-                disabled={monthlyLoading}
-                className="bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                disabled={monthlyLoading || isPremium}
+                className={`px-8 py-4 rounded-xl font-semibold text-lg transition-colors disabled:opacity-50 ${
+                  isPremium 
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
               >
-                Monthly Pro - $9.99/mo
+                {isPremium ? '✅ Subscribed' : 'Monthly Pro - $9.99/mo'}
               </button>
               <button
                 onClick={() => handleUpgrade('annual')}
-                disabled={annualLoading}
-                className="bg-orange-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-orange-600 transition-colors border-2 border-orange-400 disabled:opacity-50"
+                disabled={annualLoading || isPremium}
+                className={`px-8 py-4 rounded-xl font-semibold text-lg transition-colors border-2 border-orange-400 disabled:opacity-50 ${
+                  isPremium 
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-orange-500 text-white hover:bg-orange-600'
+                }`}
               >
-                Annual Pro - as low as $7.99/mo
+                {isPremium ? '✅ Subscribed' : 'Annual Pro - as low as $7.99/mo'}
               </button>
             </div>
             
@@ -596,6 +670,21 @@ export default function PricingPage() {
           </div>
         </section>
       </div>
+
+      {/* Account Creation Modal */}
+      <AccountCreationModal
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+        onSuccess={handleAccountCreated}
+        remainingLessons={5}
+        currentLesson={5}
+        mode="required"
+        selectedPlan={{
+          name: selectedPlan === 'annual' ? 'School Year' : 'Monthly',
+          price: selectedPlan === 'annual' ? PRICING_CONFIG.annual.price : PRICING_CONFIG.monthly.price,
+          billing: selectedPlan
+        }}
+      />
     </div>
   );
 }

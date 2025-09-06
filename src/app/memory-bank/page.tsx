@@ -104,10 +104,16 @@ export default function MemoryBankPage() {
 
   // Show premium lock if not premium user (after hydration to avoid SSR mismatch)
   React.useEffect(() => {
-    if (isHydrated && !authLoading && !isPremium) {
-      setShowPremiumLock(true)
+    if (isHydrated && !authLoading) {
+      if (!isPremium && user) {
+        // Only show premium lock for authenticated non-premium users
+        setShowPremiumLock(true)
+      } else {
+        // Premium users or unauthenticated users don't see the premium lock
+        setShowPremiumLock(false)
+      }
     }
-  }, [isHydrated, authLoading, isPremium])
+  }, [isHydrated, authLoading, isPremium, user])
 
   // Smart feedback prompting
   React.useEffect(() => {

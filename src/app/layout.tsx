@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/animations.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { StripeProvider } from "../contexts/StripeContext";
+import DevTools from "../components/dev/DevTools";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +72,7 @@ export default function RootLayout({
           <StripeProvider>
             <div className="flex flex-col min-h-screen-mobile relative">
               {children}
+              <DevTools />
             </div>
           </StripeProvider>
         </AuthProvider>

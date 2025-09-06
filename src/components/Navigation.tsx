@@ -18,7 +18,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode }) => {
   const { user, loading } = useAuth()
   const { type: deviceType, isTouch } = useDeviceDetection()
-  const { subscription } = useSubscription()
+  const { isPremium } = useSubscription()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean
@@ -87,14 +87,23 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                   <span>Pricing</span>
                 </span>
               </Link>
-              {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (
-                <Link 
-                  href="/memory-bank" 
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all flex items-center space-x-2 min-h-touch"
-                >
-                  <Crown size={16} />
-                  <span>Memory Bank</span>
-                </Link>
+              {user && isPremium && (
+                <>
+                  <Link 
+                    href="/dashboard" 
+                    className="text-gray-600 hover:text-gray-900 transition-colors font-medium flex items-center space-x-2"
+                  >
+                    <span className="w-4 h-4 text-purple-600">🎯</span>
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link 
+                    href="/memory-bank" 
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all flex items-center space-x-2 min-h-touch"
+                  >
+                    <Crown size={16} />
+                    <span>Memory Bank</span>
+                  </Link>
+                </>
               )}
             </div>
 
@@ -202,15 +211,25 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
               <span className="font-medium">Pricing</span>
             </Link>
             
-            {user && (subscription?.tier === 'premium' || subscription?.tier === 'pro') && (
-              <Link 
-                href="/memory-bank"
-                onClick={closeMobileMenu}
-                className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-md hover:from-purple-700 hover:to-indigo-700 transition-colors min-h-touch"
-              >
-                <Crown size={20} />
-                <span>Memory Bank</span>
-              </Link>
+            {user && isPremium && (
+              <>
+                <Link 
+                  href="/dashboard"
+                  onClick={closeMobileMenu}
+                  className="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors min-h-touch"
+                >
+                  <span className="text-lg">🎯</span>
+                  <span className="font-medium">Dashboard</span>
+                </Link>
+                <Link 
+                  href="/memory-bank"
+                  onClick={closeMobileMenu}
+                  className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium shadow-md hover:from-purple-700 hover:to-indigo-700 transition-colors min-h-touch"
+                >
+                  <Crown size={20} />
+                  <span>Memory Bank</span>
+                </Link>
+              </>
             )}
             
             {/* Teacher/Sub Mode Toggle - Mobile */}

@@ -10,6 +10,10 @@ interface CreateCheckoutRequest {
   email?: string;
   fingerprintHash?: string;
   sessionId?: string;
+  promoCode?: string;
+  promoCodeData?: any;
+  discountAmount?: number;
+  finalAmount?: number;
 }
 
 /**
@@ -29,7 +33,29 @@ export async function POST(request: NextRequest) {
     const stripe = (await import('../../../../lib/stripe')).default;
 
     const body: CreateCheckoutRequest = await request.json();
-    const { userId, priceId, billingPeriod = 'annual', successUrl, cancelUrl, email, fingerprintHash, sessionId } = body;
+    const { 
+      userId, 
+      priceId, 
+      billingPeriod = 'annual', 
+      successUrl, 
+      cancelUrl, 
+      email, 
+      fingerprintHash, 
+      sessionId,
+      promoCode,
+      promoCodeData,
+      discountAmount,
+      finalAmount
+    } = body;
+
+    console.log('🔍 Checkout API Debug:', {
+      priceId,
+      billingPeriod,
+      isMonthly: billingPeriod === 'monthly',
+      mode: billingPeriod === 'monthly' ? 'subscription' : 'payment',
+      userId,
+      hasStripeKey: !!process.env.STRIPE_SECRET_KEY
+    });
 
     // Validate required fields
     if (!priceId || !successUrl || !cancelUrl) {
@@ -91,9 +117,10 @@ export async function POST(request: NextRequest) {
       customerEmail = email;
     }
 
-    // Create checkout session
+    // Create checkout session - different modes for monthly vs annual
+    const isMonthly = billingPeriod === 'monthly';
     const sessionParams: any = {
-      mode: 'subscription',
+      mode: isMonthly ? 'subscription' : 'payment', // subscription for monthly, payment for annual
       payment_method_types: ['card'],
       line_items: [
         {
@@ -106,9 +133,6 @@ export async function POST(request: NextRequest) {
       automatic_tax: {
         enabled: true,
       },
-      tax_id_collection: {
-        enabled: true,
-      },
       metadata: {
         user_id: userId || '',
         fingerprint_hash: fingerprintHash || '',
@@ -116,17 +140,8 @@ export async function POST(request: NextRequest) {
         billing_period: billingPeriod,
         source: 'peabody_app'
       },
-      custom_fields: [
-        {
-          key: 'teaching_grade',
-          label: {
-            type: 'text',
-            text: 'What grade(s) do you teach?'
-          },
-          type: 'text',
-          optional: true
-        }
-      ]
+      // Custom fields removed due to API compatibility issues
+      // You can collect this information in your app instead
     };
 
     // Add customer information

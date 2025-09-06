@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, AuthContextType, LoginCredentials, SignupCredentials } from '../types/auth'
 import { authService } from '../lib/auth'
+import { mockSubscription } from '../lib/subscription-mock'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -66,6 +67,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authService.logout()
       setUser(null)
+      
+      // CRITICAL: Clear subscription status when user logs out
+      mockSubscription.setStatus('free')
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Logout failed')
     } finally {

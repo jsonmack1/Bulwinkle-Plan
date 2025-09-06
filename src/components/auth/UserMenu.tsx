@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useSubscription } from '../../lib/subscription-mock'
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth()
+  const { isPremium } = useSubscription()
   const [isOpen, setIsOpen] = useState(false)
 
   if (!user) return null
@@ -24,8 +26,6 @@ const UserMenu: React.FC = () => {
       .toUpperCase()
       .slice(0, 2)
   }
-
-  const isPremium = user.subscription?.plan === 'premium'
 
   return (
     <div className="relative">
@@ -115,16 +115,14 @@ const UserMenu: React.FC = () => {
 
               <hr className="my-2" />
 
-              <button 
+              <a 
+                href="/account-settings"
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                onClick={() => {
-                  setIsOpen(false)
-                  console.log('Account Settings')
-                }}
+                onClick={() => setIsOpen(false)}
               >
                 <span className="mr-3">⚙️</span>
                 Account Settings
-              </button>
+              </a>
 
               <button 
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

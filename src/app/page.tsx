@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo, useCallback, useReducer, Suspense, lazy } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ChevronDown, Printer, Share } from 'lucide-react'
 import { formReducer, initialFormState, FormAction } from '../utils/formReducer'
 import GoogleDriveButton from '../components/GoogleDriveButton'
@@ -149,9 +150,12 @@ const RotatingMessages: React.FC = () => {
   );
 };
 
-export default function ActivityLessonBuilder() {
+function ActivityLessonBuilderContent() {
   // Fix scroll momentum interfering with form fields
   useScrollMomentumFix()
+  
+  // Get search params to check for builder=true
+  const searchParams = useSearchParams()
   
   // Direct inline fix for field deselection
   useEffect(() => {
@@ -188,6 +192,28 @@ export default function ActivityLessonBuilder() {
   
   // Consolidated form state with useReducer
   const [formState, dispatch] = useReducer(formReducer, initialFormState)
+  
+  // Auto-trigger builder mode when builder=true parameter is present
+  useEffect(() => {
+    const shouldShowBuilder = searchParams.get('builder');
+    if (shouldShowBuilder === 'true') {
+      console.log('🚀 Builder parameter detected - auto-showing builder form');
+      
+      // Look for "Start Creating Now" button and click it
+      setTimeout(() => {
+        const startButton = document.querySelector('[data-testid="start-creating-desktop"], [data-testid="start-creating-mobile"]') as HTMLButtonElement;
+        if (startButton) {
+          console.log('🎯 Auto-clicking Start Creating button');
+          startButton.click();
+        } else {
+          console.log('⚠️ Start Creating button not found, dispatching action directly');
+          // If button not found, dispatch the action directly
+          dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true });
+        }
+      }, 1000); // Increased delay to ensure page is fully loaded
+    }
+  }, [searchParams, dispatch]);
+  
   const [parsedContent, setParsedContent] = useState<ParsedActivityContent | null>(null)
   const [showPremiumLock, setShowPremiumLock] = useState(false)
   const [showInlineDifferentiation, setShowInlineDifferentiation] = useState(false)
@@ -1384,6 +1410,7 @@ export default function ActivityLessonBuilder() {
                   
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
+                    data-testid="start-creating-desktop"
                     className={`${formState.isSubMode ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-500' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500'} text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 hover:scale-105 flex items-center justify-center touch-manipulation min-h-touch rounded-2xl text-2xl px-12 py-6`}
                   >
                     <span className="mr-3 text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
@@ -1494,6 +1521,7 @@ export default function ActivityLessonBuilder() {
                   
                   <button
                     onClick={() => dispatch({ type: 'SET_SHOW_ACTIVITY_CREATION', payload: true })}
+                    data-testid="start-creating-mobile"
                     className={`w-full ${formState.isSubMode ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-500' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500'} text-white font-bold shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50 transform active:scale-95 flex items-center justify-center touch-manipulation rounded-2xl text-lg sm:text-xl px-6 py-4 sm:py-5 min-h-[56px]`}
                   >
                     <span className="mr-3 text-2xl sm:text-3xl flex-shrink-0">{formState.isSubMode ? '🚀' : '⭐'}</span>
@@ -1572,6 +1600,35 @@ export default function ActivityLessonBuilder() {
           </div>
         </div>
       </div>
+
+      {/* Final CTA */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Teaching?</h2>
+          <p className="text-xl mb-8 opacity-90">
+            Join top performing teachers who are saving time and creating better lessons with Peabody Pro.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-colors"
+            >
+              Start Free (5 Lessons)
+            </button>
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="bg-orange-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-orange-600 transition-colors border-2 border-orange-400"
+            >
+              Go Pro Now - $7.99/mo
+            </button>
+          </div>
+          
+          <p className="text-sm opacity-75 mt-6">
+            30-day money-back guarantee • Cancel anytime • No long-term commitment
+          </p>
+        </div>
+      </section>
 
       {/* White Bottom Ribbon with Blue Gradient and Newsletter Form */}
       <div className="relative bg-white">
@@ -2433,6 +2490,21 @@ export default function ActivityLessonBuilder() {
     </div>
     </>
   )
+}
+
+export default function ActivityLessonBuilder() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading lesson builder...</p>
+        </div>
+      </div>
+    }>
+      <ActivityLessonBuilderContent />
+    </Suspense>
+  );
 }
 
 // Helper function to process activity content for display

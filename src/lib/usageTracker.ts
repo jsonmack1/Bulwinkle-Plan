@@ -448,9 +448,13 @@ export class UsageTracker {
         shouldShowModal = 'paywall';
       }
 
+      // CRITICAL FIX: Fallback should be restrictive to prevent bypass
+      // Only allow generation if clearly under limit, otherwise block to be safe
+      const allowGeneration = fallbackCount < this.FREE_LIMIT;
+      
       return {
-        success: fallbackCount <= this.FREE_LIMIT, // Allow generation if under limit
-        shouldShowModal,
+        success: allowGeneration,
+        shouldShowModal: !allowGeneration ? 'paywall' : shouldShowModal,
         usageData
       };
     }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { trackAnalyticsEvent } from '../../lib/usageTracker';
+import { AccountCreationModal } from './AccountCreationModal';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -67,6 +68,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const [selectedPlan, setSelectedPlan] = useState('annual');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -82,6 +84,18 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   if (!isOpen) return null;
 
   const handleUpgrade = async (planId: string) => {
+    // Check if user has account first
+    if (!userId) {
+      // Show account creation modal instead of proceeding to payment
+      setShowAccountModal(true);
+      return;
+    }
+    
+    // Proceed to Stripe checkout
+    await proceedToStripeCheckout(planId);
+  };
+
+  const proceedToStripeCheckout = async (planId: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -108,8 +122,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         body: JSON.stringify({
           userId,
           priceId: plan.stripePrice,
-          successUrl: `${window.location.origin}/upgrade/success`,
-          cancelUrl: `${window.location.origin}/upgrade/cancel`,
+          successUrl: `${window.location.origin}/dashboard?upgrade=success`,
+          cancelUrl: `${window.location.origin}/pricing?checkout=cancelled`,
         })
       });
 
@@ -137,6 +151,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
     }
   };
 
+  const handleAccountCreated = async (newUserId: string) => {
+    setShowAccountModal(false);
+    // Now proceed to checkout with the new user ID
+    await proceedToStripeCheckout(selectedPlan);
+  };
+
   const getModalContent = () => {
     if (modalType === 'warning') {
       return {
@@ -158,8 +178,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const content = getModalContent();
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <>
+      <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="text-center">
@@ -411,7 +432,19 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             </svg>
           </button>
         )}
+        </div>
       </div>
-    </div>
+
+      {/* Account Creation Modal */}
+      <AccountCreationModal
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+        onSuccess={handleAccountCreated}
+        remainingLessons={remainingLessons}
+        currentLesson={currentUsage}
+        mode="required"
+        selectedPlan={PRICING_PLANS.find(p => p.id === selectedPlan)}
+      />
+    </>
   );
 };

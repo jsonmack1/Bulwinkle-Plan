@@ -138,18 +138,55 @@ export async function POST(request: NextRequest) {
       userId: userId === 'null' ? null : userId
     });
     
-    // For localhost/development, use localStorage-based tracking to avoid database issues
+    // For localhost/development, use file-based tracking but don't force error
     if (isLocalhost) {
-      console.log('🏠 Using localhost/development mode - localStorage tracking');
+      console.log('🏠 Using localhost/development mode - file-based tracking');
+      const FREE_LIMIT = 5;
       
-      // Use a simple key based on fingerprint hash for consistency
-      const localStorageKey = `usage_${currentMonth}_${fingerprintHash.substring(0, 16)}`;
-      
-      // Get existing count from a mock storage (we'll simulate this with the fallback mechanism)
-      const existingCountFromStorage = 0; // This will be handled by fallback logic
-      
-      // Force fallback mode for localhost
-      throw new Error('LOCALHOST_FALLBACK_MODE');
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const tmpDir = require('os').tmpdir();
+        const counterFile = path.join(tmpDir, `usage_${currentMonth}_${fingerprintHash.substring(0, 16)}.txt`);
+        
+        let currentCount = 0;
+        if (fs.existsSync(counterFile)) {
+          currentCount = parseInt(fs.readFileSync(counterFile, 'utf8') || '0');
+        }
+        
+        // Check limit before incrementing
+        if (currentCount >= FREE_LIMIT) {
+          return NextResponse.json({
+            success: false,
+            lessonCount: currentCount,
+            remainingLessons: 0,
+            canAccess: false,
+            subscriptionStatus: 'free',
+            resetDate: getNextMonthStart().toISOString(),
+            limitReached: true,
+            userId
+          });
+        }
+        
+        // Increment and save
+        const newCount = currentCount + 1;
+        fs.writeFileSync(counterFile, newCount.toString());
+        
+        return NextResponse.json({
+          success: true,
+          lessonCount: newCount,
+          remainingLessons: Math.max(0, FREE_LIMIT - newCount),
+          canAccess: newCount <= FREE_LIMIT,
+          subscriptionStatus: 'free',
+          resetDate: getNextMonthStart().toISOString(),
+          shouldPromptAccount: newCount >= 3 && !(userId && userId !== 'null'),
+          isLastFreeLesson: newCount === FREE_LIMIT,
+          userId: (userId && userId !== 'null') ? userId : null
+        });
+      } catch (fileError) {
+        console.warn('📁 File-based tracking failed, will use database fallback:', fileError);
+        // Continue to database logic instead of throwing error
+      }
     }
     
     // For production environments only

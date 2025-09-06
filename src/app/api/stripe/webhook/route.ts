@@ -1,25 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabase';
 
 /**
  * Stripe webhook handler for subscription events
  * POST /api/stripe/webhook
- * TEMPORARILY DISABLED - Stripe not yet configured
  */
 export async function POST(request: NextRequest) {
-  // Temporary response until Stripe is configured
-  return NextResponse.json(
-    { message: 'Stripe webhooks not yet configured' },
-    { status: 501 }
-  );
-}
-
-/* TODO: Uncomment when ready to implement Stripe
-
-import { createHash } from 'crypto';
-import { supabase } from '../../../../lib/supabase';
-
-export async function POST(request: NextRequest) {
-  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  const stripe = (await import('../../../../lib/stripe')).default;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!endpointSecret) {
@@ -95,6 +82,8 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Webhook handler functions
 
 async function handleSubscriptionCreated(subscription: any) {
   console.log('🎉 Subscription created:', subscription.id);
@@ -321,5 +310,3 @@ async function handleCheckoutCompleted(session: any) {
       });
   }
 }
-
-*/
