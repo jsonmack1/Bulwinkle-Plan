@@ -14,10 +14,19 @@ export interface GoogleTokens {
 }
 
 export function createOAuth2Client(): OAuth2Client {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.')
+  }
+
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 
+    (process.env.NODE_ENV === 'production' 
+      ? `${process.env.NEXTAUTH_URL || 'https://yourdomain.com'}/api/auth/google/callback`
+      : 'http://localhost:3000/api/auth/google/callback')
+
   return new OAuth2Client({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/auth/google/callback'
+    redirectUri
   })
 }
 
@@ -27,7 +36,9 @@ export function getGoogleAuthUrl(): string {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: GOOGLE_SCOPES,
-    prompt: 'consent'
+    prompt: 'consent',
+    include_granted_scopes: true,
+    state: 'security_token_' + Math.random().toString(36).substr(2) // CSRF protection
   })
 }
 

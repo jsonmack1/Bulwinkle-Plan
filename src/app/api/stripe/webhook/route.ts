@@ -89,32 +89,35 @@ async function handleSubscriptionCreated(subscription: any) {
   console.log('🎉 Subscription created:', subscription.id);
   
   const customerId = subscription.customer;
-  const { data: existingUser } = await supabase
+  
+  // Update users table directly (no separate subscriptions table)
+  const { data: updatedUser, error } = await supabase
     .from('users')
-    .select('id')
+    .update({
+      stripe_subscription_id: subscription.id,
+      subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+      subscription_start_date: new Date().toISOString(),
+      subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
+      current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
+      updated_at: new Date().toISOString()
+    })
     .eq('stripe_customer_id', customerId)
+    .select()
     .single();
 
-  if (existingUser) {
-    await supabase
-      .from('subscriptions')
-      .upsert({
-        user_id: existingUser.id,
-        stripe_subscription_id: subscription.id,
-        stripe_customer_id: customerId,
-        status: subscription.status,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-        plan_id: subscription.items.data[0]?.price?.id,
-        billing_cycle: subscription.items.data[0]?.price?.recurring?.interval,
-        updated_at: new Date().toISOString()
-      });
-
+  if (error) {
+    console.error('Error updating user subscription:', error);
+    if (error.code === 'PGRST116') { // No rows found
+      console.log('User not found by customer ID, this might be a new customer');
+    }
+  } else {
+    console.log('✅ User subscription created:', updatedUser?.id);
+    
     // Track analytics event
     await supabase
       .from('analytics_events')
       .insert({
-        user_id: existingUser.id,
+        user_id: updatedUser.id,
         event_name: 'subscription_created',
         event_category: 'conversion_funnel',
         event_properties: {
@@ -129,70 +132,58 @@ async function handleSubscriptionCreated(subscription: any) {
 async function handleSubscriptionUpdated(subscription: any) {
   console.log('📝 Subscription updated:', subscription.id);
   
-  const { data: existingSubscription } = await supabase
-    .from('subscriptions')
-    .select('user_id')
+  // Update users table directly
+  const { data: updatedUser, error } = await supabase
+    .from('users')
+    .update({
+      subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+      subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
+      subscription_cancel_at_period_end: subscription.cancel_at_period_end || false,
+      current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
+      updated_at: new Date().toISOString()
+    })
     .eq('stripe_subscription_id', subscription.id)
+    .select()
     .single();
 
-  if (existingSubscription) {
-    await supabase
-      .from('subscriptions')
-      .update({
-        status: subscription.status,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-        plan_id: subscription.items.data[0]?.price?.id,
-        billing_cycle: subscription.items.data[0]?.price?.recurring?.interval,
-        updated_at: new Date().toISOString()
-      })
-      .eq('stripe_subscription_id', subscription.id);
-
-    // Track analytics event
-    await supabase
-      .from('analytics_events')
-      .insert({
-        user_id: existingSubscription.user_id,
-        event_name: 'subscription_updated',
-        event_category: 'subscription_lifecycle',
-        event_properties: {
-          subscription_id: subscription.id,
-          status: subscription.status,
-          plan_id: subscription.items.data[0]?.price?.id
-        }
-      });
+  if (error) {
+    console.error('Error updating user subscription:', error);
+  } else {
+    console.log('✅ User subscription updated:', updatedUser?.id);
   }
 }
 
 async function handleSubscriptionDeleted(subscription: any) {
   console.log('❌ Subscription deleted:', subscription.id);
   
-  const { data: existingSubscription } = await supabase
-    .from('subscriptions')
-    .select('user_id')
+  // Update users table to mark subscription as cancelled
+  const { data: updatedUser, error } = await supabase
+    .from('users')
+    .update({
+      subscription_status: 'free',
+      current_plan: 'free',
+      stripe_subscription_id: null,
+      updated_at: new Date().toISOString()
+    })
     .eq('stripe_subscription_id', subscription.id)
+    .select()
     .single();
 
-  if (existingSubscription) {
-    await supabase
-      .from('subscriptions')
-      .update({
-        status: 'cancelled',
-        cancelled_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('stripe_subscription_id', subscription.id);
-
+  if (error) {
+    console.error('Error cancelling user subscription:', error);
+  } else {
+    console.log('✅ User subscription cancelled:', updatedUser?.id);
+    
     // Track analytics event
     await supabase
       .from('analytics_events')
       .insert({
-        user_id: existingSubscription.user_id,
+        user_id: updatedUser.id,
         event_name: 'subscription_cancelled',
-        event_category: 'subscription_lifecycle',
+        event_category: 'churn',
         event_properties: {
           subscription_id: subscription.id,
-          cancellation_reason: 'stripe_webhook'
+          cancellation_reason: 'user_request'
         }
       });
   }
@@ -201,112 +192,86 @@ async function handleSubscriptionDeleted(subscription: any) {
 async function handlePaymentSucceeded(invoice: any) {
   console.log('💰 Payment succeeded:', invoice.id);
   
-  const customerId = invoice.customer;
-  const { data: user } = await supabase
+  // Find user by customer ID and update last successful payment
+  const { data: updatedUser, error } = await supabase
     .from('users')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
+    .update({
+      updated_at: new Date().toISOString()
+    })
+    .eq('stripe_customer_id', invoice.customer)
+    .select()
     .single();
 
-  if (user) {
-    // Log payment attempt as successful
-    await supabase
-      .from('payment_attempts')
-      .insert({
-        user_id: user.id,
-        stripe_invoice_id: invoice.id,
-        amount_cents: invoice.amount_paid,
-        currency: invoice.currency,
-        status: 'succeeded'
-      });
-
-    // Track analytics event
+  if (!error && updatedUser) {
+    // Track successful payment
     await supabase
       .from('analytics_events')
       .insert({
-        user_id: user.id,
+        user_id: updatedUser.id,
         event_name: 'payment_succeeded',
-        event_category: 'conversion_funnel',
+        event_category: 'revenue',
         event_properties: {
           invoice_id: invoice.id,
           amount_cents: invoice.amount_paid,
-          currency: invoice.currency
+          subscription_id: invoice.subscription
         }
       });
   }
 }
 
 async function handlePaymentFailed(invoice: any) {
-  console.log('💳 Payment failed:', invoice.id);
+  console.log('💸 Payment failed:', invoice.id);
   
-  const customerId = invoice.customer;
+  // Find user by customer ID
   const { data: user } = await supabase
     .from('users')
     .select('id')
-    .eq('stripe_customer_id', customerId)
+    .eq('stripe_customer_id', invoice.customer)
     .single();
 
   if (user) {
-    // Log payment attempt as failed
-    await supabase
-      .from('payment_attempts')
-      .insert({
-        user_id: user.id,
-        stripe_invoice_id: invoice.id,
-        amount_cents: invoice.amount_due,
-        currency: invoice.currency,
-        status: 'failed'
-      });
-
-    // Track analytics event
+    // Track failed payment
     await supabase
       .from('analytics_events')
       .insert({
         user_id: user.id,
         event_name: 'payment_failed',
-        event_category: 'conversion_funnel',
+        event_category: 'revenue',
         event_properties: {
           invoice_id: invoice.id,
           amount_cents: invoice.amount_due,
-          currency: invoice.currency,
-          failure_reason: 'payment_method_failed'
+          subscription_id: invoice.subscription,
+          failure_reason: invoice.last_payment_error?.message || 'Unknown'
         }
       });
   }
 }
 
 async function handleCheckoutCompleted(session: any) {
-  console.log('🎊 Checkout completed:', session.id);
+  console.log('🛒 Checkout completed:', session.id);
   
-  const customerId = session.customer;
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single();
+  if (session.mode === 'subscription' && session.customer) {
+    // If this is a subscription checkout, the subscription created event will handle the update
+    // This is just for tracking
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', session.customer)
+      .single();
 
-  if (user) {
-    // Update payment attempt as completed
-    await supabase
-      .from('payment_attempts')
-      .update({ 
-        status: 'completed',
-        stripe_session_id: session.id 
-      })
-      .eq('stripe_session_id', session.id);
-
-    // Track analytics event
-    await supabase
-      .from('analytics_events')
-      .insert({
-        user_id: user.id,
-        event_name: 'checkout_completed',
-        event_category: 'conversion_funnel',
-        event_properties: {
-          session_id: session.id,
-          customer_id: customerId,
-          payment_status: session.payment_status
-        }
-      });
+    if (user) {
+      await supabase
+        .from('analytics_events')
+        .insert({
+          user_id: user.id,
+          event_name: 'checkout_completed',
+          event_category: 'conversion_funnel',
+          event_properties: {
+            session_id: session.id,
+            mode: session.mode,
+            amount_total: session.amount_total
+          }
+        });
+    }
   }
 }

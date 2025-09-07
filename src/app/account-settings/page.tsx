@@ -44,22 +44,39 @@ export default function AccountSettingsPage() {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      trackAnalyticsEvent('subscription_cancel_attempted', {
-        userId: user?.id,
-        plan: mockSubscriptionData.plan
+      const response = await fetch('/api/user/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          cancelAtPeriodEnd: true
+        })
       });
 
-      setMessage({
-        type: 'success',
-        text: 'Your subscription has been scheduled for cancellation. You will retain access until your next billing date.'
-      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        trackAnalyticsEvent('subscription_cancel_attempted', {
+          userId: user?.id,
+          plan: mockSubscriptionData.plan,
+          cancelAtPeriodEnd: data.cancelAtPeriodEnd
+        });
+
+        setMessage({
+          type: 'success',
+          text: data.message || 'Your subscription has been scheduled for cancellation. You will retain access until your next billing date.'
+        });
+      } else {
+        throw new Error(data.error || 'Failed to cancel subscription');
+      }
     } catch (error) {
+      console.error('Subscription cancellation error:', error);
+      
       setMessage({
         type: 'error',
-        text: 'Failed to cancel subscription. Please try again or contact support.'
+        text: error instanceof Error ? error.message : 'Failed to cancel subscription. Please try again or contact support.'
       });
     } finally {
       setLoading(false);
