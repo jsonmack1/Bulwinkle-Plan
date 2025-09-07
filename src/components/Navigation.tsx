@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X, Home, Crown } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useDeviceDetection } from './ui/ResponsiveLayout'
@@ -59,9 +60,12 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
                 className="flex items-center space-x-2 sm:space-x-3"
                 onClick={closeMobileMenu}
               >
-                <img 
-                  src="/peabody-logo-new.svg" 
-                  alt="Peabody" 
+                <Image
+                  src="/peabody-logo-new.svg"
+                  alt="Peabody"
+                  width={120}
+                  height={96}
+                  priority
                   className="h-20 sm:h-24 w-auto flex-shrink-0"
                 />
               </Link>
@@ -114,20 +118,12 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
               ) : user ? (
                 <UserMenu />
               ) : (
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => openAuthModal('login')}
-                    className="text-gray-600 hover:text-gray-900 transition-colors font-medium min-h-touch px-3 py-2 rounded-md"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => openAuthModal('signup')}
-                    className="bg-blue-600 text-white px-4 py-2 lg:px-5 lg:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm min-h-touch"
-                  >
-                    Get Started
-                  </button>
-                </div>
+                <button
+                  onClick={() => openAuthModal('login')}
+                  className="text-gray-600 hover:text-gray-900 transition-colors font-medium min-h-touch px-3 py-2 rounded-md"
+                >
+                  Sign In
+                </button>
               )}
             </div>
 
@@ -268,17 +264,6 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
               </div>
             )}
             
-            {!user && (
-              <button
-                onClick={() => {
-                  openAuthModal('signup')
-                  closeMobileMenu()
-                }}
-                className="w-full flex items-center justify-center p-3 rounded-lg bg-blue-600 text-white font-medium shadow-md hover:bg-blue-700 transition-colors min-h-touch"
-              >
-                Get Started
-              </button>
-            )}
           </div>
         </div>
       </nav>

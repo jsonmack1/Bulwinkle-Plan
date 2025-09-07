@@ -9,17 +9,23 @@ import DevTools from "../components/dev/DevTools";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',
+  preload: false, // Less critical, load after main font
 });
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas-neue",
   subsets: ["latin"],
   weight: "400",
+  display: 'swap',
+  preload: false, // Used only in headers, not critical
 });
 
 export const metadata: Metadata = {
@@ -64,6 +70,16 @@ export default function RootLayout({
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        
+        {/* DNS prefetch for external APIs */}
+        <link rel="dns-prefetch" href="https://api.anthropic.com" />
+        <link rel="dns-prefetch" href="https://js.stripe.com" />
+        
+        {/* Preload critical images */}
+        <link rel="preload" href="/peabody-logo-new.svg" as="image" type="image/svg+xml" />
+        
+        {/* Resource hints for better loading */}
+        <meta httpEquiv="x-dns-prefetch-control" content="on" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} antialiased min-h-full text-render-optimized bg-background text-foreground`}

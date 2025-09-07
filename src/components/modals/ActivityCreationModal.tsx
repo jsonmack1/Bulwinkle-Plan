@@ -103,6 +103,7 @@ const ActivityCreationModal: React.FC<ActivityCreationModalProps> = ({
             )}>
               {isSubMode ? 'Create Substitute Activity' : 'Build Teaching Activity'}
             </h2>
+            
             <button 
               onClick={onClose}
               className={cn(

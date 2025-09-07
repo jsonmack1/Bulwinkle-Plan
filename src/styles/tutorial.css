@@ -1,0 +1,262 @@
+/* Tutorial System Styles - Chalk/Playbook Appearance */
+
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;600;700&display=swap');
+
+/* Tutorial overlay and base styles */
+.tutorial-overlay {
+  pointer-events: none;
+}
+
+.tutorial-overlay * {
+  pointer-events: auto;
+}
+
+/* Tutorial prompt with chalkboard appearance */
+.tutorial-prompt {
+  font-family: 'Kalam', 'Caveat', cursive;
+  transform: rotate(-0.5deg);
+  animation: tutorialAppear 0.6s ease-out;
+}
+
+.tutorial-prompt .bg-slate-800 {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.tutorial-prompt .bg-slate-800::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* Chalk-style text */
+.tutorial-title {
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  text-shadow: 
+    2px 2px 0px rgba(255, 255, 255, 0.1),
+    0px 0px 8px rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  transform: rotate(-0.3deg);
+}
+
+.tutorial-description {
+  font-family: 'Kalam', cursive;
+  font-weight: 400;
+  line-height: 1.6;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.1);
+  transform: rotate(0.2deg);
+}
+
+/* Hand-drawn style arrows */
+.tutorial-arrow {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  animation: arrowPulse 2s ease-in-out infinite;
+}
+
+.tutorial-arrow path {
+  fill: #fbbf24;
+  stroke: #ffffff;
+  stroke-width: 1;
+  filter: drop-shadow(0px 0px 6px rgba(251, 191, 36, 0.4));
+}
+
+/* Custom hand-drawn arrows for each direction */
+.tutorial-arrow.arrow-bottom {
+  transform-origin: center;
+}
+
+.tutorial-arrow.arrow-top {
+  transform-origin: center;
+}
+
+.tutorial-arrow.arrow-left {
+  transform-origin: center;
+}
+
+.tutorial-arrow.arrow-right {
+  transform-origin: center;
+}
+
+/* Highlight target elements */
+.tutorial-highlight {
+  position: relative;
+  z-index: 65 !important;
+  animation: highlightPulse 2s ease-in-out infinite;
+  border-radius: 8px !important;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.6) !important;
+  background: rgba(251, 191, 36, 0.1) !important;
+}
+
+.tutorial-highlight::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border: 2px dashed rgba(251, 191, 36, 0.8);
+  border-radius: 12px;
+  animation: dashRotate 8s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Animations */
+@keyframes tutorialAppear {
+  0% {
+    opacity: 0;
+    transform: rotate(-2deg) scale(0.8) translateY(20px);
+  }
+  50% {
+    transform: rotate(-1deg) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-0.5deg) scale(1) translateY(0px);
+  }
+}
+
+@keyframes arrowPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.4);
+  }
+}
+
+@keyframes dashRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress dots with playbook style */
+.tutorial-prompt .flex.space-x-1 div {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons with chalk style */
+.tutorial-prompt button {
+  font-family: 'Kalam', cursive;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transform: rotate(-0.2deg);
+  transition: all 0.3s ease;
+}
+
+.tutorial-prompt button:hover {
+  transform: rotate(-0.2deg) scale(1.05);
+}
+
+.tutorial-prompt .bg-yellow-500 {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 
+    0 2px 8px rgba(251, 191, 36, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.8);
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+}
+
+.tutorial-prompt .bg-yellow-500:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 
+    0 4px 12px rgba(251, 191, 36, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .tutorial-prompt {
+    transform: rotate(-0.3deg);
+  }
+  
+  .tutorial-title {
+    font-size: 1rem;
+  }
+  
+  .tutorial-description {
+    font-size: 0.875rem;
+  }
+  
+  .tutorial-arrow {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Ensure tutorial appears above modal */
+.tutorial-overlay {
+  z-index: 60;
+}
+
+.tutorial-prompt {
+  z-index: 70;
+}
+
+/* Custom hand-drawn SVG arrows */
+.hand-drawn-arrow-bottom {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hand-drawn-arrow-top {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hand-drawn-arrow-left {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hand-drawn-arrow-right {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}

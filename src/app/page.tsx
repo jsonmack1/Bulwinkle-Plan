@@ -4,26 +4,47 @@ import React, { useState, useEffect, useMemo, useCallback, useReducer, Suspense,
 import { useSearchParams } from 'next/navigation'
 import { ChevronDown, Printer, Share } from 'lucide-react'
 import { formReducer, initialFormState, FormAction } from '../utils/formReducer'
-import GoogleDriveButton from '../components/GoogleDriveButton'
 import { useActivityGeneration } from '../hooks/useActivityGeneration'
 import { useSubscription } from '../lib/subscription-mock'
 import { useMemoryBank } from '../lib/memoryBank'
 import { useFreemiumSystem } from '../hooks/useFreemiumSystem'
 import Navigation from '../components/Navigation'
-import AnimatedLoadingScreen from '../components/ui/AnimatedLoadingScreen'
 import { useAnimatedLoading } from '../hooks/useAnimatedLoading'
 import { useScrollMomentumFix } from '../hooks/useScrollMomentumFix'
+import ComponentPreloader from '../components/optimization/ComponentPreloader'
 
-// Lazy load heavy components
-const ActivityCreationModal = lazy(() => import('../components/modals/ActivityCreationModal'))
-const DifferentiationMenu = lazy(() => import('../components/premium/DifferentiationWorkspace/DifferentiationMenu'))
-const DifferentiationItem = lazy(() => import('../components/premium/DifferentiationWorkspace/DifferentiationItem'))
-const PremiumFeatureLock = lazy(() => import('../components/premium/PremiumFeatureLock'))
-const SubscriptionToggle = lazy(() => import('../components/premium/SubscriptionToggle'))
-const YouTubeVideoMenu = lazy(() => import('../components/premium/YouTubeVideoWorkspace').then(mod => ({ default: mod.YouTubeVideoMenu })))
-const PremiumMathContent = lazy(() => import('../components/math/PremiumMathContent'))
-const UpgradeModal = lazy(() => import('../components/premium/UpgradeModal'))
-const EnhancedLoadingProgress = lazy(() => import('../components/EnhancedLoadingProgress'))
+// Lazy load components that aren't immediately needed
+const GoogleDriveButton = lazy(() => import('../components/GoogleDriveButton'))
+const AnimatedLoadingScreen = lazy(() => import('../components/ui/AnimatedLoadingScreen'))
+
+// Lazy load heavy components with preloading hints
+const ActivityCreationModal = lazy(() => 
+  import('../components/modals/ActivityCreationModal')
+)
+const DifferentiationMenu = lazy(() => 
+  import('../components/premium/DifferentiationWorkspace/DifferentiationMenu')
+)
+const DifferentiationItem = lazy(() => 
+  import('../components/premium/DifferentiationWorkspace/DifferentiationItem')
+)
+const PremiumFeatureLock = lazy(() => 
+  import('../components/premium/PremiumFeatureLock')
+)
+const SubscriptionToggle = lazy(() => 
+  import('../components/premium/SubscriptionToggle')
+)
+const YouTubeVideoMenu = lazy(() => 
+  import('../components/premium/YouTubeVideoWorkspace').then(mod => ({ default: mod.YouTubeVideoMenu }))
+)
+const PremiumMathContent = lazy(() => 
+  import('../components/math/PremiumMathContent')
+)
+const UpgradeModal = lazy(() => 
+  import('../components/premium/UpgradeModal')
+)
+const EnhancedLoadingProgress = lazy(() => 
+  import('../components/EnhancedLoadingProgress')
+)
 import { YouTubeVideo } from '../types/youtube'
 
 // Type definitions for activity-based lesson building
@@ -1994,17 +2015,19 @@ function ActivityLessonBuilderContent() {
                   
                   {/* Google Drive Export Button */}
                   {formState.generatedActivity && (
-                    <GoogleDriveButton
-                      lessonData={{
-                        topic: formState.lessonTopic,
-                        grade: formState.gradeLevel,
-                        subject: formState.subject,
-                        duration: formState.duration,
-                        content: formState.generatedActivity
-                      }}
-                      lessonContentId="lesson-content"
-                      className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-800"
-                    />
+                    <Suspense fallback={<div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>}>
+                      <GoogleDriveButton
+                        lessonData={{
+                          topic: formState.lessonTopic,
+                          grade: formState.gradeLevel,
+                          subject: formState.subject,
+                          duration: formState.duration,
+                          content: formState.generatedActivity
+                        }}
+                        lessonContentId="lesson-content"
+                        className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-800"
+                      />
+                    </Suspense>
                   )}
 
                   {/* Share Dropdown */}
@@ -2482,11 +2505,18 @@ function ActivityLessonBuilderContent() {
       </Suspense>
 
       {/* Animated Loading Screen */}
-      <AnimatedLoadingScreen
-        isVisible={loadingState.isVisible}
-        animation={loadingState.animation}
-        message={loadingState.message}
-      />
+      {loadingState.isVisible && (
+        <Suspense fallback={null}>
+          <AnimatedLoadingScreen
+            isVisible={loadingState.isVisible}
+            animation={loadingState.animation}
+            message={loadingState.message}
+          />
+        </Suspense>
+      )}
+      
+      {/* Component Preloader - Hidden optimization */}
+      <ComponentPreloader />
     </div>
     </>
   )
