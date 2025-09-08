@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Subscription will be cancelled at the end of the billing period',
-        cancelAtPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+        cancelAtPeriodEnd: new Date((subscription as any).current_period_end * 1000).toISOString()
       });
 
     } else {

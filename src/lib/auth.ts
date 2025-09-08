@@ -1,4 +1,5 @@
 import { User, LoginCredentials, SignupCredentials } from '../types/auth'
+import { supabase } from './supabase'
 
 /**
  * Mock Authentication Service
@@ -80,31 +81,108 @@ export class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<User> {
-    // Removed artificial delay for better performance
-
+    // First, check localStorage users (existing functionality)
     const users = this.getStoredUsers()
-    const user = users.find(u => 
+    const localUser = users.find(u => 
       u.email.toLowerCase() === credentials.email.toLowerCase() && 
       u.password === credentials.password
     )
 
-    if (!user) {
-      throw new Error('Invalid email or password')
+    if (localUser) {
+      // Remove password from user object
+      const { password, ...userWithoutPassword } = localUser
+      const authenticatedUser = userWithoutPassword as User
+
+      // Sync with Supabase user data if available
+      try {
+        const { data: supabaseUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', credentials.email.toLowerCase())
+          .single();
+
+        if (supabaseUser) {
+          // Merge localStorage user with Supabase subscription data
+          authenticatedUser.subscription = {
+            plan: supabaseUser.current_plan === 'free' ? 'free' : 'premium',
+            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'inactive',
+            currentPeriodEnd: supabaseUser.subscription_end_date
+          };
+          
+          // Update localStorage with Supabase UUID
+          if (localUser.id !== supabaseUser.id) {
+            const updatedUsers = this.getStoredUsers();
+            const userIndex = updatedUsers.findIndex(u => u.email === credentials.email.toLowerCase());
+            if (userIndex >= 0) {
+              updatedUsers[userIndex].id = supabaseUser.id;
+              this.saveStoredUsers(updatedUsers);
+              authenticatedUser.id = supabaseUser.id;
+            }
+          }
+        }
+      } catch (supabaseError) {
+        console.warn('Failed to sync with Supabase user data:', supabaseError);
+        // Continue with localStorage data
+      }
+
+      // Sync subscription status with mock subscription system
+      if (typeof window !== 'undefined') {
+        const subscriptionStatus = authenticatedUser.subscription?.plan === 'premium' ? 'premium' : 'free'
+        localStorage.setItem('mockSubscription', subscriptionStatus)
+        window.dispatchEvent(new Event('subscription-changed'))
+      }
+
+      this.saveCurrentUser(authenticatedUser)
+      return authenticatedUser
     }
 
-    // Remove password from user object
-    const { password, ...userWithoutPassword } = user
-    const authenticatedUser = userWithoutPassword as User
+    // If not found in localStorage, check Supabase directly
+    try {
+      const { data: supabaseUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', credentials.email.toLowerCase())
+        .single();
 
-    // Sync subscription status with mock subscription system
-    if (typeof window !== 'undefined') {
-      const subscriptionStatus = authenticatedUser.subscription?.plan === 'premium' ? 'premium' : 'free'
-      localStorage.setItem('mockSubscription', subscriptionStatus)
-      window.dispatchEvent(new Event('subscription-changed'))
+      if (supabaseUser) {
+        // Create a user object compatible with the current system
+        const authenticatedUser: User = {
+          id: supabaseUser.id,
+          email: supabaseUser.email,
+          name: supabaseUser.name,
+          createdAt: supabaseUser.created_at,
+          subscription: {
+            plan: supabaseUser.current_plan === 'free' ? 'free' : 'premium',
+            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'inactive',
+            currentPeriodEnd: supabaseUser.subscription_end_date
+          }
+        };
+
+        // Save to localStorage for offline access
+        const localUserWithPassword: StoredUser = {
+          ...authenticatedUser,
+          password: credentials.password // Store password locally (not ideal, but maintains compatibility)
+        };
+        
+        const updatedUsers = this.getStoredUsers();
+        updatedUsers.push(localUserWithPassword);
+        this.saveStoredUsers(updatedUsers);
+
+        // Sync subscription status
+        if (typeof window !== 'undefined') {
+          const subscriptionStatus = authenticatedUser.subscription?.plan === 'premium' ? 'premium' : 'free'
+          localStorage.setItem('mockSubscription', subscriptionStatus)
+          window.dispatchEvent(new Event('subscription-changed'))
+        }
+
+        this.saveCurrentUser(authenticatedUser)
+        return authenticatedUser
+      }
+    } catch (supabaseError) {
+      console.warn('Failed to login with Supabase:', supabaseError);
     }
 
-    this.saveCurrentUser(authenticatedUser)
-    return authenticatedUser
+    throw new Error('Invalid email or password')
   }
 
   async signup(credentials: SignupCredentials): Promise<User> {
@@ -145,9 +223,37 @@ export class AuthService {
       }
     }
 
-    // Save to storage
+    // Save to localStorage
     users.push(newUser)
     this.saveStoredUsers(users)
+
+    // ALSO save to Supabase database
+    try {
+      const { data: createdUserId, error } = await supabase
+        .rpc('create_user_by_email', {
+          p_email: credentials.email.toLowerCase(),
+          p_name: credentials.name,
+          p_stripe_customer_id: null
+        });
+      
+      if (!error && createdUserId) {
+        console.log('✅ Created user in Supabase:', createdUserId);
+        // Update the localStorage user with the Supabase UUID
+        const updatedUsers = this.getStoredUsers();
+        const userIndex = updatedUsers.findIndex(u => u.email === credentials.email.toLowerCase());
+        if (userIndex >= 0) {
+          updatedUsers[userIndex].id = createdUserId; // Use Supabase UUID
+          this.saveStoredUsers(updatedUsers);
+          newUser.id = createdUserId; // Update local reference
+        }
+      } else {
+        console.warn('Failed to create user in Supabase:', error);
+        // Continue with localStorage-only user (fallback)
+      }
+    } catch (supabaseError) {
+      console.warn('Supabase user creation failed:', supabaseError);
+      // Continue with localStorage-only user (fallback)
+    }
 
     // Remove password from user object and authenticate
     const { password, ...userWithoutPassword } = newUser

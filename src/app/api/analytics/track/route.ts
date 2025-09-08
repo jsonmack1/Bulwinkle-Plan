@@ -333,8 +333,8 @@ async function getUsageAnalytics(start: Date, end: Date) {
 
   return {
     totalLessons: usage?.reduce((sum, u) => sum + (u.lesson_count || 0), 0) || 0,
-    uniqueUsers: new Set(usage?.map(u => u.user_id).filter(Boolean)).size,
-    averageLessonsPerUser: usage?.length > 0 ? 
+    uniqueUsers: new Set(usage?.map(u => u.user_id).filter(Boolean)).size || 0,
+    averageLessonsPerUser: (usage && usage.length > 0) ? 
       (usage.reduce((sum, u) => sum + (u.lesson_count || 0), 0) / usage.length) : 0,
     featureUsage: features?.reduce((acc, feature) => {
       const key = `${feature.feature_name}_${feature.action}`;

@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         
         if (isSubscriptionActive) {
           // Premium users have unlimited access - still track for analytics but don't limit
-          await trackPremiumUsage(userId, lessonData, fingerprintHash, ipHash, sessionId, userAgent);
+          await trackPremiumUsage(supabase, userId, lessonData, fingerprintHash, ipHash, sessionId, userAgent);
           
           return NextResponse.json({
             success: true,
@@ -456,10 +456,18 @@ export async function POST(request: NextRequest) {
     });
     
     // Fallback response for development/demo mode
-    // Use already parsed body data
-    const fallbackUserId = body.userId;
-    const fallbackFingerprintHash = body.fingerprintHash;
-    const fallbackSessionId = body.sessionId;
+    // Parse request body for fallback data
+    let fallbackBody;
+    try {
+      const bodyText = await request.text();
+      fallbackBody = JSON.parse(bodyText);
+    } catch {
+      fallbackBody = { userId: null, fingerprintHash: 'fallback', sessionId: 'fallback' };
+    }
+    
+    const fallbackUserId = fallbackBody.userId;
+    const fallbackFingerprintHash = fallbackBody.fingerprintHash;
+    const fallbackSessionId = fallbackBody.sessionId;
     
     console.log('🏠 LOCALHOST FALLBACK MODE - Using memory-based tracking');
     
@@ -507,6 +515,7 @@ export async function POST(request: NextRequest) {
 
 // Helper function to track premium user usage (for analytics only)
 async function trackPremiumUsage(
+  supabaseClient: any,
   userId: string, 
   lessonData: any, 
   fingerprintHash: string, 
@@ -515,25 +524,8 @@ async function trackPremiumUsage(
   userAgent: string
 ) {
   try {
-    // Track premium feature usage
-    await supabase
-      .from('feature_usage')
-      .insert({
-        user_id: userId,
-        feature_name: 'lesson_generation',
-        feature_category: 'generation',
-        action: 'completed',
-        metadata: {
-          subscription: 'premium',
-          unlimited: true,
-          lessonData: lessonData || {}
-        },
-        fingerprint_hash: fingerprintHash,
-        ip_hash: ipHash
-      });
-
-    // Track premium analytics
-    await supabase
+    // Track premium analytics (feature_usage table was removed in cleanup)
+    await supabaseClient
       .from('analytics_events')
       .insert({
         user_id: userId,
@@ -541,7 +533,9 @@ async function trackPremiumUsage(
         event_name: 'premium_lesson_generated',
         event_category: 'premium_usage',
         event_properties: {
-          subscription: 'premium'
+          subscription: 'premium',
+          unlimited: true,
+          lessonData: lessonData || {}
         },
         fingerprint_hash: fingerprintHash,
         ip_hash: ipHash,

@@ -115,6 +115,39 @@ export async function POST(request: NextRequest) {
       }
     } else if (email) {
       customerEmail = email;
+      
+      // For anonymous users with email, create both Supabase user and Stripe customer
+      // This ensures the webhook can find the user later
+      try {
+        // Create Stripe customer first
+        const customer = await stripe.customers.create({
+          email: email,
+          metadata: {
+            source: 'peabody_app_anonymous',
+            fingerprint_hash: fingerprintHash || 'unknown'
+          }
+        });
+        
+        customerId = customer.id;
+        
+        // Create or find user in Supabase using the new utility function
+        const { data: createdUser, error: createError } = await supabase
+          .rpc('create_user_by_email', {
+            p_email: email,
+            p_name: email.split('@')[0], // Use email prefix as name
+            p_stripe_customer_id: customerId
+          });
+          
+        if (!createError && createdUser) {
+          console.log('✅ Created Supabase user for anonymous checkout:', createdUser);
+        } else {
+          console.warn('Failed to create Supabase user:', createError);
+        }
+        
+      } catch (error) {
+        console.error('Failed to create customer and user:', error);
+        // Continue with checkout even if user creation fails
+      }
     }
 
     // Create checkout session - different modes for monthly vs annual

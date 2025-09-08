@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Simulate subscription created/updated event
     const mockEvent = {
-      type: subscription.created === subscription.current_period_start ? 
+      type: (subscription as any).created === (subscription as any).current_period_start ? 
         'customer.subscription.created' : 'customer.subscription.updated',
       data: {
         object: subscription
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         id: subscription.id,
         customer: subscription.customer,
         status: subscription.status,
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString()
+        current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString()
       },
       user: user || null
     });

@@ -90,7 +90,7 @@ async function handleSubscriptionCreated(subscription: any) {
   
   const customerId = subscription.customer;
   
-  // Update users table directly (no separate subscriptions table)
+  // First, try to update existing user
   const { data: updatedUser, error } = await supabase
     .from('users')
     .update({
@@ -105,19 +105,75 @@ async function handleSubscriptionCreated(subscription: any) {
     .select()
     .single();
 
-  if (error) {
-    console.error('Error updating user subscription:', error);
-    if (error.code === 'PGRST116') { // No rows found
-      console.log('User not found by customer ID, this might be a new customer');
+  let userId = updatedUser?.id;
+
+  if (error && error.code === 'PGRST116') { // No rows found
+    console.log('User not found by customer ID, attempting to create user from Stripe customer data');
+    
+    try {
+      // Fetch customer details from Stripe
+      const stripe = (await import('../../../../lib/stripe')).default;
+      const customer = await stripe.customers.retrieve(customerId);
+      
+      if (customer.deleted) {
+        console.error('Stripe customer was deleted, cannot create user');
+        return;
+      }
+      
+      // Create user in Supabase using customer email
+      const customerData = customer as any; // Type assertion for customer data
+      if (customerData.email) {
+        const { data: createdUserId, error: createError } = await supabase
+          .rpc('create_user_by_email', {
+            p_email: customerData.email,
+            p_name: customerData.name || customerData.email.split('@')[0],
+            p_stripe_customer_id: customerId
+          });
+        
+        if (!createError && createdUserId) {
+          console.log('✅ Created new user from Stripe customer:', createdUserId);
+          userId = createdUserId;
+          
+          // Now update the newly created user with subscription details
+          await supabase
+            .from('users')
+            .update({
+              stripe_subscription_id: subscription.id,
+              subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+              subscription_start_date: new Date().toISOString(),
+              subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
+              subscription_tier: subscription.status === 'active' ? 'premium' : 'free',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', createdUserId);
+            
+        } else {
+          console.error('Failed to create user from Stripe customer:', createError);
+          return;
+        }
+      } else {
+        console.error('Stripe customer has no email, cannot create user');
+        return;
+      }
+      
+    } catch (stripeError) {
+      console.error('Failed to fetch Stripe customer:', stripeError);
+      return;
     }
+  } else if (error) {
+    console.error('Error updating user subscription:', error);
+    return;
   } else {
     console.log('✅ User subscription created:', updatedUser?.id);
-    
-    // Track analytics event
+  }
+  
+  // Track analytics event if we have a user ID
+  if (userId) {
     await supabase
       .from('analytics_events')
       .insert({
-        user_id: updatedUser.id,
+        user_id: userId,
         event_name: 'subscription_created',
         event_category: 'conversion_funnel',
         event_properties: {
@@ -251,8 +307,9 @@ async function handleCheckoutCompleted(session: any) {
   console.log('🛒 Checkout completed:', session.id);
   
   if (session.mode === 'subscription' && session.customer) {
-    // If this is a subscription checkout, the subscription created event will handle the update
-    // This is just for tracking
+    // Find or create user for tracking
+    let userId = null;
+    
     const { data: user } = await supabase
       .from('users')
       .select('id')
@@ -260,10 +317,38 @@ async function handleCheckoutCompleted(session: any) {
       .single();
 
     if (user) {
+      userId = user.id;
+    } else if (session.customer_details?.email) {
+      // If user doesn't exist but we have email from checkout, create them
+      try {
+        const stripe = (await import('../../../../lib/stripe')).default;
+        const customer = await stripe.customers.retrieve(session.customer);
+        const customerData = customer as any;
+        
+        if (!customer.deleted && customerData.email) {
+          const { data: createdUserId, error: createError } = await supabase
+            .rpc('create_user_by_email', {
+              p_email: customerData.email,
+              p_name: customerData.name || session.customer_details?.name || customerData.email.split('@')[0],
+              p_stripe_customer_id: session.customer
+            });
+          
+          if (!createError) {
+            userId = createdUserId;
+            console.log('✅ Created user from checkout session:', userId);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create user from checkout:', error);
+      }
+    }
+
+    // Track analytics event if we have a user ID
+    if (userId) {
       await supabase
         .from('analytics_events')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           event_name: 'checkout_completed',
           event_category: 'conversion_funnel',
           event_properties: {

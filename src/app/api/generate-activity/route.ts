@@ -1696,7 +1696,7 @@ export async function POST(request: NextRequest) {
     // Helper function to check if we should use fallback (circuit breaker)
     const shouldUseFallback = (): boolean => {
       try {
-        const circuitState = global[circuitBreakerKey] || { failures: 0, lastFailure: 0 };
+        const circuitState = (global as any)[circuitBreakerKey] || { failures: 0, lastFailure: 0 };
         const now = Date.now();
         const fiveMinutes = 5 * 60 * 1000;
         
@@ -1715,11 +1715,11 @@ export async function POST(request: NextRequest) {
     // Helper function to record API failure
     const recordFailure = (): void => {
       try {
-        if (!global[circuitBreakerKey]) {
-          global[circuitBreakerKey] = { failures: 0, lastFailure: 0 };
+        if (!(global as any)[circuitBreakerKey]) {
+          (global as any)[circuitBreakerKey] = { failures: 0, lastFailure: 0 };
         }
-        global[circuitBreakerKey].failures++;
-        global[circuitBreakerKey].lastFailure = Date.now();
+        (global as any)[circuitBreakerKey].failures++;
+        (global as any)[circuitBreakerKey].lastFailure = Date.now();
       } catch {
         // Ignore circuit breaker errors
       }
@@ -1766,8 +1766,8 @@ export async function POST(request: NextRequest) {
         if (response.ok) {
           console.log('✅ Activity API call successful');
           // Reset circuit breaker on success
-          if (global[circuitBreakerKey]) {
-            global[circuitBreakerKey].failures = 0;
+          if ((global as any)[circuitBreakerKey]) {
+            (global as any)[circuitBreakerKey].failures = 0;
           }
           break;
         }
@@ -1870,7 +1870,7 @@ export async function POST(request: NextRequest) {
       } else if (response?.status === 529) {
         userMessage = 'The intelligent service is temporarily overloaded. We\'ve generated a high-quality lesson plan using our backup system.';
         errorType = 'service_overloaded';
-      } else if (response?.status >= 500) {
+      } else if (response?.status && response.status >= 500) {
         userMessage = 'The intelligent service is temporarily unavailable. Please try again in a few minutes.';
         errorType = 'service_unavailable';
       } else if (!response) {
@@ -1883,7 +1883,7 @@ export async function POST(request: NextRequest) {
           error: userMessage,
           details: `API returned status ${response?.status || 'unknown'}`,
           type: errorType,
-          retryable: response?.status === 429 || response?.status === 529 || response?.status >= 500
+          retryable: (response?.status === 429) || (response?.status === 529) || (response?.status && response.status >= 500)
         },
         { status: response?.status || 500 }
       );
