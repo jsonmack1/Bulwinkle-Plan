@@ -51,8 +51,7 @@ export async function POST(request: NextRequest) {
     console.log('🔍 Checkout API Debug:', {
       priceId,
       billingPeriod,
-      isMonthly: billingPeriod === 'monthly',
-      mode: billingPeriod === 'monthly' ? 'subscription' : 'payment',
+      mode: 'subscription', // Both monthly and annual use subscription mode
       userId,
       hasStripeKey: !!process.env.STRIPE_SECRET_KEY
     });
@@ -150,10 +149,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create checkout session - different modes for monthly vs annual
-    const isMonthly = billingPeriod === 'monthly';
+    // Create checkout session - both monthly and annual are subscriptions
     const sessionParams: any = {
-      mode: isMonthly ? 'subscription' : 'payment', // subscription for monthly, payment for annual
+      mode: 'subscription', // Both monthly and annual are recurring subscriptions
       payment_method_types: ['card'],
       line_items: [
         {
