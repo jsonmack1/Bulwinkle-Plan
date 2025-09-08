@@ -1055,19 +1055,29 @@ function ActivityLessonBuilderContent() {
       
       // 🎯 AUTO-SAVE TO MEMORY BANK (Database)
       try {
+        console.log('💾 Starting lesson save process...')
+        
         // Get user context from auth
         const authResponse = await fetch('/api/auth/user', { method: 'GET' })
         let userId = null
         let userEmail = null
         
+        console.log('Auth response status:', authResponse.status)
+        
         if (authResponse.ok) {
           const authData = await authResponse.json()
+          console.log('Auth data received:', { hasUser: !!authData.user, email: authData.user?.email })
           userId = authData.user?.id
           userEmail = authData.user?.email
         }
         
-        // Save lesson to database with proper user association
-        await saveLesson({
+        // For anonymous users, provide a default context
+        if (!userId && !userEmail) {
+          console.log('🔄 No user context found, using anonymous mode')
+          userEmail = 'anonymous@lesson-builder.com'
+        }
+        
+        const lessonData = {
           title: `${formState.subject} - ${formState.lessonTopic}`,
           subject: formState.subject,
           gradeLevel: formState.gradeLevel,
@@ -1078,10 +1088,17 @@ function ActivityLessonBuilderContent() {
           selectedVideos: selectedVideos,
           userId: userId,
           userEmail: userEmail
-        })
-        console.log('✅ Lesson automatically saved to database Memory Bank!')
+        }
+        
+        console.log('📝 Attempting to save lesson:', lessonData.title)
+        
+        // Save lesson to database with proper user association
+        const savedLessonId = await saveLesson(lessonData)
+        console.log('✅ Lesson automatically saved to database Memory Bank! ID:', savedLessonId)
+        
       } catch (error) {
-        console.warn('⚠️ Failed to auto-save lesson to database:', error)
+        console.error('❌ Failed to auto-save lesson to database:', error)
+        console.error('Error details:', error)
         // Don't block the UI if auto-save fails
       }
       

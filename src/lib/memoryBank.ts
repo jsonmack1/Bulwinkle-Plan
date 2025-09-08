@@ -39,35 +39,59 @@ export class MemoryBankService {
   static async saveLesson(lessonData: LessonSaveData): Promise<string> {
     try {
       console.log('💾 Saving lesson to database:', lessonData.title)
+      console.log('🔍 Lesson data context:', {
+        hasUserId: !!lessonData.userId,
+        hasUserEmail: !!lessonData.userEmail,
+        userId: lessonData.userId,
+        userEmail: lessonData.userEmail,
+        subject: lessonData.subject,
+        contentLength: lessonData.content?.length || 0
+      })
+      
+      // Prepare lesson data for insertion
+      const insertData = {
+        title: lessonData.title || `${lessonData.subject} - ${lessonData.topic}`,
+        subject: lessonData.subject,
+        grade_level: lessonData.gradeLevel,
+        topic: lessonData.topic,
+        activity_type: lessonData.activityType,
+        duration: lessonData.duration,
+        content: lessonData.content,
+        user_id: lessonData.userId || null,
+        user_email: lessonData.userEmail || null,
+        preview_text: MemoryBankService.generatePreview(lessonData.content),
+        tags: MemoryBankService.generateTags(lessonData),
+        mode: 'teacher',
+        rating: 0,
+        use_count: 1,
+        is_favorite: false,
+        template_use_count: 0,
+        success_score: 0
+      }
+      
+      console.log('📋 Insert data prepared:', {
+        title: insertData.title,
+        user_id: insertData.user_id,
+        user_email: insertData.user_email,
+        preview_length: insertData.preview_text?.length || 0
+      })
       
       // Insert lesson into database
       const { data: lesson, error: lessonError } = await supabase
         .from('lessons')
-        .insert({
-          title: lessonData.title || `${lessonData.subject} - ${lessonData.topic}`,
-          subject: lessonData.subject,
-          grade_level: lessonData.gradeLevel,
-          topic: lessonData.topic,
-          activity_type: lessonData.activityType,
-          duration: lessonData.duration,
-          content: lessonData.content,
-          user_id: lessonData.userId,
-          user_email: lessonData.userEmail,
-          preview_text: MemoryBankService.generatePreview(lessonData.content),
-          tags: MemoryBankService.generateTags(lessonData),
-          mode: 'teacher',
-          rating: 0,
-          use_count: 1,
-          is_favorite: false,
-          template_use_count: 0,
-          success_score: 0
-        })
+        .insert(insertData)
         .select()
         .single()
       
       if (lessonError) {
         console.error('❌ Failed to save lesson:', lessonError)
-        throw new Error(`Database error: ${lessonError.message}`)
+        console.error('📊 Detailed error info:', {
+          message: lessonError.message,
+          details: lessonError.details,
+          hint: lessonError.hint,
+          code: lessonError.code
+        })
+        throw new Error(`Database error: ${lessonError.message} (${lessonError.code || 'unknown'})`)
       }
 
       const lessonId = lesson.id
