@@ -75,24 +75,28 @@ export default function MemoryBankPage() {
   // Initialize premium access control
   const accessControl = useMemo(() => new PremiumAccessControl(isPremium), [isPremium])
 
-  // Load real lessons from localStorage
+  // Load real lessons from database
   React.useEffect(() => {
-    try {
-      setIsLoadingActivities(true)
-      const realLessons = getAllLessons()
-      
-      // If no real lessons exist, show demo data with a helpful message
-      if (realLessons.length === 0) {
-        setActivities(mockActivities)
-      } else {
-        setActivities(realLessons)
+    const loadLessons = async () => {
+      try {
+        setIsLoadingActivities(true)
+        const realLessons = await getAllLessons()
+        
+        // If no real lessons exist, show demo data with a helpful message
+        if (realLessons.length === 0) {
+          setActivities(mockActivities)
+        } else {
+          setActivities(realLessons)
+        }
+      } catch (error) {
+        console.error('Failed to load lessons from Memory Bank:', error)
+        setActivities(mockActivities) // Fallback to demo data
+      } finally {
+        setIsLoadingActivities(false)
       }
-    } catch (error) {
-      console.error('Failed to load lessons from Memory Bank:', error)
-      setActivities(mockActivities) // Fallback to demo data
-    } finally {
-      setIsLoadingActivities(false)
     }
+    
+    loadLessons()
   }, [getAllLessons])
 
   // Track page visit
@@ -244,14 +248,16 @@ export default function MemoryBankPage() {
     setSearchFilters(filters)
   }, [])
 
-  const handleActivityAction = useCallback((activityId: string, action: 'reuse' | 'favorite' | 'delete' | 'template' | 'similar') => {
+  const handleActivityAction = useCallback(async (activityId: string, action: 'reuse' | 'favorite' | 'delete' | 'template' | 'similar') => {
     const activity = activities.find(a => a.id === activityId)
     if (!activity) return
 
     switch (action) {
       case 'reuse':
         UsageTracker.trackFeatureUsage('memory-bank', 'activity_reuse', { activityId })
-        // Update use count
+        // Update use count in database
+        await updateLessonUsage(activityId)
+        // Update local state for immediate UI feedback
         setActivities(prev => prev.map(a => 
           a.id === activityId 
             ? { ...a, useCount: a.useCount + 1, lastUsed: new Date().toISOString() }
@@ -262,6 +268,9 @@ export default function MemoryBankPage() {
 
       case 'favorite':
         UsageTracker.trackFeatureUsage('memory-bank', 'toggle_favorite', { activityId })
+        // Toggle favorite in database
+        await toggleFavorite(activityId)
+        // Update local state for immediate UI feedback
         setActivities(prev => prev.map(a => 
           a.id === activityId ? { ...a, isFavorite: !a.isFavorite } : a
         ))
@@ -269,6 +278,9 @@ export default function MemoryBankPage() {
 
       case 'delete':
         UsageTracker.trackFeatureUsage('memory-bank', 'activity_delete', { activityId })
+        // Delete from database
+        await deleteLesson(activityId)
+        // Update local state for immediate UI feedback
         setActivities(prev => prev.filter(a => a.id !== activityId))
         if (selectedActivity?.id === activityId) {
           setSelectedActivity(null)

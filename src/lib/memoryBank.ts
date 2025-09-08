@@ -1,7 +1,8 @@
 // Memory Bank Storage and Management
-// Handles automatic lesson saving and retrieval
+// Handles automatic lesson saving and retrieval with Supabase database
 
 import { ActivityNode } from '../types/memoryBank'
+import { supabase } from './supabase'
 
 export interface VideoData {
   id: string
@@ -27,55 +28,62 @@ interface LessonSaveData {
   selectedVideos?: VideoData[]
   differentiationApplied?: DifferentiationData
   userEmail?: string
+  userId?: string
 }
 
-// Memory Bank Storage Service
+// Memory Bank Storage Service - Now using Supabase Database
 export class MemoryBankService {
-  private static STORAGE_KEY = 'lesson_plan_memory_bank'
+  // Remove localStorage dependency completely
   
-  // Save a lesson to the memory bank
+  // Save a lesson to the database memory bank
   static async saveLesson(lessonData: LessonSaveData): Promise<string> {
     try {
-      const activityId = `activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      console.log('💾 Saving lesson to database:', lessonData.title)
       
-      const activityNode: ActivityNode = {
-        id: activityId,
-        title: lessonData.title || `${lessonData.subject} - ${lessonData.topic}`,
-        subject: lessonData.subject,
-        gradeLevel: lessonData.gradeLevel,
-        topic: lessonData.topic,
-        activityType: lessonData.activityType,
-        duration: lessonData.duration,
-        rating: 0, // Initial rating
-        useCount: 1,
-        createdAt: new Date().toISOString(),
-        lastUsed: new Date().toISOString(),
-        preview: MemoryBankService.generatePreview(lessonData.content),
-        tags: MemoryBankService.generateTags(lessonData),
-        isFavorite: false,
-        mode: 'teacher',
-        fullContent: lessonData.content,
-        templateUseCount: 0,
-        successScore: 0,
-        userEmail: lessonData.userEmail,
-        selectedVideos: lessonData.selectedVideos || [],
-        differentiationApplied: lessonData.differentiationApplied
+      // Insert lesson into database
+      const { data: lesson, error: lessonError } = await supabase
+        .from('lessons')
+        .insert({
+          title: lessonData.title || `${lessonData.subject} - ${lessonData.topic}`,
+          subject: lessonData.subject,
+          grade_level: lessonData.gradeLevel,
+          topic: lessonData.topic,
+          activity_type: lessonData.activityType,
+          duration: lessonData.duration,
+          content: lessonData.content,
+          user_id: lessonData.userId,
+          user_email: lessonData.userEmail,
+          preview_text: MemoryBankService.generatePreview(lessonData.content),
+          tags: MemoryBankService.generateTags(lessonData),
+          mode: 'teacher',
+          rating: 0,
+          use_count: 1,
+          is_favorite: false,
+          template_use_count: 0,
+          success_score: 0
+        })
+        .select()
+        .single()
+      
+      if (lessonError) {
+        console.error('❌ Failed to save lesson:', lessonError)
+        throw new Error(`Database error: ${lessonError.message}`)
+      }
+
+      const lessonId = lesson.id
+      console.log('✅ Lesson saved to database with ID:', lessonId)
+      
+      // Save associated videos if any
+      if (lessonData.selectedVideos && lessonData.selectedVideos.length > 0) {
+        await MemoryBankService.saveLessonVideos(lessonId, lessonData.selectedVideos)
       }
       
-      // Get existing lessons
-      const existingLessons = MemoryBankService.getAllLessons()
+      // Save differentiation data if any
+      if (lessonData.differentiationApplied) {
+        await MemoryBankService.saveLessonDifferentiation(lessonId, lessonData.differentiationApplied)
+      }
       
-      // Add new lesson
-      existingLessons.unshift(activityNode) // Add to beginning
-      
-      // Limit storage to 100 lessons for performance
-      const lessonsToStore = existingLessons.slice(0, 100)
-      
-      // Save to localStorage
-      localStorage.setItem(MemoryBankService.STORAGE_KEY, JSON.stringify(lessonsToStore))
-      
-      console.log('✅ Lesson saved to Memory Bank:', activityNode.title)
-      return activityId
+      return lessonId
       
     } catch (error) {
       console.error('❌ Failed to save lesson to Memory Bank:', error)
@@ -83,70 +91,145 @@ export class MemoryBankService {
     }
   }
   
-  // Get all lessons from memory bank
-  static getAllLessons(): ActivityNode[] {
+  // Get all lessons from database
+  static async getAllLessons(): Promise<ActivityNode[]> {
     try {
-      const stored = localStorage.getItem(MemoryBankService.STORAGE_KEY)
-      if (!stored) return []
+      const { data: lessons, error } = await supabase
+        .from('lessons')
+        .select(`
+          *,
+          lesson_videos(
+            youtube_video_id,
+            title,
+            thumbnail_url,
+            duration_seconds
+          ),
+          lesson_differentiations(*)
+        `)
+        .order('created_at', { ascending: false })
       
-      const lessons = JSON.parse(stored) as ActivityNode[]
-      return lessons || []
+      if (error) {
+        console.error('❌ Failed to retrieve lessons:', error)
+        return []
+      }
+      
+      // Convert database format to ActivityNode format
+      return lessons?.map(lesson => MemoryBankService.convertToActivityNode(lesson)) || []
     } catch (error) {
       console.error('❌ Failed to retrieve lessons from Memory Bank:', error)
       return []
     }
   }
   
-  // Get lessons for specific user (filtered by email)
-  static getLessonsForUser(userEmail: string): ActivityNode[] {
-    const allLessons = MemoryBankService.getAllLessons()
-    return allLessons.filter(lesson => 
-      lesson.userEmail === userEmail || 
-      !lesson.userEmail // Include legacy lessons without email
-    )
+  // Get lessons for specific user
+  static async getLessonsForUser(userId?: string, userEmail?: string): Promise<ActivityNode[]> {
+    try {
+      let query = supabase
+        .from('lessons')
+        .select(`
+          *,
+          lesson_videos(
+            youtube_video_id,
+            title,
+            thumbnail_url,
+            duration_seconds
+          ),
+          lesson_differentiations(*)
+        `)
+        .order('created_at', { ascending: false })
+      
+      // Filter by user ID or email
+      if (userId) {
+        query = query.eq('user_id', userId)
+      } else if (userEmail) {
+        query = query.eq('user_email', userEmail)
+      } else {
+        // No user specified, return empty
+        return []
+      }
+      
+      const { data: lessons, error } = await query
+      
+      if (error) {
+        console.error('❌ Failed to retrieve user lessons:', error)
+        return []
+      }
+      
+      return lessons?.map(lesson => MemoryBankService.convertToActivityNode(lesson)) || []
+    } catch (error) {
+      console.error('❌ Failed to retrieve lessons for user:', error)
+      return []
+    }
   }
   
-  // Update lesson (increment use count, update last used)
-  static updateLessonUsage(lessonId: string): void {
+  // Update lesson usage in database
+  static async updateLessonUsage(lessonId: string): Promise<void> {
     try {
-      const lessons = MemoryBankService.getAllLessons()
-      const lessonIndex = lessons.findIndex(l => l.id === lessonId)
+      const { error } = await supabase
+        .from('lessons')
+        .update({ 
+          use_count: supabase.raw('use_count + 1'),
+          last_used: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', lessonId)
       
-      if (lessonIndex >= 0) {
-        lessons[lessonIndex].useCount += 1
-        lessons[lessonIndex].lastUsed = new Date().toISOString()
-        
-        localStorage.setItem(MemoryBankService.STORAGE_KEY, JSON.stringify(lessons))
-        console.log('✅ Updated lesson usage:', lessons[lessonIndex].title)
+      if (error) {
+        console.error('❌ Failed to update lesson usage:', error)
+      } else {
+        console.log('✅ Updated lesson usage for:', lessonId)
       }
     } catch (error) {
       console.error('❌ Failed to update lesson usage:', error)
     }
   }
   
-  // Delete lesson
-  static deleteLesson(lessonId: string): void {
+  // Delete lesson from database
+  static async deleteLesson(lessonId: string): Promise<void> {
     try {
-      const lessons = MemoryBankService.getAllLessons()
-      const filteredLessons = lessons.filter(l => l.id !== lessonId)
+      const { error } = await supabase
+        .from('lessons')
+        .delete()
+        .eq('id', lessonId)
       
-      localStorage.setItem(MemoryBankService.STORAGE_KEY, JSON.stringify(filteredLessons))
-      console.log('✅ Deleted lesson from Memory Bank:', lessonId)
+      if (error) {
+        console.error('❌ Failed to delete lesson:', error)
+      } else {
+        console.log('✅ Deleted lesson from Memory Bank:', lessonId)
+      }
     } catch (error) {
       console.error('❌ Failed to delete lesson:', error)
     }
   }
   
-  // Toggle favorite status
-  static toggleFavorite(lessonId: string): void {
+  // Toggle favorite status in database
+  static async toggleFavorite(lessonId: string): Promise<void> {
     try {
-      const lessons = MemoryBankService.getAllLessons()
-      const lessonIndex = lessons.findIndex(l => l.id === lessonId)
+      // First get current status
+      const { data: lesson, error: fetchError } = await supabase
+        .from('lessons')
+        .select('is_favorite, title')
+        .eq('id', lessonId)
+        .single()
       
-      if (lessonIndex >= 0) {
-        lessons[lessonIndex].isFavorite = !lessons[lessonIndex].isFavorite
-        localStorage.setItem(MemoryBankService.STORAGE_KEY, JSON.stringify(lessons))
-        console.log('✅ Toggled favorite status:', lessons[lessonIndex].title)
+      if (fetchError) {
+        console.error('❌ Failed to fetch lesson for favorite toggle:', fetchError)
+        return
+      }
+      
+      // Toggle the status
+      const { error: updateError } = await supabase
+        .from('lessons')
+        .update({ 
+          is_favorite: !lesson.is_favorite,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', lessonId)
+      
+      if (updateError) {
+        console.error('❌ Failed to toggle favorite:', updateError)
+      } else {
+        console.log('✅ Toggled favorite status:', lesson.title)
       }
     } catch (error) {
       console.error('❌ Failed to toggle favorite:', error)
@@ -172,6 +255,90 @@ export class MemoryBankService {
   }
   
   // Helper: Generate tags from lesson data
+  // Helper methods for database operations
+  
+  // Save lesson videos to database
+  private static async saveLessonVideos(lessonId: string, videos: VideoData[]): Promise<void> {
+    try {
+      const videoInserts = videos.map(video => ({
+        lesson_id: lessonId,
+        youtube_video_id: video.id,
+        title: video.title,
+        description: video.description,
+        thumbnail_url: video.url
+      }))
+      
+      const { error } = await supabase
+        .from('lesson_videos')
+        .insert(videoInserts)
+      
+      if (error) {
+        console.error('❌ Failed to save lesson videos:', error)
+      } else {
+        console.log('✅ Saved lesson videos:', videos.length)
+      }
+    } catch (error) {
+      console.error('❌ Failed to save lesson videos:', error)
+    }
+  }
+  
+  // Save lesson differentiation to database
+  private static async saveLessonDifferentiation(lessonId: string, differentiation: DifferentiationData): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('lesson_differentiations')
+        .insert({
+          lesson_id: lessonId,
+          differentiation_type: differentiation.type,
+          level: differentiation.level,
+          modifications: differentiation.modifications
+        })
+      
+      if (error) {
+        console.error('❌ Failed to save lesson differentiation:', error)
+      } else {
+        console.log('✅ Saved lesson differentiation')
+      }
+    } catch (error) {
+      console.error('❌ Failed to save lesson differentiation:', error)
+    }
+  }
+  
+  // Convert database lesson to ActivityNode format
+  private static convertToActivityNode(lesson: any): ActivityNode {
+    return {
+      id: lesson.id,
+      title: lesson.title,
+      subject: lesson.subject,
+      gradeLevel: lesson.grade_level,
+      topic: lesson.topic,
+      activityType: lesson.activity_type,
+      duration: lesson.duration,
+      rating: lesson.rating || 0,
+      useCount: lesson.use_count || 1,
+      createdAt: lesson.created_at,
+      lastUsed: lesson.last_used || lesson.created_at,
+      preview: lesson.preview_text || MemoryBankService.generatePreview(lesson.content),
+      tags: lesson.tags || [],
+      isFavorite: lesson.is_favorite || false,
+      mode: lesson.mode || 'teacher',
+      fullContent: lesson.content,
+      templateUseCount: lesson.template_use_count || 0,
+      successScore: lesson.success_score || 0,
+      userEmail: lesson.user_email,
+      selectedVideos: lesson.lesson_videos?.map((video: any) => ({
+        id: video.youtube_video_id,
+        title: video.title,
+        url: video.thumbnail_url
+      })) || [],
+      differentiationApplied: lesson.lesson_differentiations?.length > 0 ? {
+        type: lesson.lesson_differentiations[0].differentiation_type,
+        level: lesson.lesson_differentiations[0].level,
+        modifications: lesson.lesson_differentiations[0].modifications
+      } : undefined
+    }
+  }
+  
   private static generateTags(lessonData: LessonSaveData): string[] {
     const tags: string[] = []
     
@@ -203,17 +370,25 @@ export class MemoryBankService {
     return tags
   }
   
-  // Get storage statistics
-  static getStorageStats(): { totalLessons: number, totalSizeMB: number } {
+  // Get storage statistics from database
+  static async getStorageStats(userId?: string): Promise<{ totalLessons: number, totalSizeMB: number }> {
     try {
-      const lessons = MemoryBankService.getAllLessons()
-      const dataString = JSON.stringify(lessons)
-      const sizeBytes = new Blob([dataString]).size
-      const sizeMB = Number((sizeBytes / (1024 * 1024)).toFixed(2))
+      let query = supabase.from('lessons').select('id', { count: 'exact', head: true })
+      
+      if (userId) {
+        query = query.eq('user_id', userId)
+      }
+      
+      const { count, error } = await query
+      
+      if (error) {
+        console.error('❌ Failed to get storage stats:', error)
+        return { totalLessons: 0, totalSizeMB: 0 }
+      }
       
       return {
-        totalLessons: lessons.length,
-        totalSizeMB: sizeMB
+        totalLessons: count || 0,
+        totalSizeMB: 0 // Database storage doesn't need size calculation
       }
     } catch (error) {
       return { totalLessons: 0, totalSizeMB: 0 }
@@ -221,7 +396,7 @@ export class MemoryBankService {
   }
 }
 
-// Hook for easy access to memory bank in components
+// Hook for easy access to memory bank in components (now async)
 export function useMemoryBank() {
   return {
     saveLesson: MemoryBankService.saveLesson,

@@ -1053,9 +1053,20 @@ function ActivityLessonBuilderContent() {
       // Store original content
       setOriginalLessonContent(result.activityData)
       
-      // 🎯 AUTO-SAVE TO MEMORY BANK
+      // 🎯 AUTO-SAVE TO MEMORY BANK (Database)
       try {
-        const userEmail = 'demo@lessonbuilder.com' // In real app, get from auth context
+        // Get user context from auth
+        const authResponse = await fetch('/api/auth/user', { method: 'GET' })
+        let userId = null
+        let userEmail = null
+        
+        if (authResponse.ok) {
+          const authData = await authResponse.json()
+          userId = authData.user?.id
+          userEmail = authData.user?.email
+        }
+        
+        // Save lesson to database with proper user association
         await saveLesson({
           title: `${formState.subject} - ${formState.lessonTopic}`,
           subject: formState.subject,
@@ -1065,11 +1076,12 @@ function ActivityLessonBuilderContent() {
           duration: formState.duration,
           content: result.activityData,
           selectedVideos: selectedVideos,
+          userId: userId,
           userEmail: userEmail
         })
-        console.log('✅ Lesson automatically saved to Memory Bank!')
+        console.log('✅ Lesson automatically saved to database Memory Bank!')
       } catch (error) {
-        console.warn('⚠️ Failed to auto-save lesson to Memory Bank:', error)
+        console.warn('⚠️ Failed to auto-save lesson to database:', error)
         // Don't block the UI if auto-save fails
       }
       

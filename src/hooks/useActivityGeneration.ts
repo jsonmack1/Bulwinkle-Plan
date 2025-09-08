@@ -296,7 +296,8 @@ export const useActivityGeneration = () => {
         if (result.success && result.activityData) {
           const activityId = result.activityId
           
-          localStorage.setItem(`activity-${activityId}`, JSON.stringify(result.activityData))
+          // Remove localStorage - data is now saved to database via Memory Bank
+          console.log('✅ Activity generated with ID:', activityId)
           
           return {
             activityId,
