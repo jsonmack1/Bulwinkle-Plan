@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
             console.log('✅ Successfully created free subscription until:', endDate);
             // Update the response to indicate subscription was created
             subscriptionModification = {
-              type: 'free_subscription_granted',
+              type: 'free_subscription_granted' as const,
               months: promoCodeData.free_months,
               endDate: endDate.toISOString(),
               description: `${promoCodeData.free_months} month${promoCodeData.free_months > 1 ? 's' : ''} of premium access granted`
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
         // Anonymous user - they'll need to create account to claim subscription
         console.log('🔍 Anonymous user applied free subscription code - will need to create account');
         subscriptionModification = {
-          type: 'free_subscription_pending',
+          type: 'free_subscription_pending' as const,
           months: promoCodeData.free_months,
           description: `Create an account to claim ${promoCodeData.free_months} month${promoCodeData.free_months > 1 ? 's' : ''} of premium access`
         };

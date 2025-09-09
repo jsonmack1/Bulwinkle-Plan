@@ -613,11 +613,12 @@ function ActivityLessonBuilderContent() {
     } else {
       // Reapply remaining differentiation strategies
       let content = originalLessonContent
-      remainingDiff.forEach(([key, diff]: [string, Record<string, unknown>]) => {
+      remainingDiff.forEach(([key, diff]) => {
         // Reapply each remaining differentiation
         // This is a simplified version - in production, you'd want more sophisticated merging
-        const strategy = diff.strategy
-        const mode = diff.mode
+        const typedDiff = diff as { strategy: { title?: string; talk_track?: string[]; instructions?: string[] }; mode: string }
+        const strategy = typedDiff.strategy
+        const mode = typedDiff.mode
         
         if (mode === 'include') {
           const differentiationSection = `\n\n**🎯 ${strategy.title || 'Differentiation Strategy'}**\n\n` +
@@ -1062,7 +1063,7 @@ function ActivityLessonBuilderContent() {
           dispatch({ type: 'SET_ERROR', payload: `✅ ${notice}` })
           // Clear the success message after 8 seconds
           setTimeout(() => {
-            dispatch({ type: 'SET_ERROR', payload: null })
+            dispatch({ type: 'SET_ERROR', payload: '' })
           }, 8000)
         }, 1000)
       }
@@ -1103,7 +1104,7 @@ function ActivityLessonBuilderContent() {
           gradeLevel: formState.gradeLevel,
           topic: formState.lessonTopic,
           activityType: formState.activityType === 'other' ? formState.customActivityType : formState.activityType,
-          duration: formState.duration,
+          duration: parseInt(formState.duration) || 50,
           content: result.activityData,
           selectedVideos: selectedVideos,
           userId: userId,
@@ -1224,8 +1225,9 @@ function ActivityLessonBuilderContent() {
           setTimeout(() => {
             console.log('🔄 Auto-retrying after service overload...')
             // Clear error and retry
-            dispatch({ type: 'SET_ERROR', payload: null })
-            handleSubmit(event) // Retry the submission
+            dispatch({ type: 'SET_ERROR', payload: '' })
+            // Retry the activity generation
+            generateActivityAPI(formState)
           }, 3000) // Wait 3 seconds before retry
         }
       }

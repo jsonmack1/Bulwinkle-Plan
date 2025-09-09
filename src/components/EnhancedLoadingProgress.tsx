@@ -144,9 +144,9 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
     }
 
     return () => {
-      clearInterval(stepTimer)
-      clearInterval(progressTimer)
-      clearInterval(stepProgressTimer)
+      if (stepTimer) clearInterval(stepTimer)
+      if (progressTimer) clearInterval(progressTimer)
+      if (stepProgressTimer) clearInterval(stepProgressTimer)
     }
   }, [currentStep, steps])
 

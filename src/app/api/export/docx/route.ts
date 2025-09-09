@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     console.log('DOCX file generated successfully, size:', docxBuffer.length)
 
     // Return the DOCX file as a download
-    return new Response(docxBuffer, {
+    return new Response(new Uint8Array(docxBuffer), {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'Content-Disposition': `attachment; filename="Peabody_Lesson_Plan_${Date.now()}.docx"`,

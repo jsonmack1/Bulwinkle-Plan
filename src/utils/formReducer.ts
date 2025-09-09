@@ -230,6 +230,7 @@ export function getAPCourseData(apCourse: string): APCourseData | null {
 }
 
 export interface FormState {
+  [key: string]: any // Index signature for compatibility with Record<string, unknown>
   // Mode states
   isSubMode: boolean
   showActivityCreation: boolean
@@ -257,8 +258,11 @@ export interface FormState {
   
   // Intelligence states
   intelligenceProcessing: boolean
+  aiProcessing: boolean
+  processing: boolean
   generatedActivityId: string
   generatedActivity: string | null
+  topic: string
   
   // Preview modal states
   expandedSections: { [key: string]: boolean }
@@ -326,8 +330,11 @@ export const initialFormState: FormState = {
   
   // Intelligence states
   intelligenceProcessing: false,
+  aiProcessing: false,
+  processing: false,
   generatedActivityId: '',
   generatedActivity: null,
+  topic: '',
   
   // Preview modal states
   expandedSections: {

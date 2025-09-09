@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
       remainingLessons,
       isOverLimit,
       subscriptionStatus: userSubscriptionStatus,
-      canAccess: !isOverLimit || userSubscriptionStatus === 'premium',
+      canAccess: !isOverLimit || (userSubscriptionStatus as string) === 'premium',
       resetDate: getNextMonthStart().toISOString(),
       limitReached: isOverLimit
     };
