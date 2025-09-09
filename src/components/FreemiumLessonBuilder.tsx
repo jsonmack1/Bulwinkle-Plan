@@ -134,7 +134,7 @@ export const FreemiumLessonBuilder: React.FC<FreemiumLessonBuilderProps> = ({
         )}
 
         {/* Pass modified onGenerate handler to children */}
-        {React.cloneElement(children as React.ReactElement, {
+        {React.cloneElement(children as React.ReactElement<any>, {
           onGenerate: handleLessonGeneration,
           isGenerating: isGenerating || isLoading,
           canGenerate: !isOverLimit || canAccessPremiumFeatures,
@@ -154,7 +154,7 @@ export const FreemiumLessonBuilder: React.FC<FreemiumLessonBuilderProps> = ({
 
       <UpgradeModal
         isOpen={showUpgradeModal}
-        onClose={upgradeModalType === 'warning' ? closeModals : undefined} // Can't close paywall modal
+        onClose={upgradeModalType === 'warning' ? closeModals : () => {}} // Can't close paywall modal
         userId={user?.id}
         modalType={upgradeModalType}
         remainingLessons={usageData?.remainingLessons || 0}

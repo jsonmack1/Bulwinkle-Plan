@@ -110,9 +110,9 @@ const EnhancedLoadingProgress: React.FC<EnhancedLoadingProgressProps> = ({
   const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0)
 
   useEffect(() => {
-    let stepTimer: NodeJS.Timeout
-    let progressTimer: NodeJS.Timeout
-    let stepProgressTimer: NodeJS.Timeout
+    let stepTimer: NodeJS.Timeout | undefined
+    let progressTimer: NodeJS.Timeout | undefined  
+    let stepProgressTimer: NodeJS.Timeout | undefined
     
     const startStepProgress = () => {
       let elapsed = 0

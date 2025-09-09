@@ -1330,7 +1330,7 @@ function ActivityLessonBuilderContent() {
               </div>
             </div>
             <button
-              onClick={() => dispatch({ type: 'SET_ERROR', payload: null })}
+              onClick={() => dispatch({ type: 'SET_ERROR', payload: '' })}
               className={`flex-shrink-0 ml-4 hover:opacity-75 ${
                 formState.error.startsWith('✅') ? 'text-green-400' : 'text-red-400'
               }`}
@@ -2072,8 +2072,7 @@ function ActivityLessonBuilderContent() {
                           topic: formState.lessonTopic,
                           grade: formState.gradeLevel,
                           subject: formState.subject,
-                          duration: formState.duration,
-                          content: formState.generatedActivity
+                          duration: formState.duration
                         }}
                         lessonContentId="lesson-content"
                         className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-800"
@@ -2267,8 +2266,8 @@ function ActivityLessonBuilderContent() {
                     {differentiationData ? (
                       <DifferentiationMenu
                         data={differentiationData.data || differentiationData}
-                        requestedTypes={differentiationData.requestedTypes || []}
-                        gradeContext={differentiationData.gradeContext || {}}
+                        requestedTypes={(differentiationData.requestedTypes as string[]) || []}
+                        gradeContext={(differentiationData.gradeContext as { level: string; isElementary: boolean; isMiddleSchool: boolean; isHighSchool: boolean }) || { level: '', isElementary: false, isMiddleSchool: false, isHighSchool: false }}
                         addedItems={new Set(Object.keys(appliedDifferentiation))}
                         onAddItem={handleAddDifferentiation}
                         onRemoveItem={handleRemoveDifferentiation}
