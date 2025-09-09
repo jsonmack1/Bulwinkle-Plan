@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { trackAnalyticsEvent } from '../../lib/usageTracker';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
-import { useSubscription } from '../../lib/subscription-mock';
+import { useSubscription } from '../../lib/subscription';
 import PremiumDashboardModal from '../../components/modals/PremiumDashboardModal';
 
 function DashboardContent() {

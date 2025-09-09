@@ -10,7 +10,7 @@ import MemoryBankPremiumLock from '../../components/memory-bank/MemoryBankPremiu
 import UsageAnalytics from '../../components/memory-bank/UsageAnalytics'
 import SmartFeedbackPrompt from '../../components/memory-bank/SmartFeedbackPrompt'
 import { StorageLimitPrompt, FeatureUpgradeModal, GentleSuggestionPrompt, SuccessPrompt, StorageProgressIndicator } from '../../components/memory-bank/UpgradePrompts'
-import { useSubscription } from '../../lib/subscription-mock'
+import { useSubscription } from '../../lib/subscription'
 import { PremiumAccessControl, UsageAnalytics as UsageTracker } from '../../lib/premiumControls'
 import { TeacherFeedback } from '../../types/memoryBank'
 import { useAuth } from '../../contexts/AuthContext'

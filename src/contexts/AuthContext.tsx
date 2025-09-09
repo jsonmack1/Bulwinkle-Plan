@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, AuthContextType, LoginCredentials, SignupCredentials } from '../types/auth'
 import { authService } from '../lib/auth'
-import { mockSubscription } from '../lib/subscription-mock'
+import { mockSubscription } from '../lib/subscription'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 

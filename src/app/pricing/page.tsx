@@ -6,7 +6,7 @@ import { trackAnalyticsEvent, usageTracker } from '../../lib/usageTracker';
 import Navigation from '../../components/Navigation';
 import PromoCodeInput from '../../components/premium/PromoCodeInput';
 import { AccountCreationModal } from '../../components/modals/AccountCreationModal';
-import { useSubscription } from '../../lib/subscription-mock';
+import { useSubscription } from '../../lib/subscription';
 import Link from 'next/link';
 
 interface PricingConfig {
@@ -492,7 +492,13 @@ export default function PricingPage() {
 
         {/* Promo Code Input */}
         <div className="max-w-md mx-auto px-4 mb-16">
-          <PromoCodeInput />
+          <PromoCodeInput 
+            orderAmount={PRICING_CONFIG.annual.billedAmount * 100} // Default to annual pricing in cents
+            billingPeriod="annual"
+            onPromoApplied={handlePromoApplied}
+            onPromoRemoved={handlePromoRemoved}
+            fingerprint={fingerprint}
+          />
         </div>
 
         {/* Teacher Value Props */}

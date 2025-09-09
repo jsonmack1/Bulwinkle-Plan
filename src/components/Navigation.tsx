@@ -9,7 +9,7 @@ import { useDeviceDetection } from './ui/ResponsiveLayout'
 import { cn } from '../lib/utils'
 import AuthModal from './auth/AuthModal'
 import UserMenu from './auth/UserMenu'
-import { useSubscription } from '../lib/subscription-mock'
+import { useSubscription } from '../lib/subscription'
 
 interface NavigationProps {
   isSubMode?: boolean

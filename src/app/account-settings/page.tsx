@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useSubscription } from '../../lib/subscription-mock';
+import { useSubscription } from '../../lib/subscription';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 import { trackAnalyticsEvent } from '../../lib/usageTracker';

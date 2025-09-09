@@ -87,6 +87,8 @@ export async function POST(request: NextRequest) {
 
     if (validationError) {
       console.error('❌ Promo code validation error:', validationError);
+      console.error('❌ Full error details:', JSON.stringify(validationError, null, 2));
+      console.error('❌ Parameters passed:', { normalizedCode, userId, fingerprintHash });
       return NextResponse.json({
         valid: false,
         error: 'Failed to validate promo code'

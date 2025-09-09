@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usageTracker, trackAnalyticsEvent, UsageData } from '../lib/usageTracker';
-import { useSubscription } from '../lib/subscription-mock';
+import { useSubscription } from '../lib/subscription';
 
 interface FreemiumSystemHook {
   // Usage data

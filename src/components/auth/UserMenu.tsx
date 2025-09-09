@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useSubscription } from '../../lib/subscription-mock'
+import { useSubscription } from '../../lib/subscription'
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth()

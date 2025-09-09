@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { YouTubeVideo } from '../../../types/youtube'
-import { useSubscription } from '../../../lib/subscription-mock'
+import { useSubscription } from '../../../lib/subscription'
 
 interface VideoPreviewModalProps {
   video: YouTubeVideo | null

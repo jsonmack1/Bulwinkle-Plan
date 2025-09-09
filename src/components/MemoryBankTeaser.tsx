@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Bookmark } from 'lucide-react'
-import { useSubscription } from '../lib/subscription-mock'
+import { useSubscription } from '../lib/subscription'
 
 interface MemoryBankTeaserProps {
   lessonTitle: string

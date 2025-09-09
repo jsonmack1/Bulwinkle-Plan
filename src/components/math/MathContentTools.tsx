@@ -42,11 +42,20 @@ const MathContentTools: React.FC<MathContentToolsProps> = ({
 
   // Analyze mathematical content
   const mathAnalysis = useMemo(() => {
-    if (!enabled || !content) return { expressions: [], hasMath: false, stats: {} }
+    if (!enabled || !content) return { 
+      expressions: [], 
+      hasMath: false, 
+      stats: {
+        totalExpressions: 0,
+        solutions: 0,
+        examples: 0,
+        complexity: 'low' as const
+      }
+    }
 
     const mathRegex = /\[math\](.*?)\[\/math\]/g
     const expressions: MathExpression[] = []
-    let match
+    let match: RegExpExecArray | null
     let expressionId = 0
 
     while ((match = mathRegex.exec(content)) !== null) {

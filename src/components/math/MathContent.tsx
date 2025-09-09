@@ -27,34 +27,35 @@ const MathContent: React.FC<MathContentProps> = ({ content, className = '' }) =>
 
     // Handle [math] tags first
     const mathTagRegex = /\[math\](.*?)\[\/math\]/g
-    let match
+    let mathTagMatch: RegExpExecArray | null
 
     // Store positions of [math] tags
     const mathTags: { start: number; end: number; expression: string }[] = []
     
-    while ((match = mathTagRegex.exec(text)) !== null) {
+    while ((mathTagMatch = mathTagRegex.exec(text)) !== null) {
       mathTags.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        expression: match[1].trim()
+        start: mathTagMatch.index,
+        end: mathTagMatch.index + mathTagMatch[0].length,
+        expression: mathTagMatch[1].trim()
       })
     }
 
     // Handle inline $ notation
     const inlineMathRegex = /\$([^$]+)\$/g
     const inlineMaths: { start: number; end: number; expression: string }[] = []
+    let inlineMathMatch: RegExpExecArray | null
     
-    while ((match = inlineMathRegex.exec(text)) !== null) {
+    while ((inlineMathMatch = inlineMathRegex.exec(text)) !== null) {
       // Check if this $ notation is inside a [math] tag
       const insideMathTag = mathTags.some(tag => 
-        match.index >= tag.start && match.index + match[0].length <= tag.end
+        inlineMathMatch!.index >= tag.start && inlineMathMatch!.index + inlineMathMatch![0].length <= tag.end
       )
       
       if (!insideMathTag) {
         inlineMaths.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          expression: match[1].trim()
+          start: inlineMathMatch.index,
+          end: inlineMathMatch.index + inlineMathMatch[0].length,
+          expression: inlineMathMatch[1].trim()
         })
       }
     }
@@ -62,12 +63,13 @@ const MathContent: React.FC<MathContentProps> = ({ content, className = '' }) =>
     // Handle $$ display math notation
     const displayMathRegex = /\$\$([^$]+)\$\$/g
     const displayMaths: { start: number; end: number; expression: string }[] = []
+    let displayMathMatch: RegExpExecArray | null
     
-    while ((match = displayMathRegex.exec(text)) !== null) {
+    while ((displayMathMatch = displayMathRegex.exec(text)) !== null) {
       displayMaths.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        expression: match[1].trim()
+        start: displayMathMatch.index,
+        end: displayMathMatch.index + displayMathMatch[0].length,
+        expression: displayMathMatch[1].trim()
       })
     }
 

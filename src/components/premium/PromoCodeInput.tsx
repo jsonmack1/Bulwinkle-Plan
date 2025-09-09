@@ -53,6 +53,65 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
     }
   }, [promoCode, error, validPromo]);
 
+  const applyFreeSubscriptionPromo = async (promoCode: any) => {
+    try {
+      console.log('🎁 Applying free subscription promo code:', promoCode.code);
+      
+      const response = await fetch('/api/promo/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: promoCode.code,
+          userId: user?.id,
+          fingerprintHash: fingerprint,
+          orderAmount: 0, // Free subscription
+          metadata: {
+            appliedFrom: 'promo_code_input',
+            timestamp: new Date().toISOString()
+          }
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Free subscription promo applied successfully', result);
+        
+        // Show success message
+        setError(null);
+        
+        if (result.subscriptionModification?.type === 'free_subscription_granted') {
+          // Subscription was created in database - trigger refresh
+          console.log('🎉 Subscription granted, refreshing status...');
+          
+          // Trigger subscription refresh events
+          window.dispatchEvent(new Event('subscription-changed'));
+          window.dispatchEvent(new Event('real-subscription-refresh'));
+          
+          // Show success message and let the user see the status change
+          console.log('✅ Premium access activated! Header should update shortly...');
+        } else if (result.subscriptionModification?.type === 'free_subscription_pending') {
+          // Anonymous user - show message about creating account
+          setError(result.subscriptionModification.description);
+        } else {
+          // Generic success
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+        
+      } else {
+        console.error('❌ Failed to apply promo code:', result.error_message);
+        setError('Failed to activate free subscription. Please try again.');
+      }
+    } catch (error) {
+      console.error('❌ Error applying free subscription promo:', error);
+      setError('Failed to activate free subscription. Please try again.');
+    }
+  };
+
   const validatePromoCode = async (code: string) => {
     if (!code.trim()) {
       setError('Please enter a promo code');
@@ -82,6 +141,11 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
         setValidPromo(result.promoCode);
         setDiscountPreview(result.discountPreview || null);
         setError(null);
+        
+        // For free subscription promo codes, automatically apply them
+        if (result.promoCode.type === 'free_subscription') {
+          await applyFreeSubscriptionPromo(result.promoCode);
+        }
         
         if (onPromoApplied) {
           onPromoApplied(result.promoCode, result.discountPreview);
@@ -154,6 +218,11 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
               </div>
               <div className="text-sm text-green-700">
                 {validPromo.name} - {getPromoTypeDisplay(validPromo)}
+                {validPromo.type === 'free_subscription' && (
+                  <div className="text-green-800 font-medium mt-1">
+                    🎉 Activating your premium access...
+                  </div>
+                )}
               </div>
               {discountPreview && (
                 <div className="text-sm text-green-600 mt-1">

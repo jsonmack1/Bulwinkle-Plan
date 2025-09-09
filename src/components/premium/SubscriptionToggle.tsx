@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSubscription, SubscriptionStatus, SUBSCRIPTION_PLANS } from '../../lib/subscription-mock'
+import { useSubscription, SubscriptionStatus, SUBSCRIPTION_PLANS } from '../../lib/subscription'
 
 const SubscriptionToggle: React.FC = () => {
   const { status, info, setStatus, isHydrated } = useSubscription()

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { YouTubeVideo } from '../../../types/youtube'
-import { useSubscription } from '../../../lib/subscription-mock'
+import { useSubscription } from '../../../lib/subscription'
 import VideoPreviewModal from './VideoPreviewModal'
 
 interface VideoCardProps {

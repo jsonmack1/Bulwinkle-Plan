@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { FileDown, Download, ExternalLink, Lock } from 'lucide-react'
-import { useSubscription } from '../lib/subscription-mock'
+import { useSubscription } from '../lib/subscription'
 
 interface LessonData {
   topic: string

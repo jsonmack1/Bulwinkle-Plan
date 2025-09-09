@@ -161,6 +161,54 @@ export async function POST(request: NextRequest) {
       };
     }
 
+    // For free subscription promo codes, create/upgrade the user's subscription
+    if (promoCodeData.type === 'free_subscription' && promoCodeData.free_months > 0) {
+      if (userId) {
+        // User is logged in - upgrade their account
+        try {
+          const endDate = new Date();
+          endDate.setMonth(endDate.getMonth() + promoCodeData.free_months);
+          
+          console.log('🎁 Creating free subscription for user:', { userId, months: promoCodeData.free_months, endDate });
+          
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({
+              subscription_status: 'premium',
+              subscription_tier: 'premium', 
+              subscription_start_date: new Date().toISOString(),
+              subscription_end_date: endDate.toISOString(),
+              subscription_cancel_at_period_end: false
+            })
+            .eq('id', userId);
+            
+          if (updateError) {
+            console.error('❌ Failed to create subscription:', updateError);
+          } else {
+            console.log('✅ Successfully created free subscription until:', endDate);
+            // Update the response to indicate subscription was created
+            subscriptionModification = {
+              type: 'free_subscription_granted',
+              months: promoCodeData.free_months,
+              endDate: endDate.toISOString(),
+              description: `${promoCodeData.free_months} month${promoCodeData.free_months > 1 ? 's' : ''} of premium access granted`
+            };
+          }
+        } catch (subscriptionError) {
+          console.error('❌ Error creating subscription:', subscriptionError);
+          // Don't fail the request, but log the error
+        }
+      } else {
+        // Anonymous user - they'll need to create account to claim subscription
+        console.log('🔍 Anonymous user applied free subscription code - will need to create account');
+        subscriptionModification = {
+          type: 'free_subscription_pending',
+          months: promoCodeData.free_months,
+          description: `Create an account to claim ${promoCodeData.free_months} month${promoCodeData.free_months > 1 ? 's' : ''} of premium access`
+        };
+      }
+    }
+
     // Track successful application for analytics
     try {
       await supabase
@@ -175,7 +223,8 @@ export async function POST(request: NextRequest) {
             discountApplied: result.discount_applied_cents,
             orderAmount,
             finalAmount,
-            subscriptionId
+            subscriptionId,
+            freeMonths: promoCodeData.type === 'free_subscription' ? promoCodeData.free_months : undefined
           },
           fingerprint_hash: fingerprintHash || null,
           ip_hash: ipHash,

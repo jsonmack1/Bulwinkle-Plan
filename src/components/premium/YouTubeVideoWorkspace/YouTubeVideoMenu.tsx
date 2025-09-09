@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import VideoCard from './VideoCard'
 import IntelligentSearchFeedback from './IntelligentSearchFeedback'
 import { YouTubeVideo, IntelligentSearchResponse } from '../../../types/youtube'
-import { useSubscription } from '../../../lib/subscription-mock'
+import { useSubscription } from '../../../lib/subscription'
 
 interface YouTubeVideoMenuProps {
   topic: string

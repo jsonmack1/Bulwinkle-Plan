@@ -101,28 +101,79 @@ export const mockSubscription = {
   }
 }
 
-// React hook for subscription status
+// Real subscription hook that queries the database
 export const useSubscription = () => {
-  const [status, setStatus] = React.useState<SubscriptionStatus>('free') // Always start with 'free' for SSR
+  const [status, setStatus] = React.useState<SubscriptionStatus>('free')
   const [isHydrated, setIsHydrated] = React.useState(false)
+  const [subscriptionData, setSubscriptionData] = React.useState<any>(null)
+  
+  // Get user from auth context
+  let user = null;
+  if (typeof window !== 'undefined') {
+    try {
+      // Try to get user from auth storage or context
+      const authData = localStorage.getItem('auth-user');
+      if (authData) {
+        user = JSON.parse(authData);
+      }
+    } catch (error) {
+      console.log('No auth data found, continuing as anonymous user');
+    }
+  }
+  
+  const fetchRealSubscription = async (userId: string) => {
+    try {
+      console.log('🔍 Fetching real subscription for user:', userId);
+      const response = await fetch(`/api/user/subscription?userId=${userId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Real subscription data:', data);
+        setSubscriptionData(data);
+        
+        // Set status based on real database data
+        const isPremium = data.subscription?.isPremium || false;
+        setStatus(isPremium ? 'premium' : 'free');
+        
+        return data;
+      } else {
+        console.warn('⚠️ Subscription API failed, using free status');
+        setStatus('free');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Error fetching subscription:', error);
+      setStatus('free');
+      return null;
+    }
+  };
   
   React.useEffect(() => {
-    // This runs only on the client, preventing hydration mismatches
     setIsHydrated(true)
-    setStatus(mockSubscription.getStatus())
     
-    const handleStorageChange = () => {
-      setStatus(mockSubscription.getStatus())
+    if (user?.id) {
+      // User is logged in - fetch real subscription
+      fetchRealSubscription(user.id);
+    } else {
+      // Anonymous user - always free
+      setStatus('free');
     }
     
-    window.addEventListener('subscription-changed', handleStorageChange)
-    window.addEventListener('storage', handleStorageChange)
+    const handleSubscriptionChange = async () => {
+      if (user?.id) {
+        await fetchRealSubscription(user.id);
+      }
+    }
+    
+    // Listen for subscription changes
+    window.addEventListener('subscription-changed', handleSubscriptionChange)
+    window.addEventListener('real-subscription-refresh', handleSubscriptionChange)
     
     return () => {
-      window.removeEventListener('subscription-changed', handleStorageChange)
-      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('subscription-changed', handleSubscriptionChange)
+      window.removeEventListener('real-subscription-refresh', handleSubscriptionChange)
     }
-  }, [])
+  }, [user?.id])
   
   const info = React.useMemo(() => SUBSCRIPTION_PLANS[status], [status])
   
@@ -131,9 +182,13 @@ export const useSubscription = () => {
     info,
     isPremium: status === 'premium' || status === 'school',
     canUseDifferentiation: status === 'premium' || status === 'school',
-    upgrade: mockSubscription.mockUpgrade,
-    setStatus: mockSubscription.setStatus,
-    isHydrated
+    isHydrated,
+    subscriptionData, // Real subscription data from database
+    refreshSubscription: () => {
+      if (user?.id) {
+        fetchRealSubscription(user.id);
+      }
+    }
   }
 }
 

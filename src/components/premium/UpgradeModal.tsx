@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { mockSubscription, SUBSCRIPTION_PLANS, SubscriptionStatus } from '../../lib/subscription-mock'
+import { mockSubscription, SUBSCRIPTION_PLANS, SubscriptionStatus } from '../../lib/subscription'
 
 interface UpgradeModalProps {
   onClose: () => void

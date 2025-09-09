@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useSubscription } from '../../../lib/subscription-mock'
+import { useSubscription } from '../../../lib/subscription'
 
 interface DifferentiationItemProps {
   type: 'below_grade' | 'at_grade' | 'above_grade' | 'esl_adaptations' | 'iep_adaptations'

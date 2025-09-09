@@ -21,12 +21,28 @@ interface MathStructureAnalysis {
   operators: string[]
   functions: string[]
   difficulty: string
+  primaryType?: string
+  suggestedApproach?: string
+  hasLimit?: boolean
+  hasDerivative?: boolean
+  hasIntegral?: boolean
+  hasEquation?: boolean
+  hasTrigonometry?: boolean
+  hasExponential?: boolean
+  hasPolynomial?: boolean
+  hasRational?: boolean
+  hasRadical?: boolean
+  hasAbsolute?: boolean
+  hasInfinity?: boolean
+  constants?: string[]
 }
 
 interface LimitAnalysis {
   expression: string
   approachValue: string
   type: string
+  variable?: string
+  functionPart?: string
 }
 
 export interface UniversalMathSolution {
@@ -74,37 +90,67 @@ export class UniversalMathSolver {
   /**
    * Step 1: Analyze mathematical structure without hardcoding
    */
-  private static analyzeExpressionStructure(expression: string) {
-    const structure = {
-      hasLimit: /\\?lim|limit|approaches?|→|->/.test(expression),
-      hasDerivative: /\\?frac\{d\}\{dx\}|d\/dx|\\?frac\{d\}\{dt\}|derivative|'/.test(expression),
-      hasIntegral: /\\?int|∫|integral|antiderivative/.test(expression),
-      hasEquation: /=/.test(expression),
-      hasTrigonometry: /\\?sin|\\?cos|\\?tan|\\?sec|\\?csc|\\?cot|\\?theta|θ/.test(expression),
-      hasExponential: /\\?exp|e\\?\^|\\?log|\\?ln/.test(expression),
-      hasPolynomial: /x\\?\^\\?[0-9]|x²|x³|x\\^\\{[0-9]+\\}/.test(expression),
-      hasRational: /\\?frac\\{|\//.test(expression),
-      hasRadical: /\\?sqrt|√/.test(expression),
-      hasAbsolute: /\\?left\\?\\||\\|/.test(expression),
-      hasInfinity: /\\?infty|∞/.test(expression),
-      complexity: this.assessComplexity(expression),
-      variables: this.extractVariables(expression),
-      constants: this.extractConstants(expression)
-    };
+  private static analyzeExpressionStructure(expression: string): MathStructureAnalysis {
+    const hasLimit = /\\?lim|limit|approaches?|→|->/.test(expression);
+    const hasDerivative = /\\?frac\{d\}\{dx\}|d\/dx|\\?frac\{d\}\{dt\}|derivative|'/.test(expression);
+    const hasIntegral = /\\?int|∫|integral|antiderivative/.test(expression);
+    const hasEquation = /=/.test(expression);
+    const hasTrigonometry = /\\?sin|\\?cos|\\?tan|\\?sec|\\?csc|\\?cot|\\?theta|θ/.test(expression);
+    const hasExponential = /\\?exp|e\\?\^|\\?log|\\?ln/.test(expression);
+    const hasPolynomial = /x\\?\^\\?[0-9]|x²|x³|x\\^\\{[0-9]+\\}/.test(expression);
+    const hasRational = /\\?frac\\{|\//.test(expression);
+    const hasRadical = /\\?sqrt|√/.test(expression);
+    const hasAbsolute = /\\?left\\?\\||\\|/.test(expression);
+    const hasInfinity = /\\?infty|∞/.test(expression);
+    
+    const complexity = this.assessComplexity(expression);
+    const variables = this.extractVariables(expression);
+    const constants = this.extractConstants(expression);
+    const operators = this.extractOperators(expression);
+    const functions = this.extractFunctions(expression);
 
     // Determine primary problem type based on structure
     let primaryType = 'algebraic';
-    if (structure.hasLimit) primaryType = 'limit';
-    else if (structure.hasDerivative) primaryType = 'derivative';
-    else if (structure.hasIntegral) primaryType = 'integral';
-    else if (structure.hasTrigonometry && structure.hasEquation) primaryType = 'trigonometric_equation';
-    else if (structure.hasPolynomial && structure.hasEquation) primaryType = 'polynomial_equation';
-    else if (structure.hasTrigonometry) primaryType = 'trigonometric_function';
+    if (hasLimit) primaryType = 'limit';
+    else if (hasDerivative) primaryType = 'derivative';
+    else if (hasIntegral) primaryType = 'integral';
+    else if (hasTrigonometry && hasEquation) primaryType = 'trigonometric_equation';
+    else if (hasPolynomial && hasEquation) primaryType = 'polynomial_equation';
+    else if (hasTrigonometry) primaryType = 'trigonometric_function';
 
     return {
-      ...structure,
+      type: primaryType,
+      complexity,
+      variables,
+      operators,
+      functions,
+      difficulty: this.assessDifficulty(expression, complexity),
       primaryType,
-      suggestedApproach: this.suggestApproach(structure)
+      suggestedApproach: this.suggestStructureApproach({
+        hasLimit,
+        hasDerivative,
+        hasIntegral,
+        hasEquation,
+        hasTrigonometry,
+        hasExponential,
+        hasPolynomial,
+        hasRational,
+        hasRadical,
+        hasAbsolute,
+        hasInfinity
+      }),
+      hasLimit,
+      hasDerivative,
+      hasIntegral,
+      hasEquation,
+      hasTrigonometry,
+      hasExponential,
+      hasPolynomial,
+      hasRational,
+      hasRadical,
+      hasAbsolute,
+      hasInfinity,
+      constants
     };
   }
 
@@ -126,7 +172,7 @@ export class UniversalMathSolver {
       const intelligenceResponse = await this.callMathematicalIntelligence(prompt);
       
       // Parse intelligent response into structured steps
-      const solution = this.parseIntelligentSolution(intelligenceResponse, expression, analysis.primaryType);
+      const solution = this.parseIntelligentSolution(intelligenceResponse, expression, analysis.primaryType || analysis.type);
       
       return solution;
       
@@ -156,7 +202,7 @@ GRADE LEVEL: ${gradeLevel}
 
 MATHEMATICAL ANALYSIS:
 - Variables present: ${analysis.variables.join(', ')}
-- Mathematical structures: ${Object.keys(analysis).filter(k => analysis[k] === true).join(', ')}
+- Mathematical structures: ${Object.keys(analysis).filter(k => (analysis as any)[k] === true).join(', ')}
 - Suggested approach: ${analysis.suggestedApproach}
 
 INSTRUCTIONS:
@@ -292,7 +338,7 @@ Next: [What to do in the following step]`;
 
     // Step 3+: Apply appropriate technique based on the specific limit
     if (indeterminateCheck.isIndeterminate) {
-      const solutionSteps = this.solveLimitByMethod(expression, limitAnalysis, indeterminateCheck.suggestedMethod);
+      const solutionSteps = this.solveLimitByMethod(expression, analysis, indeterminateCheck.suggestedMethod);
       steps.push(...solutionSteps);
     }
 
@@ -340,14 +386,41 @@ Next: [What to do in the following step]`;
     return 'Analyze step by step using appropriate mathematical principles';
   }
 
+  private static extractOperators(expression: string): string[] {
+    const matches = expression.match(/[+\-*/=<>]/g) || [];
+    return [...new Set(matches)];
+  }
+
+  private static extractFunctions(expression: string): string[] {
+    const matches = expression.match(/\\?(sin|cos|tan|log|ln|sqrt|exp|lim|int)/g) || [];
+    return [...new Set(matches)];
+  }
+
+  private static assessDifficulty(expression: string, complexity: string): string {
+    if (complexity === 'basic') return 'elementary';
+    if (complexity === 'intermediate') return 'high school';
+    return 'college';
+  }
+
+  private static suggestStructureApproach(structure: any): string {
+    if (structure.hasLimit) return 'limit evaluation';
+    if (structure.hasDerivative) return 'derivative rules';
+    if (structure.hasIntegral) return 'integration techniques';
+    if (structure.hasEquation && structure.hasPolynomial) return 'algebraic solving';
+    if (structure.hasTrigonometry) return 'trigonometric identities';
+    return 'algebraic manipulation';
+  }
+
   // Placeholder methods for specific problem types (to be implemented)
-  private static analyzeLimitStructure(expression: string) {
+  private static analyzeLimitStructure(expression: string): LimitAnalysis {
     // Analyze the specific limit to determine approach value and function structure
     const limitMatch = expression.match(/lim.*?(?:x|t|n).*?(?:→|->|approaches).*?(\\?infty|∞|[0-9+-]+)/);
     const approachValue = limitMatch ? limitMatch[1] : '0';
     
     return {
+      expression,
       approachValue,
+      type: 'basic_limit',
       variable: 'x', // Extract actual variable
       functionPart: expression // Extract the function being limited
     };
@@ -744,6 +817,7 @@ Next: [What to do in the following step]`;
     // Basic fallback when all else fails
     return this.createBasicSolution(expression, 'general', gradeLevel);
   }
+
 }
 
 /**

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { mockSubscription, SUBSCRIPTION_PLANS } from '../../lib/subscription-mock'
+import { mockSubscription, SUBSCRIPTION_PLANS } from '../../lib/subscription'
 
 interface MemoryBankPremiumLockProps {
   onClose: () => void
