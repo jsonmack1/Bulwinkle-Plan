@@ -128,7 +128,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
       console.log('🧮 Starting math-specific processing...')
       
       // STEP 1: Handle standard LaTeX delimiters before cleaning
-      processed = processed.replace(/\$\$(.*?)\$\$/gs, '[display]$1[/display]');
+      processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, '[display]$1[/display]');
       processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
       
       // STEP 2: Clean any existing math tags to start fresh
@@ -163,7 +163,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
       
       // STEP 7: Wrap additional math patterns
       processed = processed.replace(/\\int|\\sum|\\prod|\\lim/g, (match) => '[math]' + match + '[/math]');
-      processed = processed.replace(/\\begin\{(matrix|pmatrix|bmatrix|cases|aligned|gather)\}(.*?)\\end\{\1\}/gs, '[display]$0[/display]');
+      processed = processed.replace(/\\begin\{(matrix|pmatrix|bmatrix|cases|aligned|gather)\}([\s\S]*?)\\end\{\1\}/g, '[display]$0[/display]');
 
       console.log('📝 Content after math wrapping:', processed.substring(0, 200))
 
@@ -382,6 +382,15 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
         console.log('🎯 Starting KaTeX rendering...')
 
+        // Helper function to clean LaTeX expressions
+        const cleanLatex = (latex: string) => {
+          return latex.trim()
+            .replace(/\[\/display\]/g, '')
+            .replace(/\[display\]/g, '')
+            .replace(/\[\/math\]/g, '')
+            .replace(/\[math\]/g, '')
+        }
+
         // Find and render inline math expressions [math]...[/math]
         const inlineMathRegex = /\[math\](.*?)\[\/math\]/g
         let inlineMatch
@@ -396,25 +405,20 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
         // Process matches in reverse order to maintain correct indices
         inlineMatches.reverse().forEach(({match, latex}) => {
+          // Clean the latex - remove any stray tags
+          const cleanedLatex = cleanLatex(latex)
           try {
-            // Clean the latex - remove any stray tags
-            const cleanLatex = latex.trim()
-              .replace(/\[\/display\]/g, '')
-              .replace(/\[display\]/g, '')
-              .replace(/\[\/math\]/g, '')
-              .replace(/\[math\]/g, '')
+            console.log('🎯 Rendering inline math:', cleanedLatex)
             
-            console.log('🎯 Rendering inline math:', cleanLatex)
-            
-            const katexHTML = katex.renderToString(cleanLatex, {
+            const katexHTML = katex.renderToString(cleanedLatex, {
               ...katexOptions,
               displayMode: false
             })
             container.innerHTML = container.innerHTML.replace(match, katexHTML)
             console.log('✅ Inline math rendered successfully')
-          } catch (error) {
+          } catch (error: any) {
             console.warn('KaTeX inline rendering error:', error)
-            container.innerHTML = container.innerHTML.replace(match, `<span class="math-error">Error: ${cleanLatex} (${error.message})</span>`)
+            container.innerHTML = container.innerHTML.replace(match, `<span class="math-error">Error: ${cleanedLatex} (${(error as any).message})</span>`)
           }
         })
 
@@ -432,25 +436,20 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
         // Process display matches in reverse order
         displayMatches.reverse().forEach(({match, latex}) => {
+          // Clean the latex
+          const cleanedLatex = cleanLatex(latex)
           try {
-            // Clean the latex
-            const cleanLatex = latex.trim()
-              .replace(/\[\/display\]/g, '')
-              .replace(/\[display\]/g, '')
-              .replace(/\[\/math\]/g, '')
-              .replace(/\[math\]/g, '')
+            console.log('🎯 Rendering display math:', cleanedLatex)
             
-            console.log('🎯 Rendering display math:', cleanLatex)
-            
-            const katexHTML = katex.renderToString(cleanLatex, {
+            const katexHTML = katex.renderToString(cleanedLatex, {
               ...katexOptions,
               displayMode: true
             })
             container.innerHTML = container.innerHTML.replace(match, `<div class="katex-display">${katexHTML}</div>`)
             console.log('✅ Display math rendered successfully')
-          } catch (error) {
+          } catch (error: any) {
             console.warn('KaTeX display rendering error:', error)
-            container.innerHTML = container.innerHTML.replace(match, `<div class="math-error">Error: ${cleanLatex} (${error.message})</div>`)
+            container.innerHTML = container.innerHTML.replace(match, `<div class="math-error">Error: ${cleanedLatex} (${(error as any).message})</div>`)
           }
         })
 

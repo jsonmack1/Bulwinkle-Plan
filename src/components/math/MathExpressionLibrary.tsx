@@ -40,7 +40,7 @@ const MathExpressionLibrary: React.FC<MathExpressionLibraryProps> = ({
   const [previewExpression, setPreviewExpression] = useState<MathExpression | null>(null)
 
   // Mathematical expressions organized by category
-  const expressions: MathExpression[] = useMemo(() => [
+  const expressions = useMemo((): MathExpression[] => [
     // Basic Algebra
     {
       name: 'Slope Formula',
