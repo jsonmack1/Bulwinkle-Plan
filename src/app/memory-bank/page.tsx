@@ -17,6 +17,34 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useMemoryBank } from '../../lib/memoryBank'
 import Navigation from '../../components/Navigation'
 
+// Helper functions for memory bank operations
+const updateLessonUsage = async (activityId: string) => {
+  try {
+    console.log('Updating lesson usage for:', activityId)
+    // TODO: Implement database update for lesson usage
+  } catch (error) {
+    console.error('Error updating lesson usage:', error)
+  }
+}
+
+const toggleFavorite = async (activityId: string) => {
+  try {
+    console.log('Toggling favorite for:', activityId)
+    // TODO: Implement database update for favorite status
+  } catch (error) {
+    console.error('Error toggling favorite:', error)
+  }
+}
+
+const deleteLesson = async (activityId: string) => {
+  try {
+    console.log('Deleting lesson:', activityId)
+    // TODO: Implement database deletion for lesson
+  } catch (error) {
+    console.error('Error deleting lesson:', error)
+  }
+}
+
 // Mock data for demonstration - real implementation will use database
 const mockActivities: ActivityNode[] = [
   {

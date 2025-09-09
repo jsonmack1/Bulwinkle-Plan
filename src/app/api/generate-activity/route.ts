@@ -17,6 +17,7 @@ interface ActivityData {
   techPassword?: string;
   emergencyContacts?: string;
   substituteMode?: boolean;
+  date?: string;
 }
 
 function isMathSubject(subject: string, gradeLevel: string): boolean {

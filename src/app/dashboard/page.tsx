@@ -11,7 +11,7 @@ import PremiumDashboardModal from '../../components/modals/PremiumDashboardModal
 
 function DashboardContent() {
   const { user } = useAuth();
-  const { isPremium, isHydrated, setStatus } = useSubscription();
+  const { isPremium, isHydrated } = useSubscription();
   const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(true);
 
@@ -21,8 +21,7 @@ function DashboardContent() {
     if (upgrade === 'success') {
       console.log('🎉 Stripe success detected - setting premium status');
       
-      // CRITICAL: Set subscription status to premium after successful payment
-      setStatus('premium');
+      // CRITICAL: Subscription status will be updated via database
       
       // Track successful upgrade
       trackAnalyticsEvent('upgrade_success_page_viewed', {
@@ -30,7 +29,7 @@ function DashboardContent() {
         source: 'stripe_redirect'
       });
     }
-  }, [searchParams, user?.id, setStatus]);
+  }, [searchParams, user?.id]);
 
   // Show loading state while checking subscription
   if (!isHydrated) {

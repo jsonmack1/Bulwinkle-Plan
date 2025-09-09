@@ -333,7 +333,8 @@ function ActivityLessonBuilderContent() {
     // Insert differentiation adaptations into the lesson content
     Object.entries(differentiations).forEach(([type, data]) => {
       const diffSection = formatDifferentiationForLesson(type, data)
-      modifiedContent += `\n\n### ${data.title || type}\n${diffSection}`
+      const dataWithTitle = data as { title?: string }
+      modifiedContent += `\n\n### ${dataWithTitle.title || type}\n${diffSection}`
     })
     
     return modifiedContent
@@ -341,50 +342,51 @@ function ActivityLessonBuilderContent() {
 
   const formatDifferentiationForLesson = (type: string, data: unknown) => {
     let content = ''
+    const typedData = data as any // Type assertion for complex object structure
     
     if (type === 'esl_adaptations') {
-      if (data.vocabulary_support?.length) {
+      if (typedData.vocabulary_support?.length) {
         content += '**📖 Vocabulary Support:**\n'
-        content += data.vocabulary_support.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.vocabulary_support.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.visual_aids?.length) {
+      if (typedData.visual_aids?.length) {
         content += '**🖼️ Visual Aids:**\n'
-        content += data.visual_aids.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.visual_aids.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.language_scaffolds?.length) {
+      if (typedData.language_scaffolds?.length) {
         content += '**🏗️ Language Scaffolds:**\n'
-        content += data.language_scaffolds.map((item: string) => `• ${item}`).join('\n')
+        content += typedData.language_scaffolds.map((item: string) => `• ${item}`).join('\n')
       }
     } else if (type === 'iep_adaptations') {
-      if (data.behavioral_supports?.length) {
+      if (typedData.behavioral_supports?.length) {
         content += '**🎭 Behavioral Supports:**\n'
-        content += data.behavioral_supports.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.behavioral_supports.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.sensory_accommodations?.length) {
+      if (typedData.sensory_accommodations?.length) {
         content += '**👂 Sensory Accommodations:**\n'
-        content += data.sensory_accommodations.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.sensory_accommodations.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.cognitive_modifications?.length) {
+      if (typedData.cognitive_modifications?.length) {
         content += '**🧠 Cognitive Modifications:**\n'
-        content += data.cognitive_modifications.map((item: string) => `• ${item}`).join('\n')
+        content += typedData.cognitive_modifications.map((item: string) => `• ${item}`).join('\n')
       }
     } else {
       // Grade level adaptations
-      if (data.talk_track?.length) {
+      if (typedData.talk_track?.length) {
         content += '**💬 Teacher Talk Track:**\n'
-        content += data.talk_track.map((item: string) => `• "${item}"`).join('\n') + '\n\n'
+        content += typedData.talk_track.map((item: string) => `• "${item}"`).join('\n') + '\n\n'
       }
-      if (data.instructions?.length) {
+      if (typedData.instructions?.length) {
         content += '**📋 Modified Instructions:**\n'
-        content += data.instructions.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.instructions.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.modifications?.length) {
+      if (typedData.modifications?.length) {
         content += '**🔧 Key Modifications:**\n'
-        content += data.modifications.map((item: string) => `• ${item}`).join('\n') + '\n\n'
+        content += typedData.modifications.map((item: string) => `• ${item}`).join('\n') + '\n\n'
       }
-      if (data.materials_changes?.length) {
+      if (typedData.materials_changes?.length) {
         content += '**📦 Materials Changes:**\n'
-        content += data.materials_changes.map((item: string) => `• ${item}`).join('\n')
+        content += typedData.materials_changes.map((item: string) => `• ${item}`).join('\n')
       }
     }
     
@@ -406,9 +408,10 @@ function ActivityLessonBuilderContent() {
 
   // Generate fallback differentiation strategies when intelligence fails
   const generateFallbackDifferentiation = useCallback((formState: Record<string, unknown>) => {
-    const subject = formState.subject.toLowerCase()
-    const topic = formState.lessonTopic
-    const grade = formState.gradeLevel.toLowerCase()
+    const typedFormState = formState as { subject: string; lessonTopic: string; gradeLevel: string }
+    const subject = typedFormState.subject.toLowerCase()
+    const topic = typedFormState.lessonTopic
+    const grade = typedFormState.gradeLevel.toLowerCase()
     
     return {
       below_grade: {
@@ -482,61 +485,76 @@ function ActivityLessonBuilderContent() {
     setDifferentiationMessage(`✅ ${strategy.title || 'Strategy'} ${modeText} lesson plan!`)
     setTimeout(() => setDifferentiationMessage(''), 3000)
     
-    let modifiedContent = formState.generatedActivity
+    const typedFormState = formState as { generatedActivity: string }
+    let modifiedContent = typedFormState.generatedActivity
     const icon = getDifferentiationIcon(strategyKey)
     
     if (mode === 'replace') {
       // Replace sections with differentiated versions
-      if (strategy.instructions && strategy.instructions.length > 0) {
-        const instructionsSection = strategy.instructions.join('\n- ')
+      const typedStrategy = strategy as { instructions?: string[]; title?: string }
+      if (typedStrategy.instructions && typedStrategy.instructions.length > 0) {
+        const instructionsSection = typedStrategy.instructions.join('\n- ')
         modifiedContent = modifiedContent.replace(
           /(\*\*Main Activity\*\*[\s\S]*?)(\*\*Phase \d+[\s\S]*?)(\*\*Wrap-Up)/,
-          `$1**${icon} ${strategy.title || 'Differentiated Version'}** *(Applied)*\n- ${instructionsSection}\n\n$3`
+          `$1**${icon} ${typedStrategy.title || 'Differentiated Version'}** *(Applied)*\n- ${instructionsSection}\n\n$3`
         )
       }
     } else {
       // Include mode - add differentiation as additional section with ALL available content
-      let differentiationSection = `\n\n**${icon} ${strategy.title || 'Differentiation Strategy'}** *(Applied)*\n\n`
+      const typedStrategyInclude = strategy as { 
+        title?: string; 
+        talk_track?: string[]; 
+        instructions?: string[]; 
+        modifications?: string[]; 
+        materials_changes?: string[];
+        vocabulary_support?: string[];
+        visual_aids?: string[];
+        language_scaffolds?: string[];
+        behavioral_supports?: string[];
+        sensory_accommodations?: string[];
+        cognitive_modifications?: string[];
+      }
+      let differentiationSection = `\n\n**${icon} ${typedStrategyInclude.title || 'Differentiation Strategy'}** *(Applied)*\n\n`
       
       // Add all available sections from the strategy
-      if (strategy.talk_track && strategy.talk_track.length > 0) {
-        differentiationSection += `**Teacher Talk Track:**\n${strategy.talk_track.map((t: string) => `- "${t}"`).join('\n')}\n\n`
+      if (typedStrategyInclude.talk_track && typedStrategyInclude.talk_track.length > 0) {
+        differentiationSection += `**Teacher Talk Track:**\n${typedStrategyInclude.talk_track.map((t: string) => `- "${t}"`).join('\n')}\n\n`
       }
       
-      if (strategy.instructions && strategy.instructions.length > 0) {
-        differentiationSection += `**Instructions:**\n${strategy.instructions.map((i: string) => `- ${i}`).join('\n')}\n\n`
+      if (typedStrategyInclude.instructions && typedStrategyInclude.instructions.length > 0) {
+        differentiationSection += `**Instructions:**\n${typedStrategyInclude.instructions.map((i: string) => `- ${i}`).join('\n')}\n\n`
       }
       
-      if (strategy.modifications && strategy.modifications.length > 0) {
-        differentiationSection += `**Key Modifications:**\n${strategy.modifications.map((m: string) => `- ${m}`).join('\n')}\n\n`
+      if (typedStrategyInclude.modifications && typedStrategyInclude.modifications.length > 0) {
+        differentiationSection += `**Key Modifications:**\n${typedStrategyInclude.modifications.map((m: string) => `- ${m}`).join('\n')}\n\n`
       }
       
-      if (strategy.materials_changes && strategy.materials_changes.length > 0) {
-        differentiationSection += `**Materials Changes:**\n${strategy.materials_changes.map((m: string) => `- ${m}`).join('\n')}\n\n`
+      if (typedStrategyInclude.materials_changes && typedStrategyInclude.materials_changes.length > 0) {
+        differentiationSection += `**Materials Changes:**\n${typedStrategyInclude.materials_changes.map((m: string) => `- ${m}`).join('\n')}\n\n`
       }
       
-      if (strategy.vocabulary_support && strategy.vocabulary_support.length > 0) {
-        differentiationSection += `**Vocabulary Support:**\n${strategy.vocabulary_support.map((v: string) => `- ${v}`).join('\n')}\n\n`
+      if (typedStrategyInclude.vocabulary_support && typedStrategyInclude.vocabulary_support.length > 0) {
+        differentiationSection += `**Vocabulary Support:**\n${typedStrategyInclude.vocabulary_support.map((v: string) => `- ${v}`).join('\n')}\n\n`
       }
       
-      if (strategy.visual_aids && strategy.visual_aids.length > 0) {
-        differentiationSection += `**Visual Aids:**\n${strategy.visual_aids.map((v: string) => `- ${v}`).join('\n')}\n\n`
+      if (typedStrategyInclude.visual_aids && typedStrategyInclude.visual_aids.length > 0) {
+        differentiationSection += `**Visual Aids:**\n${typedStrategyInclude.visual_aids.map((v: string) => `- ${v}`).join('\n')}\n\n`
       }
       
-      if (strategy.language_scaffolds && strategy.language_scaffolds.length > 0) {
-        differentiationSection += `**Language Scaffolds:**\n${strategy.language_scaffolds.map((l: string) => `- ${l}`).join('\n')}\n\n`
+      if (typedStrategyInclude.language_scaffolds && typedStrategyInclude.language_scaffolds.length > 0) {
+        differentiationSection += `**Language Scaffolds:**\n${typedStrategyInclude.language_scaffolds.map((l: string) => `- ${l}`).join('\n')}\n\n`
       }
       
-      if (strategy.behavioral_supports && strategy.behavioral_supports.length > 0) {
-        differentiationSection += `**Behavioral Supports:**\n${strategy.behavioral_supports.map((b: string) => `- ${b}`).join('\n')}\n\n`
+      if (typedStrategyInclude.behavioral_supports && typedStrategyInclude.behavioral_supports.length > 0) {
+        differentiationSection += `**Behavioral Supports:**\n${typedStrategyInclude.behavioral_supports.map((b: string) => `- ${b}`).join('\n')}\n\n`
       }
       
-      if (strategy.sensory_accommodations && strategy.sensory_accommodations.length > 0) {
-        differentiationSection += `**Sensory Accommodations:**\n${strategy.sensory_accommodations.map((s: string) => `- ${s}`).join('\n')}\n\n`
+      if (typedStrategyInclude.sensory_accommodations && typedStrategyInclude.sensory_accommodations.length > 0) {
+        differentiationSection += `**Sensory Accommodations:**\n${typedStrategyInclude.sensory_accommodations.map((s: string) => `- ${s}`).join('\n')}\n\n`
       }
       
-      if (strategy.cognitive_modifications && strategy.cognitive_modifications.length > 0) {
-        differentiationSection += `**Cognitive Modifications:**\n${strategy.cognitive_modifications.map((c: string) => `- ${c}`).join('\n')}\n\n`
+      if (typedStrategyInclude.cognitive_modifications && typedStrategyInclude.cognitive_modifications.length > 0) {
+        differentiationSection += `**Cognitive Modifications:**\n${typedStrategyInclude.cognitive_modifications.map((c: string) => `- ${c}`).join('\n')}\n\n`
       }
       
       // Remove trailing newlines

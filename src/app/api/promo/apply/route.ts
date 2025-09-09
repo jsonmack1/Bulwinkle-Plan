@@ -17,8 +17,10 @@ interface PromoCodeApplicationResponse {
   discountApplied?: number; // in cents
   finalAmount?: number; // in cents
   subscriptionModification?: {
-    type: 'free_months' | 'discount' | 'trial_extension';
-    value: number;
+    type: 'free_months' | 'discount' | 'trial_extension' | 'free_subscription_granted' | 'free_subscription_pending';
+    value?: number;
+    months?: number;
+    endDate?: string;
     description: string;
   };
   error?: string;

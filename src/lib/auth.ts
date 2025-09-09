@@ -105,7 +105,7 @@ export class AuthService {
           // Merge localStorage user with Supabase subscription data
           authenticatedUser.subscription = {
             plan: supabaseUser.current_plan === 'free' ? 'free' : 'premium',
-            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'inactive',
+            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'expired',
             currentPeriodEnd: supabaseUser.subscription_end_date
           };
           
@@ -153,7 +153,7 @@ export class AuthService {
           createdAt: supabaseUser.created_at,
           subscription: {
             plan: supabaseUser.current_plan === 'free' ? 'free' : 'premium',
-            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'inactive',
+            status: supabaseUser.subscription_status === 'premium' ? 'active' : 'expired',
             currentPeriodEnd: supabaseUser.subscription_end_date
           }
         };

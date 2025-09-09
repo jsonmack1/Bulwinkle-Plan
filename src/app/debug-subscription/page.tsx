@@ -5,7 +5,7 @@ import { useSubscription } from '../../lib/subscription';
 import Navigation from '../../components/Navigation';
 
 export default function DebugSubscriptionPage() {
-  const { status, isPremium, isHydrated, setStatus } = useSubscription();
+  const { status, isPremium, isHydrated } = useSubscription();
   const [localStorageValue, setLocalStorageValue] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,11 +15,11 @@ export default function DebugSubscriptionPage() {
   }, [status]);
 
   const handleSetPremium = () => {
-    setStatus('premium');
+    console.log('Premium status would be set via database');
   };
 
   const handleSetFree = () => {
-    setStatus('free');
+    console.log('Free status would be set via database');
   };
 
   const handleClearStorage = () => {

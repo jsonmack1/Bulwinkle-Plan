@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
             const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
             const sections = textContent.split(/(?=\d+\.|Objective|Materials|Activity|Assessment|Homework)/i)
             
-            sections.forEach((section, index) => {
+            sections.forEach((section: string, index: number) => {
               const trimmed = section.trim()
               if (trimmed) {
                 // Check if it's a heading (starts with number or common section names)
