@@ -9,7 +9,7 @@ import { useDeviceDetection } from './ui/ResponsiveLayout'
 import { cn } from '../lib/utils'
 import AuthModal from './auth/AuthModal'
 import UserMenu from './auth/UserMenu'
-import { useSubscription } from '../lib/subscription'
+import { useRealSubscription } from '../hooks/useRealSubscription'
 
 interface NavigationProps {
   isSubMode?: boolean
@@ -19,7 +19,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode }) => {
   const { user, loading } = useAuth()
   const { type: deviceType, isTouch } = useDeviceDetection()
-  const { isPremium } = useSubscription()
+  const { isPremium } = useRealSubscription()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean

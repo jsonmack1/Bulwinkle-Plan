@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useSubscription } from '../../lib/subscription'
+import { useRealSubscription } from '../../hooks/useRealSubscription'
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth()
-  const { isPremium } = useSubscription()
+  const { isPremium } = useRealSubscription()
   const [isOpen, setIsOpen] = useState(false)
 
   if (!user) return null

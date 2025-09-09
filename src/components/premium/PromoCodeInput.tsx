@@ -86,9 +86,12 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
           // Subscription was created in database - trigger refresh
           console.log('🎉 Subscription granted, refreshing status...');
           
-          // Trigger subscription refresh events
-          window.dispatchEvent(new Event('subscription-changed'));
-          window.dispatchEvent(new Event('real-subscription-refresh'));
+          // Trigger subscription refresh events with a small delay to ensure proper processing
+          setTimeout(() => {
+            window.dispatchEvent(new Event('subscription-changed'));
+            window.dispatchEvent(new Event('real-subscription-refresh'));
+            console.log('🔄 Dispatched subscription refresh events');
+          }, 100);
           
           // Show success message and let the user see the status change
           console.log('✅ Premium access activated! Header should update shortly...');
