@@ -384,9 +384,9 @@ export const useActivityGeneration = () => {
       
       throw enhancedError
 
-    } catch (networkError) {
+    } catch (networkError: unknown) {
       // Handle different types of network/fetch errors
-      if (networkError.name === 'AbortError') {
+      if ((networkError as Error).name === 'AbortError') {
         const enhancedError = new Error('The lesson generation request timed out. This usually happens during high demand. Please try again.') as Error & {
           type: string;
           retryable: boolean;

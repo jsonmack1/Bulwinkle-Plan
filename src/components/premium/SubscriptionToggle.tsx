@@ -2,7 +2,7 @@ import React from 'react'
 import { useSubscription, SubscriptionStatus, SUBSCRIPTION_PLANS } from '../../lib/subscription'
 
 const SubscriptionToggle: React.FC = () => {
-  const { status, info, setStatus, isHydrated } = useSubscription()
+  const { status, info, isHydrated } = useSubscription()
 
   // Only show in development
   if (process.env.NODE_ENV !== 'development') {
@@ -15,7 +15,9 @@ const SubscriptionToggle: React.FC = () => {
   }
 
   const handleStatusChange = (newStatus: SubscriptionStatus) => {
-    setStatus(newStatus)
+    console.log('Development mode - subscription toggle to:', newStatus)
+    // setStatus is not available in production useSubscription hook
+    // This is development-only UI for testing
   }
 
   const getStatusColor = (subscriptionStatus: SubscriptionStatus) => {

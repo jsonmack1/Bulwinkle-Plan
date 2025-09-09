@@ -23,7 +23,7 @@ export const ResponsiveHeading: React.FC<ResponsiveHeadingProps> = ({
 }) => {
   const { type: deviceType } = useDeviceDetection()
 
-  const Element = as || (`h${level}` as keyof JSX.IntrinsicElements)
+  const ElementTag = as || (`h${level}` as keyof React.JSX.IntrinsicElements)
 
   const baseClasses = cn(
     'text-render-optimized leading-tight',
@@ -52,7 +52,7 @@ export const ResponsiveHeading: React.FC<ResponsiveHeadingProps> = ({
     className
   )
 
-  return React.createElement(Element, { className: baseClasses }, children)
+  return React.createElement(ElementTag as string, { className: baseClasses }, children)
 }
 
 interface ResponsiveTextProps {
@@ -165,9 +165,9 @@ export const ResponsiveList: React.FC<ResponsiveListProps> = ({
       'space-y-1': spacing === 'tight' && deviceType === 'mobile',
       'space-y-1.5': spacing === 'tight' && deviceType !== 'mobile',
       'space-y-2': spacing === 'normal' && deviceType === 'mobile',
-      'space-y-1.5': spacing === 'normal' && deviceType !== 'mobile',
-      'space-y-3': spacing === 'loose' && deviceType === 'mobile',
-      'space-y-2': spacing === 'loose' && deviceType !== 'mobile',
+      'space-y-3': spacing === 'normal' && deviceType !== 'mobile',
+      'space-y-4': spacing === 'loose' && deviceType === 'mobile',
+      'space-y-6': spacing === 'loose' && deviceType !== 'mobile',
     },
     className
   )

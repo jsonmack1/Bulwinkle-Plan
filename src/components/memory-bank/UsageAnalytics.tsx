@@ -106,8 +106,8 @@ const UsageAnalytics: React.FC<UsageAnalyticsProps> = ({ activities }) => {
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
               {insights.successPatterns.idealDurations.slice(0, 5).map((duration, index) => (
-                <div key={duration.value} className="bg-gray-50 rounded-lg p-2 text-center">
-                  <div className="text-sm font-medium text-gray-900">{duration.value}</div>
+                <div key={duration.range} className="bg-gray-50 rounded-lg p-2 text-center">
+                  <div className="text-sm font-medium text-gray-900">{duration.range}</div>
                   <div className="text-xs text-gray-600">{duration.count} activities</div>
                 </div>
               ))}

@@ -14,7 +14,7 @@ export const useScrollMomentumFix = () => {
       const target = event.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
         currentFocusedElement = target
-        console.log('🎯 Field focused:', target.tagName, target.id || target.name || 'unnamed')
+        console.log('🎯 Field focused:', target.tagName, target.id || (target as HTMLInputElement).name || 'unnamed')
       }
     }
 
@@ -27,7 +27,7 @@ export const useScrollMomentumFix = () => {
         target.tagName === 'SELECT' || 
         target.tagName === 'TEXTAREA'
       )) {
-        console.log('🚫 Attempting to prevent blur on:', target.tagName, target.id || target.name || 'unnamed')
+        console.log('🚫 Attempting to prevent blur on:', target.tagName, target.id || (target as HTMLInputElement).name || 'unnamed')
         
         // Immediately prevent the blur and restore focus
         event.preventDefault()

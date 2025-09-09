@@ -249,7 +249,7 @@ const DifferentiationEngine: React.FC<DifferentiationEngineProps> = ({
     // Check exit ticket content
     const hasExitTicketContent = data.exit_ticket && (
       (data.exit_ticket.questions && data.exit_ticket.questions.length > 0 && 
-       !data.exit_ticket.questions.every(q => !q || q.includes('No ') || q === 'What did you learn today?')) ||
+       !data.exit_ticket.questions.every((q: string) => !q || q.includes('No ') || q === 'What did you learn today?')) ||
       (data.exit_ticket.language_supports && data.exit_ticket.language_supports.length > 0) ||
       (data.exit_ticket.visual_supports && data.exit_ticket.visual_supports.length > 0) ||
       (data.exit_ticket.accommodations && data.exit_ticket.accommodations.length > 0) ||

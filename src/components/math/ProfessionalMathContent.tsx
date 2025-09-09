@@ -111,7 +111,7 @@ const ProfessionalMathContent: React.FC<ProfessionalMathContentProps> = ({
     const processMath = async () => {
       setIsProcessing(true)
       try {
-        if (window.MathJax && window.MathJax.typesetPromise) {
+        if (window.MathJax && window.MathJax.typesetPromise && contentRef.current) {
           await window.MathJax.typesetPromise([contentRef.current])
           console.log('✅ Mathematical content rendered professionally')
         }
