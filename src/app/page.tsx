@@ -1005,6 +1005,8 @@ function ActivityLessonBuilderContent() {
         // If usage check shows we can't generate, stop here
         if (!usageCheck.canGenerate) {
           console.log('❌ Generation blocked due to usage limits')
+          // Show upgrade modal when user hits usage limits
+          setShowUpgradeModal(true)
           return
         }
         
