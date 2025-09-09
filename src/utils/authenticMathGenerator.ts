@@ -32,7 +32,7 @@ export interface StepByStepSolution {
 export class AuthenticMathGenerator {
   
   static generateMathExpression(topic: string, gradeLevel: string, stepNumber: number | null = null): MathExpression | SolutionStep {
-    const mathTopics = {
+    const mathTopics: Record<string, { grades: string[]; heroExpressions: string[]; steps: (expression: string) => SolutionStep[]; }> = {
       "Linear Equations": {
         grades: ["6", "7", "8", "9"],
         heroExpressions: [
@@ -111,13 +111,15 @@ export class AuthenticMathGenerator {
         context: this.getContextForTopic(topic)
       }
     } else {
-      // Generate specific step - delegate to topic-specific function
-      return topicData.steps(stepNumber, gradeLevel, topicData.heroExpressions[0])
+      // Generate specific step - get all steps and return the requested one
+      const steps = topicData.steps(topicData.heroExpressions[0])
+      const stepIndex = (stepNumber || 1) - 1
+      return steps[stepIndex] || steps[0]
     }
   }
 
   private static getContextForTopic(topic: string): string {
-    const contexts = {
+    const contexts: Record<string, string> = {
       "Linear Equations": "Finding unknown values in real-world scenarios",
       "Quadratic Equations": "Modeling projectile motion and optimization problems",
       "Systems of Equations": "Solving multiple constraints simultaneously",

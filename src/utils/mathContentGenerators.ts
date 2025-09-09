@@ -225,10 +225,9 @@ export class ContextProblemGenerator {
     return {
       expression,
       latex,
-      solution: `Velocity: v(t) = s'(t), Acceleration: a(t) = v'(t) = s''(t)`,
+      solution: `Velocity: v(t) = s'(t), Acceleration: a(t) = v'(t) = s''(t) | Context: ${scenario.context}`,
       difficulty,
-      type: 'context_physics',
-      context: scenario.context
+      type: 'context_physics'
     }
   }
 

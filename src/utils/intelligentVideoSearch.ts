@@ -48,7 +48,7 @@ export interface SearchResult {
 }
 
 // Educational content indicators by subject
-const EDUCATIONAL_INDICATORS = {
+const EDUCATIONAL_INDICATORS: Record<string, string[]> = {
   'Math': [
     'lesson', 'tutorial', 'explained', 'learn', 'solve', 'practice', 'step by step',
     'education', 'teaching', 'classroom', 'khan academy', 'professor', 'instructor'

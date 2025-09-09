@@ -187,8 +187,8 @@ export class SmartSuggestionsEngine {
     return {
       preferredActivityTypes: activityTypeCounts,
       successfulSubjects: subjectCounts,
-      idealDurations: durationCounts,
-      winningTags: tagCounts,
+      idealDurations: durationCounts.map(item => ({ range: item.value, count: item.count })),
+      winningTags: tagCounts.map(item => ({ tag: item.value, count: item.count })),
       averageRating: successful.length > 0 
         ? successful.reduce((sum, a) => sum + a.rating, 0) / successful.length 
         : 0,
@@ -315,7 +315,7 @@ export const SuggestionHelpers = {
       suggestions.push({
         label: `Your ${subject} activities`,
         query: `subject:${subject}`,
-        type: 'pattern_based' as const,
+        type: 'quick_filter',
         icon: '📚'
       })
     })

@@ -157,9 +157,10 @@ export class UsageTracker {
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (!gl) return 'no-webgl';
 
-      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-      const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown';
-      const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown';
+      const webGLContext = gl as WebGLRenderingContext;
+      const debugInfo = webGLContext.getExtension('WEBGL_debug_renderer_info');
+      const renderer = debugInfo ? webGLContext.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown';
+      const vendor = debugInfo ? webGLContext.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown';
 
       return `${renderer}_${vendor}`;
     } catch (error) {

@@ -189,10 +189,19 @@ export class MemoryBankService {
   // Update lesson usage in database
   static async updateLessonUsage(lessonId: string): Promise<void> {
     try {
+      // First get current use_count
+      const { data: currentData } = await supabase
+        .from('lessons')
+        .select('use_count')
+        .eq('id', lessonId)
+        .single()
+
+      const newUseCount = (currentData?.use_count || 0) + 1
+
       const { error } = await supabase
         .from('lessons')
         .update({ 
-          use_count: supabase.raw('use_count + 1'),
+          use_count: newUseCount,
           last_used: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -348,18 +357,7 @@ export class MemoryBankService {
       mode: lesson.mode || 'teacher',
       fullContent: lesson.content,
       templateUseCount: lesson.template_use_count || 0,
-      successScore: lesson.success_score || 0,
-      userEmail: lesson.user_email,
-      selectedVideos: lesson.lesson_videos?.map((video: any) => ({
-        id: video.youtube_video_id,
-        title: video.title,
-        url: video.thumbnail_url
-      })) || [],
-      differentiationApplied: lesson.lesson_differentiations?.length > 0 ? {
-        type: lesson.lesson_differentiations[0].differentiation_type,
-        level: lesson.lesson_differentiations[0].level,
-        modifications: lesson.lesson_differentiations[0].modifications
-      } : undefined
+      successScore: lesson.success_score || 0
     }
   }
   
