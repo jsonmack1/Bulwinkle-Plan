@@ -143,6 +143,36 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
       // Convert $ delimiters to our tags
       processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, '[display]$1[/display]')
       processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]')
+      
+      // AUTO-DETECT: Wrap standalone LaTeX expressions
+      // Handle cases where AI generates raw LaTeX: \frac{2}{3} \times \frac{1}{4}
+      
+      console.log('🔍 Auto-detection input:', processed.substring(0, 200) + '...')
+      
+      // Simple pattern: find lines with LaTeX commands that aren't already wrapped
+      const lines = processed.split('\n')
+      const processedLines = []
+      
+      for (const line of lines) {
+        let processedLine = line
+        
+        // Skip lines that already have math tags or are HTML
+        if (!line.includes('[math]') && !line.includes('[display]') && !line.includes('<')) {
+          // Check if line contains LaTeX math expressions (single or double backslashes)
+          if (line.includes('\\frac') || line.includes('\frac') || 
+              line.includes('\\times') || line.includes('\times') || 
+              line.includes('\\cdot') || line.includes('\cdot') || 
+              line.includes('\\div') || line.includes('\div')) {
+            console.log('🎯 Auto-wrapping line with LaTeX:', line.trim())
+            processedLine = '[math]' + line.trim() + '[/math]'
+          }
+        }
+        
+        processedLines.push(processedLine)
+      }
+      
+      processed = processedLines.join('\n')
+      console.log('🔍 After auto-detection:', processed.substring(0, 200) + '...')
     }
     
     // Standard markdown processing
@@ -203,25 +233,41 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     }
 
     console.log(`🎯 Rendering math for: "${subject}"`)
+    console.log('📄 Container innerHTML before processing:', container.innerHTML.substring(0, 200) + '...')
     
     let updatedContent = container.innerHTML
     
     // Render inline math
+    const inlineMathMatches = updatedContent.match(/\[math\](.*?)\[\/math\]/g)
+    console.log('🔢 Found inline math tags:', inlineMathMatches)
+    
     updatedContent = updatedContent.replace(/\[math\](.*?)\[\/math\]/g, (match, latex) => {
       const cleanLatex = latex.trim()
-      return renderMathExpression(cleanLatex, false)
+      console.log('🎯 Rendering inline LaTeX:', cleanLatex)
+      const rendered = renderMathExpression(cleanLatex, false)
+      console.log('✅ Inline rendered result:', rendered.substring(0, 100) + '...')
+      return rendered
     })
     
     // Render display math  
+    const displayMathMatches = updatedContent.match(/\[display\](.*?)\[\/display\]/g)
+    console.log('🔢 Found display math tags:', displayMathMatches)
+    
     updatedContent = updatedContent.replace(/\[display\](.*?)\[\/display\]/g, (match, latex) => {
       const cleanLatex = latex.trim()
-      return `<div class="katex-display">${renderMathExpression(cleanLatex, true)}</div>`
+      console.log('🎯 Rendering display LaTeX:', cleanLatex)
+      const rendered = renderMathExpression(cleanLatex, true)
+      console.log('✅ Display rendered result:', rendered.substring(0, 100) + '...')
+      return `<div class="katex-display">${rendered}</div>`
     })
     
     // Only update if content actually changed
     if (updatedContent !== container.innerHTML) {
       container.innerHTML = updatedContent
       console.log('✅ Math rendered with caching')
+      console.log('📄 Final innerHTML:', container.innerHTML.substring(0, 200) + '...')
+    } else {
+      console.log('⚠️ No changes detected - math rendering skipped')
     }
     
   }, [processedContent, renderMathExpression])
