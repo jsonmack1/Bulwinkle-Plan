@@ -43,13 +43,19 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
     <>
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="text-5xl mb-4">🚀</div>
+        <div className="text-5xl mb-4">📚</div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Unlock Premium Features
+          You've Used All 5 Free Lessons This Month
         </h2>
-        <p className="text-gray-600">
-          Choose the perfect plan for your teaching needs
+        <p className="text-gray-600 mb-2">
+          Your free lessons will reset automatically next month
         </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 max-w-md mx-auto">
+          <p className="text-blue-800 text-sm">
+            📅 <strong>Good news!</strong> You'll get 5 new free lessons on the 1st of next month. 
+            Or upgrade now for unlimited access.
+          </p>
+        </div>
       </div>
 
       {/* Premium Plan - Single Option */}
