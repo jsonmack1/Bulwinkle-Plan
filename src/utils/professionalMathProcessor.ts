@@ -29,7 +29,9 @@ export class ProfessionalMathProcessor {
       category: 'fractions'
     },
     {
-      pattern: /([a-zA-Z0-9_]+)\s*\/\s*([a-zA-Z0-9_]+)/g,
+      // Only convert simple numeric fractions and single variable fractions
+      // Much more restrictive to avoid converting words like "pencils/crayons"
+      pattern: /(\b\d+(?:\.\d+)?|\b[a-zA-Z](?:_?\d+)?)\s*\/\s*(\b\d+(?:\.\d+)?|\b[a-zA-Z](?:_?\d+)?)\b/g,
       replacement: '\\frac{$1}{$2}',
       category: 'simple_fractions'
     },

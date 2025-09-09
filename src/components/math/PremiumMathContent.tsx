@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useMemo } from 'react'
+import React, { useRef, useEffect, useMemo, useState } from 'react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import ProfessionalMathProcessor from '../../utils/professionalMathProcessor'
@@ -167,7 +167,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
       console.log('📝 Content after math wrapping:', processed.substring(0, 200))
 
-      // Process with professional math processor AFTER our initial wrapping
+      // Process with professional math processor AFTER our initial wrapping (ONLY for math subjects)
       processed = ProfessionalMathProcessor.processContent(processed, processingOptions)
       console.log('📝 Content after ProfessionalMathProcessor:', processed.substring(0, 200))
     } else {
@@ -329,9 +329,12 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     return processed
   }, [content, processingOptions])
 
+  // Track if math has been rendered to prevent re-rendering
+  const [mathRendered, setMathRendered] = useState(false)
+
   // KaTeX rendering with proper DOM manipulation
   useEffect(() => {
-    if (!contentRef.current) return
+    if (!contentRef.current || mathRendered) return
     
     // Only render math if this is actually a math subject
     const isActualMathSubject = isMathSubject(subject, gradeLevel)
@@ -454,6 +457,7 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
         })
 
         console.log('✅ KaTeX rendering complete')
+        setMathRendered(true)
       } catch (error) {
         console.error('❌ KaTeX rendering error:', error)
       }
@@ -465,7 +469,12 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
     return () => {
       clearTimeout(timeoutId)
     }
-  }, [processedContent, subject, gradeLevel])
+  }, [processedContent, subject, gradeLevel, mathRendered])
+
+  // Reset mathRendered when content changes
+  useEffect(() => {
+    setMathRendered(false)
+  }, [content])
 
   // Generate container classes
   const containerClasses = [
