@@ -12,7 +12,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
   onUpgraded,
   suggestedPlan = 'premium'
 }) => {
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionStatus>(suggestedPlan)
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionStatus>('premium')
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [step, setStep] = useState<'plans' | 'payment' | 'success'>('plans')
 
@@ -52,78 +52,54 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
         </p>
       </div>
 
-      {/* Plans Comparison */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Premium Plan */}
-        <div 
-          className={`border-2 rounded-xl p-6 cursor-pointer transition-all ${
-            selectedPlan === 'premium' 
-              ? 'border-purple-500 bg-purple-50 shadow-lg' 
-              : 'border-gray-200 hover:border-purple-300'
-          }`}
-          onClick={() => setSelectedPlan('premium')}
-        >
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Premium</h3>
-              <p className="text-gray-600 text-sm">Perfect for individual teachers</p>
+      {/* Premium Plan - Single Option */}
+      <div className="max-w-md mx-auto mb-8">
+        <div className="border-2 border-purple-500 bg-purple-50 rounded-xl p-6 shadow-lg">
+          <div className="text-center mb-4">
+            <div className="text-3xl font-bold text-purple-600 mb-1">
+              Starting at $7.99
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-purple-600">$9.99</div>
-              <div className="text-sm text-gray-500">/month</div>
+            <div className="text-sm text-gray-500">/month</div>
+            <div className="text-sm text-purple-600 font-medium mt-1">
+              Save 20% with annual billing
             </div>
           </div>
           
-          <ul className="space-y-2 text-sm">
-            {SUBSCRIPTION_PLANS.premium.features.map((feature, index) => (
-              <li key={index} className="flex items-center">
-                <span className="text-green-500 mr-2 font-bold">✓</span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          {selectedPlan === 'premium' && (
-            <div className="mt-4 p-2 bg-purple-100 rounded text-center">
-              <span className="text-purple-800 font-medium text-sm">✓ Selected</span>
-            </div>
-          )}
-        </div>
-
-        {/* School Plan */}
-        <div 
-          className={`border-2 rounded-xl p-6 cursor-pointer transition-all ${
-            selectedPlan === 'school' 
-              ? 'border-blue-500 bg-blue-50 shadow-lg' 
-              : 'border-gray-200 hover:border-blue-300'
-          }`}
-          onClick={() => setSelectedPlan('school')}
-        >
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">School District</h3>
-              <p className="text-gray-600 text-sm">For schools & districts</p>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-blue-600">Contact</div>
-              <div className="text-sm text-gray-500">Sales</div>
-            </div>
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Premium Features</h3>
+            <p className="text-gray-600 text-sm">Everything you need for unlimited lesson planning</p>
           </div>
           
-          <ul className="space-y-2 text-sm">
-            {SUBSCRIPTION_PLANS.school.features.map((feature, index) => (
-              <li key={index} className="flex items-center">
-                <span className="text-green-500 mr-2 font-bold">✓</span>
-                {feature}
-              </li>
-            ))}
+          <ul className="space-y-3 text-sm">
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">Unlimited lesson generation</span>
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">AI differentiation engine</span>
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">YouTube video integration</span>
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">Export to Google Docs & Word</span>
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">Memory bank with lesson history</span>
+            </li>
+            <li className="flex items-center">
+              <span className="text-green-500 mr-3 font-bold">✓</span>
+              <span className="font-medium">Advanced math problem solver</span>
+            </li>
           </ul>
 
-          {selectedPlan === 'school' && (
-            <div className="mt-4 p-2 bg-blue-100 rounded text-center">
-              <span className="text-blue-800 font-medium text-sm">✓ Selected</span>
-            </div>
-          )}
+          <div className="mt-4 p-3 bg-purple-100 rounded text-center">
+            <span className="text-purple-800 font-medium text-sm">✓ Best Value for Teachers</span>
+          </div>
         </div>
       </div>
 
@@ -134,9 +110,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
           className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
         >
           <span>🚀</span>
-          <span>
-            {selectedPlan === 'school' ? 'Contact Sales' : 'Start Premium Trial'}
-          </span>
+          <span>Start Premium - Save 6+ Hours Weekly</span>
         </button>
 
         <div className="text-center">

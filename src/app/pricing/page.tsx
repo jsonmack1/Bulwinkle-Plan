@@ -490,6 +490,11 @@ export default function PricingPage() {
           </div>
         </div>
 
+        {/* Promo Code Input */}
+        <div className="max-w-md mx-auto px-4 mb-16">
+          <PromoCodeInput />
+        </div>
+
         {/* Teacher Value Props */}
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
