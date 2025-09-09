@@ -119,21 +119,29 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
     // Check if this is actually a math subject
     const isActualMathSubject = isMathSubject(subject, gradeLevel)
-    console.log(`📝 Processing content for subject: ${subject}, grade: ${gradeLevel}, isMath: ${isActualMathSubject}`)
+    console.log(`📝 Processing content for subject: "${subject}", grade: "${gradeLevel}", isMath: ${isActualMathSubject}`)
+    
+    // For debugging - let's also try a more lenient check
+    const hasAnyMathContent = content.includes('\\frac') || content.includes('[math]') || content.includes('[display]') || content.includes('$')
+    console.log(`🔍 Content has math notation: ${hasAnyMathContent}`)
+    
+    if (hasAnyMathContent && !isActualMathSubject) {
+      console.log('⚠️ Content has math but subject not detected as math - forcing math processing')
+    }
     
     let processed = content
     
-    // Only apply mathematical processing if this is actually a math subject
-    if (isActualMathSubject) {
+    // Apply mathematical processing if this is a math subject OR if content has math notation
+    if (isActualMathSubject || hasAnyMathContent) {
       console.log('🧮 Starting math-specific processing...')
       
-      // STEP 1: Handle standard LaTeX delimiters before cleaning
-      processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, '[display]$1[/display]');
-      processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
-      
-      // STEP 2: Clean any existing math tags to start fresh
+      // STEP 1: Clean any existing math tags to start fresh first
       processed = processed.replace(/\[math\]|\[\/math\]|\[display\]|\[\/display\]/g, '')
       console.log('🧹 Cleaned existing math tags')
+      
+      // STEP 2: Handle standard LaTeX delimiters
+      processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, '[display]$1[/display]');
+      processed = processed.replace(/\$([^\$]+?)\$/g, '[math]$1[/math]');
       
       // STEP 3: Handle LaTeX fractions - wrap them properly
       processed = processed.replace(/\\frac\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g, (match, num, den) => {
@@ -170,6 +178,13 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
       // Process with professional math processor AFTER our initial wrapping (ONLY for math subjects)
       processed = ProfessionalMathProcessor.processContent(processed, processingOptions)
       console.log('📝 Content after ProfessionalMathProcessor:', processed.substring(0, 200))
+      
+      // STEP 8: Clean up any nested or malformed tags that might have been created
+      processed = processed.replace(/\[display\]\[math\]/g, '[display]')
+      processed = processed.replace(/\[\/math\]\[\/display\]/g, '[/display]')
+      processed = processed.replace(/\[math\]\[display\]/g, '[display]')
+      processed = processed.replace(/\[\/display\]\[\/math\]/g, '[/display]')
+      console.log('🧹 Cleaned nested tags')
     } else {
       console.log('📝 Skipping math processing for non-math subject')
       
@@ -334,14 +349,18 @@ const PremiumMathContent: React.FC<PremiumMathContentProps> = ({
 
   // KaTeX rendering with proper DOM manipulation
   useEffect(() => {
-    if (!contentRef.current || mathRendered) return
+    if (!contentRef.current) return
     
-    // Only render math if this is actually a math subject
+    // Only render math if this is a math subject or content has math notation
     const isActualMathSubject = isMathSubject(subject, gradeLevel)
-    if (!isActualMathSubject) {
-      console.log('🚫 Skipping KaTeX rendering for non-math subject')
+    const hasAnyMathContent = processedContent.includes('\\frac') || processedContent.includes('[math]') || processedContent.includes('[display]') || processedContent.includes('$')
+    
+    if (!isActualMathSubject && !hasAnyMathContent) {
+      console.log('🚫 Skipping KaTeX rendering - no math subject or content detected')
       return
     }
+    
+    console.log(`🎯 Starting KaTeX rendering for: subject="${subject}", mathContent=${hasAnyMathContent}`)
 
     const renderMathWithKaTeX = () => {
       const container = contentRef.current
