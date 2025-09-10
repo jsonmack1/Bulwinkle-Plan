@@ -182,8 +182,44 @@ export async function POST(request: NextRequest) {
       sessionParams.customer_email = customerEmail;
     }
 
-    // Add discount if applicable (check for coupon codes)
-    // This would be enhanced with actual coupon logic
+    // Add Stripe promotion code if provided
+    if (promoCode) {
+      try {
+        // Validate the promotion code exists and is active
+        const promoCodeList = await stripe.promotionCodes.list({
+          code: promoCode.toUpperCase(),
+          active: true,
+          limit: 1
+        });
+
+        if (promoCodeList.data.length > 0) {
+          const validPromoCode = promoCodeList.data[0];
+          console.log('✅ Valid promotion code found:', validPromoCode.code);
+          
+          sessionParams.discounts = [{
+            promotion_code: validPromoCode.id
+          }];
+          
+          // Add to metadata for tracking
+          sessionParams.metadata.promo_code = promoCode;
+          sessionParams.metadata.promo_code_id = validPromoCode.id;
+          
+        } else {
+          console.warn('⚠️ Invalid or inactive promotion code:', promoCode);
+          // You could return an error here or proceed without discount
+          return NextResponse.json(
+            { error: `Promotion code "${promoCode}" is invalid or expired` },
+            { status: 400 }
+          );
+        }
+      } catch (promoError) {
+        console.error('❌ Error validating promotion code:', promoError);
+        return NextResponse.json(
+          { error: 'Failed to validate promotion code' },
+          { status: 400 }
+        );
+      }
+    }
     
     const session = await stripe.checkout.sessions.create(sessionParams);
 
