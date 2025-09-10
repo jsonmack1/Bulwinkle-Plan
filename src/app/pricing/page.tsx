@@ -57,6 +57,7 @@ export default function PricingPage() {
   const [fingerprint, setFingerprint] = useState<string>('');
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
+  const [pendingPromoCode, setPendingPromoCode] = useState<string | null>(null);
 
   useEffect(() => {
     // Track pricing page view
@@ -108,8 +109,76 @@ export default function PricingPage() {
 
   const handleAccountCreated = async (newUserId: string) => {
     setShowAccountModal(false);
-    // Now proceed to checkout with the authenticated user
-    await proceedToStripeCheckout(selectedPlan);
+    
+    if (pendingPromoCode) {
+      // User created account to use a promo code
+      console.log('🎉 Account created, applying pending promo code:', pendingPromoCode);
+      
+      // Wait a moment for auth context to update
+      setTimeout(async () => {
+        await applyPromoCodeAfterLogin(pendingPromoCode);
+        setPendingPromoCode(null);
+      }, 500);
+    } else {
+      // User created account for regular plan
+      await proceedToStripeCheckout(selectedPlan);
+    }
+  };
+
+  const handlePromoAccountRequired = (promoCode: string) => {
+    console.log('🔑 Promo code requires account creation:', promoCode);
+    setPendingPromoCode(promoCode);
+    setShowAccountModal(true);
+    
+    trackAnalyticsEvent('promo_account_required', {
+      promoCode,
+      userId: user?.id
+    });
+  };
+
+  const applyPromoCodeAfterLogin = async (promoCode: string) => {
+    try {
+      console.log('🎟️ Applying promo code after login:', promoCode);
+      
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId: PRICING_CONFIG.monthly.stripePriceId,
+          billingPeriod: 'monthly',
+          promoCode: promoCode,
+          userId: user?.id,
+          email: user?.email,
+          fingerprintHash: fingerprint,
+          successUrl: `${window.location.origin}/dashboard?upgraded=true&promo=${promoCode}`,
+          cancelUrl: `${window.location.origin}/pricing?promo_failed=${promoCode}`
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.checkoutUrl) {
+        console.log('✅ Promo code checkout created after login');
+        
+        trackAnalyticsEvent('promo_checkout_created_after_login', {
+          promoCode,
+          userId: user?.id
+        });
+        
+        // Redirect to Stripe checkout
+        window.location.href = result.checkoutUrl;
+        
+      } else {
+        console.error('❌ Failed to create promo checkout after login:', result.error);
+        setError(result.error || 'Failed to apply promotion code. Please try again.');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error applying promo code after login:', error);
+      setError('Failed to apply promotion code. Please try again.');
+    }
   };
 
   const handleFreePlan = () => {
@@ -496,6 +565,7 @@ export default function PricingPage() {
             priceId={PRICING_CONFIG.monthly.stripePriceId} // Use monthly price by default
             billingPeriod="monthly"
             fingerprint={fingerprint}
+            onAccountRequired={handlePromoAccountRequired}
             className="mt-4"
           />
         </div>
@@ -684,12 +754,19 @@ export default function PricingPage() {
       {/* Account Creation Modal */}
       <AccountCreationModal
         isOpen={showAccountModal}
-        onClose={() => setShowAccountModal(false)}
+        onClose={() => {
+          setShowAccountModal(false);
+          setPendingPromoCode(null); // Clear pending promo code if modal is closed
+        }}
         onSuccess={handleAccountCreated}
         remainingLessons={5}
         currentLesson={5}
         mode="required"
-        selectedPlan={{
+        selectedPlan={pendingPromoCode ? {
+          name: `Promo Code: ${pendingPromoCode}`,
+          price: 0, // Free with promo code
+          billing: 'promo' as any
+        } : {
           name: selectedPlan === 'annual' ? 'School Year' : 'Monthly',
           price: selectedPlan === 'annual' ? PRICING_CONFIG.annual.price : PRICING_CONFIG.monthly.price,
           billing: selectedPlan

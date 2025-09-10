@@ -8,13 +8,15 @@ interface StripePromoCodeInputProps {
   billingPeriod: 'monthly' | 'annual';
   className?: string;
   fingerprint?: string;
+  onAccountRequired?: (promoCode: string) => void;
 }
 
 export const StripePromoCodeInput: React.FC<StripePromoCodeInputProps> = ({
   priceId,
   billingPeriod,
   className = '',
-  fingerprint
+  fingerprint,
+  onAccountRequired
 }) => {
   const { user } = useAuth();
   const [promoCode, setPromoCode] = useState('');
@@ -32,6 +34,16 @@ export const StripePromoCodeInput: React.FC<StripePromoCodeInputProps> = ({
   const handleApplyPromoCode = async () => {
     if (!promoCode.trim()) {
       setError('Please enter a promo code');
+      return;
+    }
+
+    // Check if user has account first (same logic as monthly/annual plans)
+    if (!user?.id) {
+      if (onAccountRequired) {
+        onAccountRequired(promoCode.trim().toUpperCase());
+      } else {
+        setError('Please create an account or log in to use promo codes');
+      }
       return;
     }
 
@@ -153,7 +165,11 @@ export const StripePromoCodeInput: React.FC<StripePromoCodeInputProps> = ({
       <div className="mt-3 text-xs text-gray-500">
         <div className="flex items-center">
           <span className="mr-2">💡</span>
-          Enter your promo code to get discounts or free months of premium access
+          {!user?.id ? (
+            <span>Enter your promo code - you'll be prompted to create an account to redeem it</span>
+          ) : (
+            <span>Enter your promo code to get discounts or free months of premium access</span>
+          )}
         </div>
       </div>
       
