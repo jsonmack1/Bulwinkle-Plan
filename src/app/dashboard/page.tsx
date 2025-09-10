@@ -8,6 +8,7 @@ import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 import { useSubscription } from '../../lib/subscription';
 import PremiumDashboardModal from '../../components/modals/PremiumDashboardModal';
+import ForceSubscriptionRefresh from '../../components/ForceSubscriptionRefresh';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -18,10 +19,30 @@ function DashboardContent() {
   // Check for upgrade success BEFORE checking if premium
   useEffect(() => {
     const upgrade = searchParams.get('upgrade');
-    if (upgrade === 'success') {
-      console.log('🎉 Stripe success detected - setting premium status');
+    const sessionId = searchParams.get('session_id');
+    
+    if (upgrade === 'success' && sessionId && user?.id) {
+      console.log('🎉 Stripe success detected - processing immediately');
       
-      // CRITICAL: Subscription status will be updated via database
+      // DIRECT PROCESSING: Call our success processor API
+      fetch('/api/stripe/process-success', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, userId: user.id })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('✅ Success processor result:', data);
+        if (data.success) {
+          // Force refresh subscription status
+          window.dispatchEvent(new Event('real-subscription-refresh'));
+          // Reload page to show premium dashboard
+          setTimeout(() => window.location.reload(), 1000);
+        }
+      })
+      .catch(error => {
+        console.error('❌ Success processor failed:', error);
+      });
       
       // Track successful upgrade
       trackAnalyticsEvent('upgrade_success_page_viewed', {
@@ -95,6 +116,9 @@ function DashboardContent() {
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Debug Panel for Testing */}
+        <ForceSubscriptionRefresh />
+        
         {/* Free User Dashboard */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">

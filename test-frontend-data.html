@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Data Test</title>
+</head>
+<body>
+    <h1>Frontend Data Test</h1>
+    <p>Open browser console and check:</p>
+    
+    <script>
+        console.log('🔍 Checking frontend data...');
+        
+        // Check localStorage for auth data
+        const authData = localStorage.getItem('lessonPlanBuilder_currentUser');
+        console.log('📊 Auth data in localStorage:', authData ? JSON.parse(authData) : 'Not found');
+        
+        // Check if user matches williams.jason005@gmail.com
+        if (authData) {
+            const user = JSON.parse(authData);
+            console.log('👤 Current user:', {
+                id: user.id,
+                email: user.email,
+                name: user.name
+            });
+            
+            // Test subscription API for this user
+            if (user.id) {
+                fetch(`/api/user/subscription?userId=${user.id}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        console.log('✅ Subscription API result:', data);
+                        console.log('📊 Key fields:', {
+                            isPremium: data.subscription?.isPremium,
+                            isActive: data.subscription?.isActive,
+                            status: data.subscription?.status
+                        });
+                        
+                        if (data.subscription?.isPremium) {
+                            document.body.innerHTML += '<h2 style="color: green;">✅ User IS PREMIUM - Frontend should show premium dashboard!</h2>';
+                        } else {
+                            document.body.innerHTML += '<h2 style="color: red;">❌ User is NOT premium according to API</h2>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('❌ API failed:', err);
+                        document.body.innerHTML += '<h2 style="color: red;">❌ API call failed</h2>';
+                    });
+            }
+        } else {
+            document.body.innerHTML += '<h2 style="color: orange;">⚠️ No user logged in</h2>';
+        }
+        
+        // Check subscription localStorage
+        const mockSub = localStorage.getItem('mockSubscription');
+        console.log('🎭 Mock subscription:', mockSub);
+    </script>
+</body>
+</html>

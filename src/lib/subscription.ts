@@ -111,8 +111,8 @@ export const useSubscription = () => {
   let user = null;
   if (typeof window !== 'undefined') {
     try {
-      // Try to get user from auth storage or context
-      const authData = localStorage.getItem('auth-user');
+      // Try to get user from auth storage - using correct key
+      const authData = localStorage.getItem('lessonPlanBuilder_currentUser');
       if (authData) {
         user = JSON.parse(authData);
       }

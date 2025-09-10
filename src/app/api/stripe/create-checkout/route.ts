@@ -182,42 +182,65 @@ export async function POST(request: NextRequest) {
       sessionParams.customer_email = customerEmail;
     }
 
-    // Add Stripe promotion code if provided
+    // Handle promo codes - PAPERCLIP gets special trial treatment
     if (promoCode) {
-      try {
-        // Validate the promotion code exists and is active
-        const promoCodeList = await stripe.promotionCodes.list({
-          code: promoCode.toUpperCase(),
-          active: true,
-          limit: 1
-        });
+      const upperPromoCode = promoCode.toUpperCase();
+      
+      if (upperPromoCode === 'PAPERCLIP') {
+        // PAPERCLIP: One-time 30-day trial using Stripe's built-in trial functionality
+        console.log('🎟️ PAPERCLIP detected - applying 30-day trial');
+        
+        sessionParams.subscription_data = {
+          trial_period_days: 30, // One-time 30-day trial
+          metadata: {
+            promo_code: 'PAPERCLIP',
+            trial_type: 'one_time_30_day',
+            source: 'paperclip_promo'
+          }
+        };
+        
+        // Add to session metadata for webhook tracking
+        sessionParams.metadata.promo_code = 'PAPERCLIP';
+        sessionParams.metadata.trial_days = '30';
+        sessionParams.metadata.is_trial = 'true';
+        
+        console.log('✅ PAPERCLIP trial configured: 30 days free, then regular billing');
+        
+      } else {
+        // Other promo codes: Use standard promotion code system
+        try {
+          const promoCodeList = await stripe.promotionCodes.list({
+            code: upperPromoCode,
+            active: true,
+            limit: 1
+          });
 
-        if (promoCodeList.data.length > 0) {
-          const validPromoCode = promoCodeList.data[0];
-          console.log('✅ Valid promotion code found:', validPromoCode.code);
-          
-          sessionParams.discounts = [{
-            promotion_code: validPromoCode.id
-          }];
-          
-          // Add to metadata for tracking
-          sessionParams.metadata.promo_code = promoCode;
-          sessionParams.metadata.promo_code_id = validPromoCode.id;
-          
-        } else {
-          console.warn('⚠️ Invalid or inactive promotion code:', promoCode);
-          // You could return an error here or proceed without discount
+          if (promoCodeList.data.length > 0) {
+            const validPromoCode = promoCodeList.data[0];
+            console.log('✅ Valid promotion code found:', validPromoCode.code);
+            
+            sessionParams.discounts = [{
+              promotion_code: validPromoCode.id
+            }];
+            
+            // Add to metadata for tracking
+            sessionParams.metadata.promo_code = upperPromoCode;
+            sessionParams.metadata.promo_code_id = validPromoCode.id;
+            
+          } else {
+            console.warn('⚠️ Invalid or inactive promotion code:', upperPromoCode);
+            return NextResponse.json(
+              { error: `Promotion code "${upperPromoCode}" is invalid or expired` },
+              { status: 400 }
+            );
+          }
+        } catch (promoError) {
+          console.error('❌ Error validating promotion code:', promoError);
           return NextResponse.json(
-            { error: `Promotion code "${promoCode}" is invalid or expired` },
+            { error: 'Failed to validate promotion code' },
             { status: 400 }
           );
         }
-      } catch (promoError) {
-        console.error('❌ Error validating promotion code:', promoError);
-        return NextResponse.json(
-          { error: 'Failed to validate promotion code' },
-          { status: 400 }
-        );
       }
     }
     
