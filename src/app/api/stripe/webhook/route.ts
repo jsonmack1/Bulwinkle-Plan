@@ -87,15 +87,37 @@ export async function POST(request: NextRequest) {
 
 async function handleSubscriptionCreated(subscription: any) {
   console.log('🎉 Subscription created:', subscription.id);
+  console.log('🔍 Subscription details:', {
+    status: subscription.status,
+    customerId: subscription.customer,
+    currentPeriodEnd: subscription.current_period_end,
+    discount: subscription.discount,
+    items: subscription.items?.data?.map(item => ({
+      priceId: item.price?.id,
+      interval: item.price?.recurring?.interval
+    }))
+  });
   
   const customerId = subscription.customer;
+  
+  // Determine if this is a premium subscription
+  // Even with 100% discount, an active subscription should be premium
+  const isPremiumSubscription = subscription.status === 'active' || 
+                               subscription.status === 'trialing' ||
+                               (subscription.status === 'incomplete' && subscription.latest_invoice?.payment_intent?.status === 'succeeded');
+  
+  console.log('🔍 Premium subscription determination:', {
+    status: subscription.status,
+    isPremium: isPremiumSubscription,
+    reasoning: `Status: ${subscription.status}, treating as premium: ${isPremiumSubscription}`
+  });
   
   // First, try to update existing user
   const { data: updatedUser, error } = await supabase
     .from('users')
     .update({
       stripe_subscription_id: subscription.id,
-      subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+      subscription_status: isPremiumSubscription ? 'premium' : 'free',
       subscription_start_date: new Date().toISOString(),
       subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
       current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
@@ -139,11 +161,11 @@ async function handleSubscriptionCreated(subscription: any) {
             .from('users')
             .update({
               stripe_subscription_id: subscription.id,
-              subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+              subscription_status: isPremiumSubscription ? 'premium' : 'free',
               subscription_start_date: new Date().toISOString(),
               subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
               current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
-              subscription_tier: subscription.status === 'active' ? 'premium' : 'free',
+              subscription_tier: isPremiumSubscription ? 'premium' : 'free',
               updated_at: new Date().toISOString()
             })
             .eq('id', createdUserId);
@@ -187,12 +209,27 @@ async function handleSubscriptionCreated(subscription: any) {
 
 async function handleSubscriptionUpdated(subscription: any) {
   console.log('📝 Subscription updated:', subscription.id);
+  console.log('🔍 Subscription update details:', {
+    status: subscription.status,
+    currentPeriodEnd: subscription.current_period_end,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end
+  });
+  
+  // Determine if this is a premium subscription (same logic as creation)
+  const isPremiumSubscription = subscription.status === 'active' || 
+                               subscription.status === 'trialing' ||
+                               (subscription.status === 'incomplete' && subscription.latest_invoice?.payment_intent?.status === 'succeeded');
+  
+  console.log('🔍 Premium subscription update determination:', {
+    status: subscription.status,
+    isPremium: isPremiumSubscription
+  });
   
   // Update users table directly
   const { data: updatedUser, error } = await supabase
     .from('users')
     .update({
-      subscription_status: subscription.status === 'active' ? 'premium' : 'free',
+      subscription_status: isPremiumSubscription ? 'premium' : 'free',
       subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
       subscription_cancel_at_period_end: subscription.cancel_at_period_end || false,
       current_plan: subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly',
