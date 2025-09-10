@@ -49,6 +49,15 @@ export async function GET(request: NextRequest) {
     const endDate = userData.subscription_end_date ? new Date(userData.subscription_end_date) : null;
     const isActive = endDate ? endDate > now : userData.subscription_status === 'premium';
     const daysRemaining = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
+    
+    console.log('🔍 Subscription Debug Info:', {
+      userId,
+      subscription_status: userData.subscription_status,
+      subscription_end_date: userData.subscription_end_date,
+      endDate: endDate?.toISOString(),
+      isActive,
+      now: now.toISOString()
+    });
 
     // Get current month usage
     const currentMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -81,7 +90,7 @@ export async function GET(request: NextRequest) {
         plan: userData.current_plan,
         billingCycle: userData.billing_cycle,
         isActive,
-        isPremium: isActive && userData.subscription_status === 'premium',
+        isPremium: userData.subscription_status === 'premium' && isActive,
         startDate: userData.subscription_start_date,
         endDate: userData.subscription_end_date,
         daysRemaining,

@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
             .from('users')
             .update({
               subscription_status: 'premium',
-              subscription_tier: 'premium', 
+              current_plan: 'premium', 
               subscription_start_date: new Date().toISOString(),
               subscription_end_date: endDate.toISOString(),
               subscription_cancel_at_period_end: false

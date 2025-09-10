@@ -93,6 +93,12 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
             console.log('🔄 Dispatched subscription refresh events');
           }, 100);
           
+          // Additional refresh after 1 second to ensure status update
+          setTimeout(() => {
+            window.dispatchEvent(new Event('real-subscription-refresh'));
+            console.log('🔄 Secondary subscription refresh dispatched');
+          }, 1000);
+          
           // Show success message and let the user see the status change
           console.log('✅ Premium access activated! Header should update shortly...');
         } else if (result.subscriptionModification?.type === 'free_subscription_pending') {

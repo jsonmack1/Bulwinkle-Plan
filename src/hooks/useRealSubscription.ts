@@ -33,6 +33,12 @@ export const useRealSubscription = () => {
       if (response.ok) {
         const data = await response.json()
         console.log('✅ Real subscription data received:', data)
+        console.log('🔍 Subscription parsing:', {
+          dbStatus: data.subscription?.status,
+          dbIsPremium: data.subscription?.isPremium,
+          dbIsActive: data.subscription?.isActive,
+          endDate: data.subscription?.endDate
+        })
         
         const subscriptionData: SubscriptionData = {
           status: data.subscription?.isPremium ? 'premium' : 'free',
@@ -42,6 +48,7 @@ export const useRealSubscription = () => {
           daysRemaining: data.subscription?.daysRemaining
         }
         
+        console.log('📊 Final subscription data:', subscriptionData)
         setSubscriptionData(subscriptionData)
         
         // Trigger subscription-changed event to update other components

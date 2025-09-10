@@ -19,7 +19,14 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode }) => {
   const { user, loading } = useAuth()
   const { type: deviceType, isTouch } = useDeviceDetection()
-  const { isPremium } = useRealSubscription()
+  const { isPremium, subscriptionData } = useRealSubscription()
+  
+  // Debug subscription status
+  React.useEffect(() => {
+    if (user) {
+      console.log('🧭 Navigation subscription debug:', { isPremium, subscriptionData, user: user.id })
+    }
+  }, [isPremium, subscriptionData, user])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean
