@@ -88,22 +88,30 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // SIMPLIFIED subscription calculation
+    // FIXED subscription calculation - trust database status first
     const now = new Date();
     const endDate = userData.subscription_end_date ? new Date(userData.subscription_end_date) : null;
     let isActive = false;
     let daysRemaining = null;
     
-    // Simple logic: if there's an end date, check if it's in the future
-    if (endDate) {
-      isActive = endDate > now;
-      daysRemaining = isActive ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    // Primary check: if database says premium, trust it (unless end date is in past)
+    if (userData.subscription_status === 'premium') {
+      if (endDate && !isNaN(endDate.getTime())) {
+        // Valid end date - check if still active
+        isActive = endDate > now;
+        daysRemaining = isActive ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+      } else {
+        // No valid end date but marked premium - assume active (ongoing subscription)
+        isActive = true;
+        daysRemaining = null;
+      }
     } else {
-      // No end date, check status directly
-      isActive = userData.subscription_status === 'premium';
+      // Not marked as premium
+      isActive = false;
+      daysRemaining = 0;
     }
 
-    // Calculate isPremium
+    // Calculate isPremium - simplified to trust database status
     const isPremium = userData.subscription_status === 'premium' && isActive;
 
     // SIMPLIFIED response
