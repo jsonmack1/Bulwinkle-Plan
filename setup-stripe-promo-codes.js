@@ -3,7 +3,7 @@
  * This script creates coupons and promotion codes in Stripe for our promo campaigns
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 
 async function setupStripePromoCodes() {
   try {
