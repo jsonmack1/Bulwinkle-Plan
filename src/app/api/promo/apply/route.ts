@@ -183,6 +183,44 @@ export async function POST(request: NextRequest) {
           
         if (userCheckError) {
           console.error('❌ Cannot find/read user before update:', userCheckError);
+          
+          // CRITICAL FIX: If user doesn't exist, create them!
+          if (userCheckError.code === 'PGRST116') { // No rows found
+            console.log('🔧 User not found in database, attempting to create user record...');
+            
+            try {
+              // Get user info from request metadata or create basic record
+              const { data: createdUser, error: createError } = await supabase
+                .from('users')
+                .insert({
+                  id: userId,
+                  email: metadata?.userEmail || `user-${userId}@example.com`, // Fallback email
+                  name: metadata?.userName || `User ${userId.substring(0, 8)}`, // Fallback name
+                  subscription_status: 'free',
+                  current_plan: 'free',
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                })
+                .select()
+                .single();
+                
+              if (createError) {
+                console.error('❌ Failed to create user record:', createError);
+                return NextResponse.json({
+                  success: false,
+                  error: 'Failed to create user account'
+                } as PromoCodeApplicationResponse, { status: 500 });
+              } else {
+                console.log('✅ User record created successfully:', createdUser);
+              }
+            } catch (err) {
+              console.error('❌ Error creating user:', err);
+              return NextResponse.json({
+                success: false,
+                error: 'Failed to create user account'
+              } as PromoCodeApplicationResponse, { status: 500 });
+            }
+          }
         } else {
           console.log('✅ User found before update:', userCheck);
         }

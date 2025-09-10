@@ -69,7 +69,9 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
           orderAmount: 0, // Free subscription
           metadata: {
             appliedFrom: 'promo_code_input',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            userEmail: user?.email,
+            userName: user?.name
           }
         })
       });
