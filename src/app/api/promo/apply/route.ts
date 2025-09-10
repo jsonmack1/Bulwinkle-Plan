@@ -165,7 +165,14 @@ export async function POST(request: NextRequest) {
 
     // For free subscription promo codes, create/upgrade the user's subscription
     if (promoCodeData.type === 'free_subscription' && promoCodeData.free_months > 0) {
+      console.log('🔍 Processing free subscription promo:', { 
+        type: promoCodeData.type, 
+        freeMonths: promoCodeData.free_months, 
+        userId: userId ? 'present' : 'null'
+      });
+      
       if (userId) {
+        console.log('👤 User ID for subscription update:', userId);
         // User is logged in - upgrade their account
         try {
           const endDate = new Date();
@@ -173,21 +180,42 @@ export async function POST(request: NextRequest) {
           
           console.log('🎁 Creating free subscription for user:', { userId, months: promoCodeData.free_months, endDate });
           
-          const { error: updateError } = await supabase
+          const updateData = {
+            subscription_status: 'premium',
+            current_plan: 'premium', 
+            subscription_start_date: new Date().toISOString(),
+            subscription_end_date: endDate.toISOString(),
+            subscription_cancel_at_period_end: false
+          };
+          
+          console.log('📝 Update data being sent:', updateData);
+          
+          const { data: updateResult, error: updateError } = await supabase
             .from('users')
-            .update({
-              subscription_status: 'premium',
-              current_plan: 'premium', 
-              subscription_start_date: new Date().toISOString(),
-              subscription_end_date: endDate.toISOString(),
-              subscription_cancel_at_period_end: false
-            })
-            .eq('id', userId);
+            .update(updateData)
+            .eq('id', userId)
+            .select(); // Get the updated data back
             
           if (updateError) {
             console.error('❌ Failed to create subscription:', updateError);
+            console.error('❌ Update error details:', JSON.stringify(updateError, null, 2));
           } else {
             console.log('✅ Successfully created free subscription until:', endDate);
+            console.log('✅ Updated user data:', updateResult);
+            
+            // Verify the update by re-querying the user
+            const { data: verifyData, error: verifyError } = await supabase
+              .from('users')
+              .select('id, subscription_status, current_plan, subscription_start_date, subscription_end_date')
+              .eq('id', userId)
+              .single();
+              
+            if (verifyError) {
+              console.error('❌ Failed to verify user update:', verifyError);
+            } else {
+              console.log('🔍 User verification after update:', verifyData);
+            }
+            
             // Update the response to indicate subscription was created
             subscriptionModification = {
               type: 'free_subscription_granted' as const,

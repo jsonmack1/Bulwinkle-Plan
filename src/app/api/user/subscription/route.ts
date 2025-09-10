@@ -53,7 +53,10 @@ export async function GET(request: NextRequest) {
     console.log('🔍 Subscription Debug Info:', {
       userId,
       subscription_status: userData.subscription_status,
+      current_plan: userData.current_plan,
+      subscription_start_date: userData.subscription_start_date,
       subscription_end_date: userData.subscription_end_date,
+      subscription_cancel_at_period_end: userData.subscription_cancel_at_period_end,
       endDate: endDate?.toISOString(),
       isActive,
       now: now.toISOString()
