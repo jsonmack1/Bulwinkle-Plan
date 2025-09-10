@@ -114,8 +114,8 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
         }
         
       } else {
-        console.error('❌ Failed to apply promo code:', result.error_message);
-        setError('Failed to activate free subscription. Please try again.');
+        console.error('❌ Failed to apply promo code:', result.error);
+        setError(result.error || 'Failed to activate free subscription. Please try again.');
       }
     } catch (error) {
       console.error('❌ Error applying free subscription promo:', error);
@@ -164,7 +164,7 @@ export const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
       } else {
         setValidPromo(null);
         setDiscountPreview(null);
-        setError(result.error || 'Invalid promo code');
+        setError(result.error || 'Invalid or expired promo code. Please check the code and try again.');
       }
     } catch (err) {
       console.error('Promo validation error:', err);
