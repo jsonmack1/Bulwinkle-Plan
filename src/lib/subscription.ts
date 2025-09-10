@@ -101,25 +101,17 @@ export const mockSubscription = {
   }
 }
 
+// Import the auth context to get real user data
+import { useAuth } from '../contexts/AuthContext';
+
 // Real subscription hook that queries the database
 export const useSubscription = () => {
   const [status, setStatus] = React.useState<SubscriptionStatus>('free')
   const [isHydrated, setIsHydrated] = React.useState(false)
   const [subscriptionData, setSubscriptionData] = React.useState<any>(null)
   
-  // Get user from auth context
-  let user = null;
-  if (typeof window !== 'undefined') {
-    try {
-      // Try to get user from auth storage - using correct key
-      const authData = localStorage.getItem('lessonPlanBuilder_currentUser');
-      if (authData) {
-        user = JSON.parse(authData);
-      }
-    } catch (error) {
-      console.log('No auth data found, continuing as anonymous user');
-    }
-  }
+  // Get user from Supabase auth context (NOT localStorage)
+  const { user } = useAuth();
   
   const fetchRealSubscription = async (userId: string) => {
     try {

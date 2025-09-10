@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Auth Check</title>
+</head>
+<body>
+    <h1>Frontend Auth Diagnostic</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message) {
+            console.log(message);
+            results.innerHTML += '<div>' + message + '</div>';
+        }
+        
+        log('🔍 Checking frontend authentication...');
+        
+        // Check localStorage for auth data
+        const authData = localStorage.getItem('lessonPlanBuilder_currentUser');
+        log('📊 Auth data in localStorage: ' + (authData ? 'Found' : 'NOT FOUND'));
+        
+        if (authData) {
+            try {
+                const user = JSON.parse(authData);
+                log('👤 Current user ID: ' + user.id);
+                log('👤 Current user email: ' + user.email);
+                
+                // Test subscription API
+                log('🧪 Testing subscription API...');
+                fetch('/api/user/subscription?userId=' + user.id)
+                    .then(r => r.json())
+                    .then(data => {
+                        log('✅ API Response received');
+                        log('📊 isPremium: ' + data.subscription?.isPremium);
+                        log('📊 isActive: ' + data.subscription?.isActive);
+                        log('📊 status: ' + data.subscription?.status);
+                        
+                        if (data.subscription?.isPremium) {
+                            log('🎉 USER IS PREMIUM - Frontend should show premium dashboard!');
+                        } else {
+                            log('❌ API says user is NOT premium');
+                        }
+                    })
+                    .catch(err => {
+                        log('❌ API call failed: ' + err.message);
+                    });
+                    
+            } catch (err) {
+                log('❌ Error parsing auth data: ' + err.message);
+            }
+        } else {
+            log('❌ No user logged in - this is the problem!');
+            log('💡 User needs to log in again for the subscription hook to work');
+        }
+        
+        // Check subscription localStorage
+        const mockSub = localStorage.getItem('mockSubscription');
+        log('🎭 Mock subscription in localStorage: ' + (mockSub || 'none'));
+    </script>
+</body>
+</html>
