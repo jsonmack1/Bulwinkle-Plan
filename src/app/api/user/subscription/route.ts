@@ -50,6 +50,17 @@ export async function GET(request: NextRequest) {
     const isActive = endDate ? endDate > now : userData.subscription_status === 'premium';
     const daysRemaining = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
     
+    // CRITICAL DIAGNOSTIC: Check date comparison logic
+    if (endDate) {
+      console.log('📅 Date comparison diagnostic:', {
+        endDate: endDate.toISOString(),
+        now: now.toISOString(),
+        endDateRaw: userData.subscription_end_date,
+        isEndDateFuture: endDate > now,
+        timeDifferenceMs: endDate.getTime() - now.getTime()
+      });
+    }
+    
     console.log('🔍 Subscription Debug Info:', {
       userId,
       subscription_status: userData.subscription_status,
@@ -60,6 +71,15 @@ export async function GET(request: NextRequest) {
       endDate: endDate?.toISOString(),
       isActive,
       now: now.toISOString()
+    });
+    
+    // CRITICAL DIAGNOSTIC: Final isPremium calculation
+    const finalIsPremium = userData.subscription_status === 'premium' && isActive;
+    console.log('🎯 isPremium Calculation:', {
+      subscription_status: userData.subscription_status,
+      isStatusPremium: userData.subscription_status === 'premium',
+      isActive,
+      finalIsPremium
     });
 
     // Get current month usage

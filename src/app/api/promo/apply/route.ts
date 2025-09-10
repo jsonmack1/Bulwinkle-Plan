@@ -173,6 +173,20 @@ export async function POST(request: NextRequest) {
       
       if (userId) {
         console.log('👤 User ID for subscription update:', userId);
+        
+        // DIAGNOSTIC: Check if user exists and we can read their data
+        const { data: userCheck, error: userCheckError } = await supabase
+          .from('users')
+          .select('id, email, subscription_status, current_plan')
+          .eq('id', userId)
+          .single();
+          
+        if (userCheckError) {
+          console.error('❌ Cannot find/read user before update:', userCheckError);
+        } else {
+          console.log('✅ User found before update:', userCheck);
+        }
+        
         // User is logged in - upgrade their account
         try {
           const endDate = new Date();
