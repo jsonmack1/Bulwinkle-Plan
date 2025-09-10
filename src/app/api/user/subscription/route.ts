@@ -10,7 +10,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
+    console.log('🔍 Subscription API called with URL:', request.url);
+    console.log('🔍 Extracted userId:', userId);
+
     if (!userId) {
+      console.error('❌ No userId provided in subscription API');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -38,11 +42,15 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (userError || !userData) {
+      console.error('❌ User not found in database:', { userError, userId });
+      console.error('❌ Query error details:', JSON.stringify(userError, null, 2));
       return NextResponse.json(
-        { error: 'User not found' },
+        { error: 'User not found', userId, details: userError?.message },
         { status: 404 }
       );
     }
+    
+    console.log('✅ User found in database:', { id: userData.id, email: userData.email });
 
     // Calculate subscription details
     const now = new Date();

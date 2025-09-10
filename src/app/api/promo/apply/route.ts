@@ -204,9 +204,13 @@ export async function POST(request: NextRequest) {
           
           console.log('📝 Update data being sent:', updateData);
           
+          // Replicate the same update pattern used by Stripe subscriptions
           const { data: updateResult, error: updateError } = await supabase
             .from('users')
-            .update(updateData)
+            .update({
+              ...updateData,
+              updated_at: new Date().toISOString() // Add updated_at like Stripe does
+            })
             .eq('id', userId)
             .select(); // Get the updated data back
             
@@ -216,6 +220,27 @@ export async function POST(request: NextRequest) {
           } else {
             console.log('✅ Successfully created free subscription until:', endDate);
             console.log('✅ Updated user data:', updateResult);
+            
+            // Track subscription event like Stripe does
+            try {
+              await supabase
+                .from('subscription_events')
+                .insert({
+                  user_id: userId,
+                  event_type: 'promo_subscription_created',
+                  event_data: {
+                    promoCode: normalizedCode,
+                    freeMonths: promoCodeData.free_months,
+                    subscriptionStartDate: new Date().toISOString(),
+                    subscriptionEndDate: endDate.toISOString(),
+                    source: 'promo_code'
+                  },
+                  created_at: new Date().toISOString()
+                });
+              console.log('✅ Subscription event tracked');
+            } catch (eventError) {
+              console.warn('⚠️ Failed to track subscription event:', eventError);
+            }
             
             // Verify the update by re-querying the user
             const { data: verifyData, error: verifyError } = await supabase
