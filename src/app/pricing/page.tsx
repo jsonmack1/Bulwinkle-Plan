@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { trackAnalyticsEvent, usageTracker } from '../../lib/usageTracker';
 import Navigation from '../../components/Navigation';
-import PromoCodeInput from '../../components/premium/PromoCodeInput';
+import { StripePromoCodeInput } from '../../components/premium/StripePromoCodeInput';
 import { AccountCreationModal } from '../../components/modals/AccountCreationModal';
 import { useSubscription } from '../../lib/subscription';
 import Link from 'next/link';
@@ -490,14 +490,13 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Promo Code Input */}
+        {/* Stripe Promo Code Input */}
         <div className="max-w-md mx-auto px-4 mb-16">
-          <PromoCodeInput 
-            orderAmount={PRICING_CONFIG.annual.billedAmount * 100} // Default to annual pricing in cents
-            billingPeriod="annual"
-            onPromoApplied={handlePromoApplied}
-            onPromoRemoved={handlePromoRemoved}
+          <StripePromoCodeInput 
+            priceId={PRICING_CONFIG.monthly.stripePriceId} // Use monthly price by default
+            billingPeriod="monthly"
             fingerprint={fingerprint}
+            className="mt-4"
           />
         </div>
 
