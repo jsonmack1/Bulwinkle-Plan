@@ -8,7 +8,7 @@ import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 import { useSubscription } from '../../lib/subscription';
 import PremiumDashboardModal from '../../components/modals/PremiumDashboardModal';
-import ForceSubscriptionRefresh from '../../components/ForceSubscriptionRefresh';
+// import ForceSubscriptionRefresh from '../../components/ForceSubscriptionRefresh';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -116,9 +116,6 @@ function DashboardContent() {
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Debug Panel for Testing */}
-        <ForceSubscriptionRefresh />
-        
         {/* Free User Dashboard */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
