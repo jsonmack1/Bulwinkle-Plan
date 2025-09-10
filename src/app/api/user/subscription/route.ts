@@ -44,10 +44,52 @@ export async function GET(request: NextRequest) {
     if (userError || !userData) {
       console.error('❌ User not found in database:', { userError, userId });
       console.error('❌ Query error details:', JSON.stringify(userError, null, 2));
-      return NextResponse.json(
-        { error: 'User not found', userId, details: userError?.message },
-        { status: 404 }
-      );
+      
+      // CRITICAL FIX: If user doesn't exist, create them automatically
+      if (userError?.code === 'PGRST116') { // No rows found
+        console.log('🔧 User not found in subscription API, creating user record...');
+        
+        try {
+          const { data: createdUser, error: createError } = await supabase
+            .from('users')
+            .upsert({
+              id: userId,
+              email: `user-${userId}@temp.com`, // Temporary email
+              name: `User ${userId.substring(0, 8)}`, // Temporary name
+              subscription_status: 'free',
+              current_plan: 'free',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }, {
+              onConflict: 'id' // Handle race conditions gracefully
+            })
+            .select()
+            .single();
+            
+          if (createError) {
+            console.error('❌ Failed to create user in subscription API:', createError);
+            return NextResponse.json(
+              { error: 'User not found and could not be created', userId, details: createError.message },
+              { status: 500 }
+            );
+          } else {
+            console.log('✅ User record created in subscription API:', createdUser);
+            // Use the newly created user data
+            userData = createdUser;
+          }
+        } catch (err) {
+          console.error('❌ Error creating user in subscription API:', err);
+          return NextResponse.json(
+            { error: 'User creation failed', userId },
+            { status: 500 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'User not found', userId, details: userError?.message },
+          { status: 404 }
+        );
+      }
     }
     
     console.log('✅ User found in database:', { id: userData.id, email: userData.email });

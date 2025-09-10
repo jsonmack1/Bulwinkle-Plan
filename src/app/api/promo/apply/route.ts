@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
               // Get user info from request metadata or create basic record
               const { data: createdUser, error: createError } = await supabase
                 .from('users')
-                .insert({
+                .upsert({
                   id: userId,
                   email: metadata?.userEmail || `user-${userId}@example.com`, // Fallback email
                   name: metadata?.userName || `User ${userId.substring(0, 8)}`, // Fallback name
@@ -200,6 +200,8 @@ export async function POST(request: NextRequest) {
                   current_plan: 'free',
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
+                }, {
+                  onConflict: 'id' // Handle duplicate user creation gracefully
                 })
                 .select()
                 .single();
