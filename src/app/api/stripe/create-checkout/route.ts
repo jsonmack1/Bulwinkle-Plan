@@ -342,13 +342,25 @@ export async function POST(request: NextRequest) {
     
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    // Log the checkout attempt
+    // Calculate actual amount after promo codes/discounts
+    let actualAmountCents = await getPriceAmount(stripe, priceId);
+    
+    // For free subscription promo codes (trials), the upfront amount should be 0
+    if (sessionParams.subscription_data?.trial_period_days && sessionParams.metadata?.promo_type === 'free_subscription') {
+      actualAmountCents = 0;
+      console.log('💰 Free subscription promo - recording $0.00 upfront amount');
+    } else if (sessionParams.discounts && sessionParams.discounts.length > 0) {
+      // For discount coupons, we'll record the original amount since Stripe handles the discount
+      console.log('💰 Discount applied - recording original amount (Stripe will handle discount)');
+    }
+
+    // Log the checkout attempt with correct amount
     await supabase
       .from('payment_attempts')
       .insert({
         user_id: userId || null,
         stripe_session_id: session.id,
-        amount_cents: await getPriceAmount(stripe, priceId),
+        amount_cents: actualAmountCents,
         currency: 'usd',
         status: 'processing',
         subscription_tier: billingPeriod === 'annual' ? 'annual' : 'monthly',

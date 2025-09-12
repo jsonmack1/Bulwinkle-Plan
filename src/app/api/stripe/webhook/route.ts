@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
   const stripe = (await import('../../../../lib/stripe')).default;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+  console.log('🎫 Webhook received at:', new Date().toISOString());
+
   if (!endpointSecret) {
     console.error('❌ Missing STRIPE_WEBHOOK_SECRET environment variable');
     return NextResponse.json(
@@ -20,7 +22,14 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
 
+  console.log('🔍 Webhook details:', {
+    bodyLength: body.length,
+    hasSignature: !!signature,
+    hasSecret: !!endpointSecret
+  });
+
   if (!signature) {
+    console.error('❌ Missing stripe-signature header');
     return NextResponse.json(
       { error: 'Missing stripe-signature header' },
       { status: 400 }
@@ -31,6 +40,7 @@ export async function POST(request: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+    console.log('✅ Webhook signature verified successfully');
   } catch (err) {
     console.error('❌ Webhook signature verification failed:', err);
     return NextResponse.json(
@@ -39,7 +49,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  console.log(`🎫 Stripe webhook event: ${event.type}`);
+  console.log(`🎫 Stripe webhook event: ${event.type}`, {
+    eventId: event.id,
+    created: new Date(event.created * 1000).toISOString(),
+    livemode: event.livemode
+  });
 
   try {
     switch (event.type) {
