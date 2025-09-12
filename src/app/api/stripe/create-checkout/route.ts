@@ -224,8 +224,15 @@ export async function POST(request: NextRequest) {
           // Free subscription codes: Create subscription with trial period
           console.log('🎁 Free subscription promo detected:', promoDetails.free_months, 'months');
           
-          // Calculate trial days (free months * 30 days)
-          const trialDays = promoDetails.free_months * 30;
+          // Calculate trial days (free months * 30 days), but limit to Stripe's maximum
+          const requestedTrialDays = promoDetails.free_months * 30;
+          const trialDays = Math.min(requestedTrialDays, 365); // Stripe max is 365 days
+          
+          if (requestedTrialDays > 365) {
+            console.warn(`⚠️ Trial period ${requestedTrialDays} days exceeds Stripe limit, capping at 365 days`);
+          }
+          
+          console.log(`🔧 Configuring subscription with ${trialDays} day trial`);
           
           sessionParams.subscription_data = {
             trial_period_days: trialDays,
@@ -245,6 +252,7 @@ export async function POST(request: NextRequest) {
           sessionParams.metadata.is_trial = 'true';
           
           console.log(`✅ Free subscription configured: ${trialDays} days free, then regular billing`);
+          console.log('🔍 Session subscription_data:', JSON.stringify(sessionParams.subscription_data, null, 2));
           
         } else if (promoDetails.type === 'discount_percent') {
           // Percentage discount: Try Stripe promotion codes first, fallback to coupon creation
@@ -340,7 +348,23 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Log the complete session parameters being sent to Stripe
+    console.log('🔍 Final Stripe session parameters:');
+    console.log('Mode:', sessionParams.mode);
+    console.log('Line items:', JSON.stringify(sessionParams.line_items, null, 2));
+    console.log('Subscription data:', JSON.stringify(sessionParams.subscription_data || 'none', null, 2));
+    console.log('Metadata:', JSON.stringify(sessionParams.metadata, null, 2));
+    
+    console.log('📡 Creating Stripe checkout session...');
     const session = await stripe.checkout.sessions.create(sessionParams);
+    
+    console.log('✅ Stripe session created successfully:', {
+      sessionId: session.id,
+      mode: session.mode,
+      hasSubscription: !!session.subscription,
+      subscriptionId: session.subscription || 'none',
+      url: session.url
+    });
 
     // Calculate actual amount after promo codes/discounts
     let actualAmountCents = await getPriceAmount(stripe, priceId);
