@@ -339,13 +339,87 @@ async function handlePaymentFailed(invoice: any) {
   // Handle failed payments if needed
 }
 
-// Handle checkout session completed - record promo code usage
+// Handle checkout session completed - record promo code usage and ensure user upgrade
 async function handleCheckoutCompleted(session: any) {
   console.log('✅ Checkout completed:', session.id);
+  console.log('🔍 Session details:', {
+    id: session.id,
+    customer: session.customer,
+    subscription: session.subscription,
+    amount_total: session.amount_total,
+    payment_status: session.payment_status,
+    metadata: session.metadata
+  });
   
   const metadata = session.metadata || {};
+  const userId = metadata.user_id;
+  const userEmail = metadata.user_email;
   const promoCode = metadata.promo_code;
   
+  // CRITICAL FIX: For promo code checkouts, ensure user gets upgraded immediately
+  // This handles cases where the subscription webhook hasn't fired yet
+  if (session.subscription && (userId || userEmail)) {
+    console.log('🔧 Attempting immediate user upgrade from checkout session');
+    
+    let upgradeSuccess = false;
+    
+    // Try to upgrade by user_id first
+    if (userId) {
+      console.log('🔍 Trying to upgrade user by ID:', userId);
+      
+      const { data: userByIdUpdate, error: idError } = await supabase
+        .from('users')
+        .update({
+          stripe_subscription_id: session.subscription,
+          stripe_customer_id: session.customer,
+          subscription_status: 'premium',
+          current_plan: metadata.billing_period === 'annual' ? 'annual' : 'monthly',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+        
+      if (!idError && userByIdUpdate) {
+        console.log('✅ User upgraded by ID:', userByIdUpdate.id);
+        upgradeSuccess = true;
+      } else {
+        console.warn('⚠️ Failed to upgrade by user ID:', idError);
+      }
+    }
+    
+    // Fallback: Try to upgrade by email
+    if (!upgradeSuccess && userEmail) {
+      console.log('🔍 Trying to upgrade user by email:', userEmail);
+      
+      const { data: userByEmailUpdate, error: emailError } = await supabase
+        .from('users')
+        .update({
+          stripe_subscription_id: session.subscription,
+          stripe_customer_id: session.customer,
+          subscription_status: 'premium',
+          current_plan: metadata.billing_period === 'annual' ? 'annual' : 'monthly',
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', userEmail)
+        .select()
+        .single();
+        
+      if (!emailError && userByEmailUpdate) {
+        console.log('✅ User upgraded by email:', userByEmailUpdate.id);
+        upgradeSuccess = true;
+      } else {
+        console.warn('⚠️ Failed to upgrade by email:', emailError);
+      }
+    }
+    
+    if (!upgradeSuccess) {
+      console.error('❌ CRITICAL: Could not upgrade user from checkout session');
+      console.error('❌ Session metadata:', metadata);
+    }
+  }
+  
+  // Record promo code usage if applicable
   if (promoCode) {
     console.log('🎟️ Recording promo code usage from checkout:', promoCode);
     
@@ -354,7 +428,7 @@ async function handleCheckoutCompleted(session: any) {
       const { data: applicationResult, error: applicationError } = await supabase
         .rpc('apply_promo_code', {
           p_code: promoCode,
-          p_user_id: metadata.user_id || null,
+          p_user_id: userId || null,
           p_fingerprint_hash: metadata.fingerprint_hash || null,
           p_order_amount_cents: session.amount_total || null,
           p_ip_hash: null, // Not available in webhook

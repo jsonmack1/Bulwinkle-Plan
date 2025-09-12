@@ -166,10 +166,12 @@ export async function POST(request: NextRequest) {
       },
       metadata: {
         user_id: userId || '',
+        user_email: email || customerEmail || '',
         fingerprint_hash: fingerprintHash || '',
         session_id: sessionId || '',
         billing_period: billingPeriod,
-        source: 'peabody_app'
+        source: 'peabody_app',
+        created_at: new Date().toISOString()
       },
       // Custom fields removed due to API compatibility issues
       // You can collect this information in your app instead
