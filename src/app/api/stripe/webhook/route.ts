@@ -63,6 +63,10 @@ export async function POST(request: NextRequest) {
         await handlePaymentFailed(event.data.object);
         break;
         
+      case 'checkout.session.completed':
+        await handleCheckoutCompleted(event.data.object);
+        break;
+        
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
@@ -183,4 +187,47 @@ async function handlePaymentSucceeded(invoice: any) {
 async function handlePaymentFailed(invoice: any) {
   console.log('💸 Payment failed:', invoice.id);
   // Handle failed payments if needed
+}
+
+// Handle checkout session completed - record promo code usage
+async function handleCheckoutCompleted(session: any) {
+  console.log('✅ Checkout completed:', session.id);
+  
+  const metadata = session.metadata || {};
+  const promoCode = metadata.promo_code;
+  
+  if (promoCode) {
+    console.log('🎟️ Recording promo code usage from checkout:', promoCode);
+    
+    try {
+      // Apply promo code using database function to record usage
+      const { data: applicationResult, error: applicationError } = await supabase
+        .rpc('apply_promo_code', {
+          p_code: promoCode,
+          p_user_id: metadata.user_id || null,
+          p_fingerprint_hash: metadata.fingerprint_hash || null,
+          p_order_amount_cents: session.amount_total || null,
+          p_ip_hash: null, // Not available in webhook
+          p_user_agent_hash: null, // Not available in webhook
+          p_metadata: {
+            stripe_session_id: session.id,
+            stripe_subscription_id: session.subscription,
+            stripe_customer_id: session.customer,
+            promo_type: metadata.promo_type,
+            free_months: metadata.free_months,
+            trial_days: metadata.trial_days,
+            source: 'stripe_checkout_webhook'
+          }
+        });
+
+      if (applicationError) {
+        console.error('❌ Failed to record promo code usage:', applicationError);
+      } else {
+        console.log('✅ Promo code usage recorded successfully');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error recording promo code usage:', error);
+    }
+  }
 }

@@ -182,65 +182,159 @@ export async function POST(request: NextRequest) {
       sessionParams.customer_email = customerEmail;
     }
 
-    // Handle promo codes - PAPERCLIP gets special trial treatment
+    // Handle promo codes - Validate using database first, then apply appropriate Stripe configuration
     if (promoCode) {
       const upperPromoCode = promoCode.toUpperCase();
       
-      if (upperPromoCode === 'PAPERCLIP') {
-        // PAPERCLIP: One-time 30-day trial using Stripe's built-in trial functionality
-        console.log('🎟️ PAPERCLIP detected - applying 30-day trial');
+      try {
+        console.log('🎟️ Validating promo code:', upperPromoCode);
         
-        sessionParams.subscription_data = {
-          trial_period_days: 30, // One-time 30-day trial
-          metadata: {
-            promo_code: 'PAPERCLIP',
-            trial_type: 'one_time_30_day',
-            source: 'paperclip_promo'
-          }
-        };
-        
-        // Add to session metadata for webhook tracking
-        sessionParams.metadata.promo_code = 'PAPERCLIP';
-        sessionParams.metadata.trial_days = '30';
-        sessionParams.metadata.is_trial = 'true';
-        
-        console.log('✅ PAPERCLIP trial configured: 30 days free, then regular billing');
-        
-      } else {
-        // Other promo codes: Use standard promotion code system
-        try {
-          const promoCodeList = await stripe.promotionCodes.list({
-            code: upperPromoCode,
-            active: true,
-            limit: 1
+        // Validate promo code using our database function
+        const { data: validationResult, error: validationError } = await supabase
+          .rpc('is_promo_code_valid', {
+            p_code: upperPromoCode,
+            p_user_id: userId || null,
+            p_fingerprint_hash: fingerprintHash || null
           });
 
-          if (promoCodeList.data.length > 0) {
-            const validPromoCode = promoCodeList.data[0];
-            console.log('✅ Valid promotion code found:', validPromoCode.code);
-            
-            sessionParams.discounts = [{
-              promotion_code: validPromoCode.id
-            }];
-            
-            // Add to metadata for tracking
-            sessionParams.metadata.promo_code = upperPromoCode;
-            sessionParams.metadata.promo_code_id = validPromoCode.id;
-            
-          } else {
-            console.warn('⚠️ Invalid or inactive promotion code:', upperPromoCode);
-            return NextResponse.json(
-              { error: `Promotion code "${upperPromoCode}" is invalid or expired` },
-              { status: 400 }
-            );
-          }
-        } catch (promoError) {
-          console.error('❌ Error validating promotion code:', promoError);
+        if (validationError || !validationResult || validationResult.length === 0) {
+          console.error('❌ Promo code validation failed:', validationError);
           return NextResponse.json(
-            { error: 'Failed to validate promotion code' },
+            { error: `Promotion code "${upperPromoCode}" is invalid or expired` },
             { status: 400 }
           );
         }
+
+        const validation = validationResult[0];
+        if (!validation.valid) {
+          console.warn('⚠️ Invalid promo code:', validation.error_message);
+          return NextResponse.json(
+            { error: validation.error_message || `Promotion code "${upperPromoCode}" is invalid` },
+            { status: 400 }
+          );
+        }
+
+        const promoDetails = validation.code_details;
+        console.log('✅ Valid promo code found:', promoDetails);
+
+        // Apply promo code logic based on type
+        if (promoDetails.type === 'free_subscription') {
+          // Free subscription codes: Create subscription with trial period
+          console.log('🎁 Free subscription promo detected:', promoDetails.free_months, 'months');
+          
+          // Calculate trial days (free months * 30 days)
+          const trialDays = promoDetails.free_months * 30;
+          
+          sessionParams.subscription_data = {
+            trial_period_days: trialDays,
+            metadata: {
+              promo_code: upperPromoCode,
+              promo_type: 'free_subscription',
+              free_months: promoDetails.free_months,
+              source: 'database_promo'
+            }
+          };
+          
+          // Add to session metadata for webhook tracking
+          sessionParams.metadata.promo_code = upperPromoCode;
+          sessionParams.metadata.promo_type = 'free_subscription';
+          sessionParams.metadata.free_months = promoDetails.free_months.toString();
+          sessionParams.metadata.trial_days = trialDays.toString();
+          sessionParams.metadata.is_trial = 'true';
+          
+          console.log(`✅ Free subscription configured: ${trialDays} days free, then regular billing`);
+          
+        } else if (promoDetails.type === 'discount_percent') {
+          // Percentage discount: Try Stripe promotion codes first, fallback to coupon creation
+          console.log('💰 Percentage discount promo:', promoDetails.discount_percent + '%');
+          
+          try {
+            // Look for existing Stripe promotion code
+            const promoCodeList = await stripe.promotionCodes.list({
+              code: upperPromoCode,
+              active: true,
+              limit: 1
+            });
+
+            if (promoCodeList.data.length > 0) {
+              // Use existing Stripe promotion code
+              const stripePromoCode = promoCodeList.data[0];
+              console.log('✅ Found existing Stripe promotion code');
+              
+              sessionParams.discounts = [{
+                promotion_code: stripePromoCode.id
+              }];
+              
+            } else {
+              // Create a one-time coupon for this checkout
+              console.log('🏷️ Creating one-time Stripe coupon for discount');
+              
+              const coupon = await stripe.coupons.create({
+                percent_off: promoDetails.discount_percent,
+                duration: 'once',
+                name: `${upperPromoCode} - ${promoDetails.discount_percent}% off`,
+                metadata: {
+                  promo_code: upperPromoCode,
+                  source: 'database_promo'
+                }
+              });
+              
+              sessionParams.discounts = [{
+                coupon: coupon.id
+              }];
+              
+              console.log('✅ Created coupon:', coupon.id);
+            }
+            
+          } catch (stripeError) {
+            console.error('❌ Stripe discount creation failed:', stripeError);
+            return NextResponse.json(
+              { error: 'Failed to apply discount code' },
+              { status: 500 }
+            );
+          }
+          
+          // Add to metadata for tracking
+          sessionParams.metadata.promo_code = upperPromoCode;
+          sessionParams.metadata.promo_type = 'discount_percent';
+          sessionParams.metadata.discount_percent = promoDetails.discount_percent.toString();
+          
+        } else if (promoDetails.type === 'free_trial') {
+          // Free trial: Apply trial period
+          console.log('⏰ Free trial promo:', promoDetails.trial_days, 'days');
+          
+          sessionParams.subscription_data = {
+            trial_period_days: promoDetails.trial_days,
+            metadata: {
+              promo_code: upperPromoCode,
+              promo_type: 'free_trial',
+              trial_days: promoDetails.trial_days,
+              source: 'database_promo'
+            }
+          };
+          
+          // Add to session metadata for webhook tracking
+          sessionParams.metadata.promo_code = upperPromoCode;
+          sessionParams.metadata.promo_type = 'free_trial';
+          sessionParams.metadata.trial_days = promoDetails.trial_days.toString();
+          sessionParams.metadata.is_trial = 'true';
+          
+          console.log(`✅ Free trial configured: ${promoDetails.trial_days} days free`);
+          
+        } else {
+          console.warn('⚠️ Unsupported promo code type:', promoDetails.type);
+          return NextResponse.json(
+            { error: `Promotion code type "${promoDetails.type}" is not supported` },
+            { status: 400 }
+          );
+        }
+        
+      } catch (promoError) {
+        console.error('❌ Error processing promotion code:', promoError);
+        return NextResponse.json(
+          { error: 'Failed to process promotion code' },
+          { status: 500 }
+        );
       }
     }
     
