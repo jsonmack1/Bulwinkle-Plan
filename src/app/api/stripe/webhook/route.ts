@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Enhanced subscription created handler - handles customer ID mismatches and promo codes
+// Enhanced subscription created handler - uses promo code metadata to find user
 async function handleSubscriptionCreated(subscription: any) {
   console.log('🎉 Subscription created:', subscription.id);
   console.log('🔍 Subscription details:', {
@@ -111,44 +111,38 @@ async function handleSubscriptionCreated(subscription: any) {
   const isActive = subscription.status === 'active' || subscription.status === 'trialing';
   const plan = subscription.items.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
   
+  // CRITICAL FIX: Get user info from promo code metadata if available
+  const promoCode = subscription.metadata?.promo_code;
+  const promoType = subscription.metadata?.promo_type;
+  
+  console.log('🎟️ Promo code info from subscription:', { promoCode, promoType });
+  
   let updatedUser = null;
-  let updateError = null;
   
-  // Try to find and update user by stripe_customer_id first
-  console.log('🔍 Attempting to find user by stripe_customer_id:', customerId);
-  
-  const { data: userByCustomerId, error: customerError } = await supabase
-    .from('users')
-    .update({
-      stripe_subscription_id: subscription.id,
-      subscription_status: isActive ? 'premium' : 'free',
-      current_plan: plan,
-      subscription_end_date: subscription.current_period_end 
-        ? new Date(subscription.current_period_end * 1000).toISOString() 
-        : null,
-      stripe_customer_id: customerId, // Ensure this gets set
-      updated_at: new Date().toISOString()
-    })
-    .eq('stripe_customer_id', customerId)
-    .select()
-    .single();
-
-  if (!customerError && userByCustomerId) {
-    updatedUser = userByCustomerId;
-    console.log('✅ User found and updated by stripe_customer_id:', updatedUser.id);
-  } else {
-    console.warn('⚠️ Could not find user by stripe_customer_id, trying alternative methods');
-    console.log('🔍 Customer error:', customerError);
+  // NEW APPROACH: If this is a promo subscription, find the user who used the promo code
+  if (promoCode && promoType) {
+    console.log('🔍 Looking for user who used promo code:', promoCode);
     
-    // Fallback 1: Try to get user from Stripe customer metadata
     try {
-      const stripe = (await import('../../../../lib/stripe')).default;
-      const customer = await stripe.customers.retrieve(customerId);
-      
-      if (customer.metadata?.user_id) {
-        console.log('🔍 Found user_id in Stripe customer metadata:', customer.metadata.user_id);
+      // Find the most recent promo code usage for this code
+      const { data: promoUsage, error: promoError } = await supabase
+        .from('promo_code_uses')
+        .select(`
+          user_id,
+          promo_code_id,
+          applied_at,
+          promo_codes(code, name)
+        `)
+        .eq('promo_codes.code', promoCode)
+        .order('applied_at', { ascending: false })
+        .limit(1)
+        .single();
         
-        const { data: userByMetadata, error: metadataError } = await supabase
+      if (!promoError && promoUsage?.user_id) {
+        console.log('🎯 Found promo code user:', promoUsage.user_id);
+        
+        // Update the user who used this promo code
+        const { data: userByPromo, error: updateError } = await supabase
           .from('users')
           .update({
             stripe_subscription_id: subscription.id,
@@ -157,73 +151,85 @@ async function handleSubscriptionCreated(subscription: any) {
             subscription_end_date: subscription.current_period_end 
               ? new Date(subscription.current_period_end * 1000).toISOString() 
               : null,
-            stripe_customer_id: customerId, // Set the missing customer ID
+            stripe_customer_id: customerId,
             updated_at: new Date().toISOString()
           })
-          .eq('id', customer.metadata.user_id)
+          .eq('id', promoUsage.user_id)
           .select()
           .single();
           
-        if (!metadataError && userByMetadata) {
-          updatedUser = userByMetadata;
-          console.log('✅ User found and updated by metadata user_id:', updatedUser.id);
+        if (!updateError && userByPromo) {
+          updatedUser = userByPromo;
+          console.log('✅ PROMO USER UPGRADED:', {
+            userId: updatedUser.id,
+            email: updatedUser.email,
+            subscriptionStatus: updatedUser.subscription_status,
+            promoCode: promoCode
+          });
         } else {
-          console.error('❌ Failed to update user by metadata:', metadataError);
+          console.error('❌ Failed to update promo user:', updateError);
+        }
+      } else {
+        console.warn('⚠️ Could not find promo code usage:', promoError);
+      }
+    } catch (error) {
+      console.error('❌ Error in promo code lookup:', error);
+    }
+  }
+  
+  // FALLBACK: Original logic for non-promo subscriptions
+  if (!updatedUser) {
+    console.log('🔍 Falling back to customer ID lookup:', customerId);
+    
+    try {
+      const stripe = (await import('../../../../lib/stripe')).default;
+      const customer = await stripe.customers.retrieve(customerId);
+      
+      if (customer.email) {
+        console.log('🔍 Trying to find user by customer email:', customer.email);
+        
+        const { data: userByEmail, error: emailError } = await supabase
+          .from('users')
+          .update({
+            stripe_subscription_id: subscription.id,
+            subscription_status: isActive ? 'premium' : 'free',
+            current_plan: plan,
+            subscription_end_date: subscription.current_period_end 
+              ? new Date(subscription.current_period_end * 1000).toISOString() 
+              : null,
+            stripe_customer_id: customerId,
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', customer.email)
+          .select()
+          .single();
+          
+        if (!emailError && userByEmail) {
+          updatedUser = userByEmail;
+          console.log('✅ User found and updated by email:', updatedUser.id);
+        } else {
+          console.error('❌ Failed to update user by email:', emailError);
         }
       }
     } catch (stripeError) {
       console.error('❌ Failed to retrieve Stripe customer:', stripeError);
-    }
-    
-    // Fallback 2: Try to find user by email if we still haven't found them
-    if (!updatedUser) {
-      try {
-        const stripe = (await import('../../../../lib/stripe')).default;
-        const customer = await stripe.customers.retrieve(customerId);
-        
-        if (customer.email) {
-          console.log('🔍 Trying to find user by email:', customer.email);
-          
-          const { data: userByEmail, error: emailError } = await supabase
-            .from('users')
-            .update({
-              stripe_subscription_id: subscription.id,
-              subscription_status: isActive ? 'premium' : 'free',
-              current_plan: plan,
-              subscription_end_date: subscription.current_period_end 
-                ? new Date(subscription.current_period_end * 1000).toISOString() 
-                : null,
-              stripe_customer_id: customerId, // Set the missing customer ID
-              updated_at: new Date().toISOString()
-            })
-            .eq('email', customer.email)
-            .select()
-            .single();
-            
-          if (!emailError && userByEmail) {
-            updatedUser = userByEmail;
-            console.log('✅ User found and updated by email:', updatedUser.id);
-          } else {
-            console.error('❌ Failed to update user by email:', emailError);
-          }
-        }
-      } catch (stripeError) {
-        console.error('❌ Failed to retrieve customer for email lookup:', stripeError);
-      }
     }
   }
 
   if (!updatedUser) {
     console.error('❌ CRITICAL: Could not find user to update for subscription:', subscription.id);
     console.error('❌ Customer ID:', customerId);
+    console.error('❌ Promo Code:', promoCode);
     return;
   }
 
-  console.log('✅ Final user subscription update successful:', {
+  console.log('🎉 SUBSCRIPTION USER UPGRADE SUCCESS:', {
     userId: updatedUser.id,
+    email: updatedUser.email,
     subscriptionId: subscription.id,
     status: updatedUser.subscription_status,
-    plan: updatedUser.current_plan
+    plan: updatedUser.current_plan,
+    promoCode: promoCode || 'none'
   });
 
   // Track analytics event
@@ -238,7 +244,8 @@ async function handleSubscriptionCreated(subscription: any) {
         status: subscription.status,
         plan: plan,
         trial: subscription.status === 'trialing',
-        customer_id: customerId
+        customer_id: customerId,
+        promo_code: promoCode || null
       }
     });
 }
