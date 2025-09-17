@@ -1,4 +1,4 @@
-import { User, LoginCredentials, SignupCredentials } from '../types/auth'
+import { User, LoginCredentials, SignupCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth'
 import { supabase } from './supabase'
 
 /**
@@ -318,6 +318,48 @@ export class AuthService {
         this.currentUser.subscription = users[userIndex].subscription
         this.saveCurrentUser(this.currentUser)
       }
+    }
+  }
+
+  async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
+    try {
+      const response = await fetch('/api/auth/request-password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send password reset email');
+      }
+    } catch (error) {
+      console.error('Password reset request failed:', error);
+      throw error;
+    }
+  }
+
+  async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<void> {
+    try {
+      const response = await fetch('/api/auth/confirm-password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(confirm)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reset password');
+      }
+    } catch (error) {
+      console.error('Password reset confirmation failed:', error);
+      throw error;
     }
   }
 

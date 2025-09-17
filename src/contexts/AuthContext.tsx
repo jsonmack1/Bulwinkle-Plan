@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, AuthContextType, LoginCredentials, SignupCredentials } from '../types/auth'
+import { User, AuthContextType, LoginCredentials, SignupCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth'
 import { authService } from '../lib/auth'
 import { triggerSubscriptionRefresh } from '../lib/subscription'
 
@@ -78,6 +78,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
+  const requestPasswordReset = async (request: PasswordResetRequest): Promise<void> => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await authService.requestPasswordReset(request)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Password reset request failed')
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const confirmPasswordReset = async (confirm: PasswordResetConfirm): Promise<void> => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await authService.confirmPasswordReset(confirm)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Password reset failed')
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const clearError = (): void => {
     setError(null)
   }
@@ -89,6 +117,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     signup,
     logout,
+    requestPasswordReset,
+    confirmPasswordReset,
     clearError
   }
 

@@ -27,6 +27,15 @@ export interface SignupCredentials {
   name: string
 }
 
+export interface PasswordResetRequest {
+  email: string
+}
+
+export interface PasswordResetConfirm {
+  token: string
+  newPassword: string
+}
+
 export interface AuthContextType {
   user: User | null
   loading: boolean
@@ -34,5 +43,7 @@ export interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>
   signup: (credentials: SignupCredentials) => Promise<void>
   logout: () => Promise<void>
+  requestPasswordReset: (request: PasswordResetRequest) => Promise<void>
+  confirmPasswordReset: (confirm: PasswordResetConfirm) => Promise<void>
   clearError: () => void
 }

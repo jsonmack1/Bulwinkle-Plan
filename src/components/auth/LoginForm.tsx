@@ -7,10 +7,11 @@ import { useDeviceDetection } from '../ui/ResponsiveLayout'
 
 interface LoginFormProps {
   onSwitchToSignup: () => void
+  onSwitchToReset: () => void
   onClose?: () => void
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onSwitchToReset, onClose }) => {
   const { login, loading, error, clearError } = useAuth()
   const { type: deviceType, isTouch } = useDeviceDetection()
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -155,6 +156,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup, onClose }) => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+        </div>
+
+        {/* Forgot Password Link */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={onSwitchToReset}
+            className={cn(
+              "text-blue-600 hover:text-blue-500 font-medium transition-colors text-sm",
+              deviceType === 'mobile' && "min-h-touch min-w-touch inline-flex items-center justify-center",
+              isTouch && "touch-manipulation"
+            )}
+          >
+            Forgot your password?
+          </button>
         </div>
 
         <button

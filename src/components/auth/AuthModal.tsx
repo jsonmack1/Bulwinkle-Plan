@@ -4,11 +4,12 @@ import { cn, preventBodyScroll } from '../../lib/utils'
 import { useDeviceDetection } from '../ui/ResponsiveLayout'
 import LoginForm from './LoginForm'
 import SignupForm from './SignupForm'
+import PasswordResetForm from './PasswordResetForm'
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
-  defaultMode?: 'login' | 'signup'
+  defaultMode?: 'login' | 'signup' | 'reset'
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ 
@@ -16,7 +17,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   onClose, 
   defaultMode = 'login' 
 }) => {
-  const [mode, setMode] = useState<'login' | 'signup'>(defaultMode)
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>(defaultMode)
   const { type: deviceType, isTouch } = useDeviceDetection()
 
   // Prevent body scroll when modal is open
@@ -43,6 +44,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleSwitchToLogin = () => setMode('login')
   const handleSwitchToSignup = () => setMode('signup')
+  const handleSwitchToReset = () => setMode('reset')
 
   return (
     <div className={cn(
@@ -85,11 +87,17 @@ const AuthModal: React.FC<AuthModalProps> = ({
           {mode === 'login' ? (
             <LoginForm 
               onSwitchToSignup={handleSwitchToSignup}
+              onSwitchToReset={handleSwitchToReset}
+              onClose={onClose}
+            />
+          ) : mode === 'signup' ? (
+            <SignupForm 
+              onSwitchToLogin={handleSwitchToLogin}
               onClose={onClose}
             />
           ) : (
-            <SignupForm 
-              onSwitchToLogin={handleSwitchToLogin}
+            <PasswordResetForm 
+              onBackToLogin={handleSwitchToLogin}
               onClose={onClose}
             />
           )}

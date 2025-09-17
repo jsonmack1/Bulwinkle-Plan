@@ -30,13 +30,13 @@ const Navigation: React.FC<NavigationProps> = ({ isSubMode = false, onToggleMode
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authModal, setAuthModal] = useState<{
     isOpen: boolean
-    mode: 'login' | 'signup'
+    mode: 'login' | 'signup' | 'reset'
   }>({
     isOpen: false,
     mode: 'login'
   })
 
-  const openAuthModal = (mode: 'login' | 'signup') => {
+  const openAuthModal = (mode: 'login' | 'signup' | 'reset') => {
     setAuthModal({ isOpen: true, mode })
   }
 
