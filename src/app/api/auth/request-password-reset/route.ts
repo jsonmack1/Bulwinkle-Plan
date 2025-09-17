@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
+import { createPasswordResetRateLimiter } from '../../../../lib/rate-limiting';
 import crypto from 'crypto';
 
 /**
@@ -16,6 +17,45 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Get client IP for rate limiting
+    const clientIP = getClientIP(request);
+    
+    // Initialize rate limiter
+    const rateLimiter = createPasswordResetRateLimiter();
+
+    // Check email rate limit
+    const emailRateLimit = await rateLimiter.checkEmailRateLimit(email);
+    if (!emailRateLimit.success) {
+      const resetTimeMinutes = Math.ceil((emailRateLimit.resetTime - Date.now()) / (1000 * 60));
+      return NextResponse.json(
+        { 
+          error: `Too many password reset requests for this email. Please try again in ${resetTimeMinutes} minutes.`,
+          retryAfter: emailRateLimit.resetTime
+        },
+        { status: 429 }
+      );
+    }
+
+    // Check IP rate limit
+    const ipRateLimit = await rateLimiter.checkIPRateLimit(clientIP);
+    if (!ipRateLimit.success) {
+      const resetTimeMinutes = Math.ceil((ipRateLimit.resetTime - Date.now()) / (1000 * 60));
+      return NextResponse.json(
+        { 
+          error: `Too many password reset requests from this IP address. Please try again in ${resetTimeMinutes} minutes.`,
+          retryAfter: ipRateLimit.resetTime
+        },
+        { status: 429 }
+      );
+    }
+
+    console.log('🛡️ Rate limit check passed:', { 
+      email, 
+      ip: clientIP,
+      emailRemaining: emailRateLimit.remainingAttempts,
+      ipRemaining: ipRateLimit.remainingAttempts 
+    });
 
     // Check if user exists in our system (either localStorage mock or Supabase)
     let userExists = false;
@@ -67,26 +107,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // For security, always return success even if user doesn't exist
+    // Send password reset email (for security, always attempt to send even if user doesn't exist)
     // This prevents email enumeration attacks
-    
-    // In a real application, you would send an email here
-    // For now, we'll log the reset link for development purposes
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
     
-    console.log('🔐 Password Reset Request:', {
-      email,
-      userExists,
-      resetUrl: userExists ? resetUrl : 'User not found - no email sent',
-      expiresAt: resetTokenExpiry.toISOString()
-    });
-
-    // TODO: Replace with actual email sending service
-    // await emailService.sendPasswordResetEmail({
-    //   to: email,
-    //   resetUrl,
-    //   userName: userName || 'User'
-    // });
+    if (userExists) {
+      try {
+        const { createEmailService } = await import('../../../../lib/email');
+        const emailService = createEmailService();
+        
+        await emailService.sendPasswordResetEmail({
+          to: email,
+          resetUrl,
+          userName: userName || 'User'
+        });
+        
+        console.log('✅ Password reset email sent to:', email);
+      } catch (emailError) {
+        console.error('❌ Failed to send password reset email:', emailError);
+        // Don't expose email errors to the user for security
+      }
+    } else {
+      // For non-existent users, still log as if we sent an email (security)
+      console.log('🔐 Password reset requested for non-existent email:', email, '(no email sent)');
+    }
 
     return NextResponse.json({
       success: true,
