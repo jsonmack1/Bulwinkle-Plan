@@ -45,10 +45,17 @@ export async function POST(request: NextRequest) {
       instructions: [
         '1. Open your Supabase project dashboard',
         '2. Go to the SQL Editor',
-        '3. Run the SQL script in src/scripts/setup-password-reset.sql',
-        '4. This will create the password_reset_tokens table and related functions'
+        '3. Copy and paste the contents of one of these SQL files:',
+        '   - src/scripts/setup-password-reset-simple.sql (recommended)',
+        '   - src/scripts/setup-password-reset.sql (full featured)',
+        '4. Run the SQL script to create the password_reset_tokens table',
+        '5. Verify the tables were created in the Table Editor'
       ],
-      sqlFile: 'src/scripts/setup-password-reset.sql'
+      sqlFiles: {
+        simple: 'src/scripts/setup-password-reset-simple.sql',
+        full: 'src/scripts/setup-password-reset.sql'
+      },
+      recommendation: 'Use setup-password-reset-simple.sql for better compatibility'
     });
 
   } catch (error) {
@@ -58,8 +65,9 @@ export async function POST(request: NextRequest) {
         error: 'Failed to set up password reset tables',
         details: error instanceof Error ? error.message : 'Unknown error',
         instructions: [
-          'Please run the SQL script manually in your Supabase dashboard:',
-          'File: src/scripts/setup-password-reset.sql'
+          'Please run one of the SQL scripts manually in your Supabase dashboard:',
+          'Recommended: src/scripts/setup-password-reset-simple.sql',
+          'Full featured: src/scripts/setup-password-reset.sql'
         ]
       },
       { status: 500 }

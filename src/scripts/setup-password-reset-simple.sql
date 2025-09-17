@@ -1,5 +1,5 @@
--- Password reset tokens table
--- This should be run in your Supabase SQL editor or database administration tool
+-- Simple Password Reset Setup for Supabase
+-- This version avoids extensions and complex features for maximum compatibility
 
 -- Create password_reset_tokens table if it doesn't exist
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
@@ -11,13 +11,12 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     used_at TIMESTAMPTZ
 );
 
--- Create index for efficient token lookups
+-- Create indexes for efficient lookups
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
 
 -- Add password_hash column to users table if it doesn't exist
--- This is used to store hashed passwords for password reset functionality
 DO $$ 
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
@@ -35,48 +34,38 @@ BEGIN
     END IF;
 END $$;
 
--- Function to clean up expired tokens
+-- Simple function to clean up expired tokens (call manually)
 CREATE OR REPLACE FUNCTION cleanup_expired_password_reset_tokens()
-RETURNS void AS $$
+RETURNS INTEGER AS $$
+DECLARE
+    deleted_count INTEGER;
 BEGIN
     DELETE FROM password_reset_tokens 
     WHERE expires_at < NOW();
+    
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    RETURN deleted_count;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger or scheduled job to clean up expired tokens
--- Note: pg_cron extension needs to be enabled in Supabase for this to work
--- You can enable it in Dashboard > Database > Extensions
--- Alternatively, run the cleanup function manually or set up your own scheduling
+-- Enable RLS on password_reset_tokens
+ALTER TABLE password_reset_tokens ENABLE ROW LEVEL SECURITY;
 
--- Uncomment the following line only if pg_cron extension is enabled:
--- SELECT cron.schedule('cleanup-expired-reset-tokens', '0 */6 * * *', 'SELECT cleanup_expired_password_reset_tokens();');
+-- Simple RLS policy - users can only access their own tokens
+DROP POLICY IF EXISTS "Users can only access their own reset tokens" ON password_reset_tokens;
+CREATE POLICY "Users can only access their own reset tokens" 
+ON password_reset_tokens 
+FOR ALL 
+USING (auth.uid() = user_id);
 
--- Alternative: Manual cleanup (run this periodically)
--- SELECT cleanup_expired_password_reset_tokens();
-
--- Insert comment for documentation
+-- Add table comments
 COMMENT ON TABLE password_reset_tokens IS 'Stores password reset tokens for user password recovery';
 COMMENT ON COLUMN password_reset_tokens.token IS 'Secure random token used for password reset';
 COMMENT ON COLUMN password_reset_tokens.expires_at IS 'When the token expires (typically 1 hour from creation)';
 COMMENT ON COLUMN password_reset_tokens.used_at IS 'When the token was used (null if unused)';
 
--- Grant necessary permissions (adjust as needed for your security model)
--- These are example permissions - adjust based on your RLS policies
-ALTER TABLE password_reset_tokens ENABLE ROW LEVEL SECURITY;
+-- Test the setup
+SELECT 'Password reset tables created successfully!' as message;
 
--- Example RLS policy (adjust based on your security requirements)
--- Only create the policy if it doesn't already exist
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'password_reset_tokens' 
-        AND policyname = 'Users can only access their own reset tokens'
-    ) THEN
-        CREATE POLICY "Users can only access their own reset tokens" 
-        ON password_reset_tokens 
-        FOR ALL 
-        USING (auth.uid() = user_id);
-    END IF;
-END $$;
+-- Instructions for cleanup
+SELECT 'To clean up expired tokens, run: SELECT cleanup_expired_password_reset_tokens();' as cleanup_instructions;

@@ -54,15 +54,27 @@ ALTER TABLE users ADD COLUMN password_updated_at TIMESTAMPTZ;
 
 ### Setup Instructions
 
+#### Option 1: Simple Setup (Recommended)
+1. Open your Supabase project dashboard
+2. Navigate to the SQL Editor
+3. Copy and paste the contents of `src/scripts/setup-password-reset-simple.sql`
+4. Run the script
+5. Verify tables are created in the Table Editor
+
+#### Option 2: Full Featured Setup
 1. Open your Supabase project dashboard
 2. Navigate to the SQL Editor
 3. Run the complete script from `src/scripts/setup-password-reset.sql`
-4. Verify tables are created correctly
+4. Note: This requires the `pg_cron` extension for automatic cleanup
+5. Verify tables are created correctly
 
-Alternatively, call the development endpoint:
+#### Option 3: Development Helper
+Call the development endpoint to get setup instructions:
 ```bash
 POST /api/dev/setup-password-reset
 ```
+
+**Recommendation**: Use the simple setup for most installations as it avoids extension dependencies.
 
 ## User Flow
 
@@ -270,19 +282,35 @@ Consider implementing rate limiting to prevent abuse:
 
 ### Common Issues
 
-1. **Database tables missing**
+1. **SQL Script Compilation Errors**
+   - **Error**: `schema "cron" does not exist`
+     - **Solution**: Use `setup-password-reset-simple.sql` instead
+     - **Cause**: The `pg_cron` extension is not enabled in your Supabase instance
+   
+   - **Error**: Policy already exists
+     - **Solution**: The simple script handles this automatically
+     - **Manual fix**: Drop existing policies before running the script
+
+2. **Database tables missing**
    - Run the SQL setup script in Supabase
+   - Use the simple version for better compatibility
    - Check table permissions and RLS policies
 
-2. **Tokens not working**
+3. **Tokens not working**
    - Verify token expiration times
    - Check database connectivity
    - Ensure proper URL encoding
+   - Check if `password_reset_tokens` table exists
 
-3. **Email not being sent**
+4. **Email not being sent**
    - Currently emails are not sent (development mode)
    - Check console logs for reset URLs
    - Implement actual email service for production
+
+5. **Permission Denied Errors**
+   - Ensure RLS policies are set up correctly
+   - Check that the `auth.uid()` function is available
+   - Verify user authentication in API calls
 
 ### Debugging
 
