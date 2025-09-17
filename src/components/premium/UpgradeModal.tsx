@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { mockSubscription, SUBSCRIPTION_PLANS, SubscriptionStatus } from '../../lib/subscription'
+import { SUBSCRIPTION_PLANS, SubscriptionStatus, useSubscription, triggerSubscriptionRefresh } from '../../lib/subscription'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface UpgradeModalProps {
   onClose: () => void
@@ -15,25 +16,42 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionStatus>('premium')
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [step, setStep] = useState<'plans' | 'payment' | 'success'>('plans')
+  const { user } = useAuth()
+  const { refreshSubscription } = useSubscription()
 
   const handleUpgrade = async () => {
     setIsUpgrading(true)
-    
-    // Simulate payment processing
     setStep('payment')
-    await new Promise(resolve => setTimeout(resolve, 2000))
     
     try {
-      await mockSubscription.mockUpgrade(selectedPlan)
-      setStep('success')
+      // Redirect to real Stripe checkout
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || 'price_1QAqIKP7VwzJtjINaEcdGGde',
+          billingPeriod: 'annual',
+          successUrl: `${window.location.origin}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: window.location.href,
+          email: user?.email
+        })
+      })
       
-      // Close modal after success
-      setTimeout(() => {
-        onClose()
-        if (onUpgraded) onUpgraded()
-      }, 2000)
+      const data = await response.json()
+      
+      if (data.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = data.checkoutUrl
+      } else {
+        console.error('No checkout URL received')
+        setStep('plans') // Return to plans step on error
+      }
     } catch (error) {
-      console.error('Mock upgrade failed:', error)
+      console.error('Real upgrade failed:', error)
+      setStep('plans') // Return to plans step on error
     } finally {
       setIsUpgrading(false)
     }

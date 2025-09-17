@@ -1,5 +1,5 @@
-// Mock subscription system for testing premium features
-// In production, this would be replaced with real subscription logic
+// Real subscription system with database integration
+// Handles authentic Stripe subscriptions and database queries
 
 export type SubscriptionStatus = 'free' | 'premium' | 'school'
 
@@ -46,58 +46,30 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionStatus, SubscriptionInfo> = 
   }
 }
 
-export const mockSubscription = {
-  getStatus: (): SubscriptionStatus => {
-    if (typeof window === 'undefined') return 'free' // Server-side default
-    return (localStorage.getItem('mockSubscription') as SubscriptionStatus) || 'free'
-  },
+// Helper functions for subscription management
+export const canUseDifferentiation = (status: SubscriptionStatus): boolean => {
+  return status === 'premium' || status === 'school'
+}
+
+export const getRemainingFeatures = (currentStatus: SubscriptionStatus): string[] => {
+  if (currentStatus === 'free') {
+    return SUBSCRIPTION_PLANS.premium.features
+  }
   
-  setStatus: (status: SubscriptionStatus) => {
-    if (typeof window === 'undefined') return
-    localStorage.setItem('mockSubscription', status)
-    // Trigger a storage event to update other components
+  if (currentStatus === 'premium') {
+    return SUBSCRIPTION_PLANS.school.features.filter(
+      feature => !SUBSCRIPTION_PLANS.premium.features.includes(feature)
+    )
+  }
+  
+  return []
+}
+
+// Function to trigger subscription refresh across components
+export const triggerSubscriptionRefresh = (): void => {
+  if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('subscription-changed'))
-  },
-  
-  getInfo: (): SubscriptionInfo => {
-    const status = mockSubscription.getStatus()
-    return SUBSCRIPTION_PLANS[status]
-  },
-  
-  isPremium: (): boolean => {
-    const status = mockSubscription.getStatus()
-    return status === 'premium' || status === 'school'
-  },
-  
-  canUseDifferentiation: (): boolean => {
-    return true // Allow all users to access differentiation (free users get preview)
-  },
-  
-  getRemainingFeatures: (): string[] => {
-    const currentStatus = mockSubscription.getStatus()
-    
-    if (currentStatus === 'free') {
-      return SUBSCRIPTION_PLANS.premium.features
-    }
-    
-    if (currentStatus === 'premium') {
-      return SUBSCRIPTION_PLANS.school.features.filter(
-        feature => !SUBSCRIPTION_PLANS.premium.features.includes(feature)
-      )
-    }
-    
-    return []
-  },
-  
-  // Mock upgrade function
-  mockUpgrade: (newStatus: SubscriptionStatus) => {
-    mockSubscription.setStatus(newStatus)
-    return Promise.resolve({ success: true, status: newStatus })
-  },
-  
-  // Development helper
-  isDevelopment: (): boolean => {
-    return process.env.NODE_ENV === 'development'
+    window.dispatchEvent(new Event('real-subscription-refresh'))
   }
 }
 
@@ -106,14 +78,16 @@ import { useAuth } from '../contexts/AuthContext';
 
 // Real subscription hook that queries the database
 export const useSubscription = () => {
+  const { user } = useAuth() // Use proper auth context
   const [status, setStatus] = React.useState<SubscriptionStatus>('free')
   const [isHydrated, setIsHydrated] = React.useState(false)
   const [subscriptionData, setSubscriptionData] = React.useState<any>(null)
-  
-  // Get user from Supabase auth context (NOT localStorage)
-  const { user } = useAuth();
+  const [loading, setLoading] = React.useState(false)
   
   const fetchRealSubscription = async (userId: string) => {
+    if (loading) return // Prevent multiple simultaneous requests
+    
+    setLoading(true)
     try {
       console.log('🔍 Fetching real subscription for user:', userId);
       const response = await fetch(`/api/user/subscription?userId=${userId}`);
@@ -124,7 +98,9 @@ export const useSubscription = () => {
         setSubscriptionData(data);
         
         // Set status based on real database data
-        const isPremium = data.subscription?.isPremium || false;
+        const isPremium = data.subscription?.isPremium || 
+                         data.subscription?.status === 'premium' ||
+                         data.subscription?.subscription_status === 'premium';
         setStatus(isPremium ? 'premium' : 'free');
         
         return data;
@@ -137,6 +113,8 @@ export const useSubscription = () => {
       console.error('❌ Error fetching subscription:', error);
       setStatus('free');
       return null;
+    } finally {
+      setLoading(false)
     }
   };
   
@@ -153,11 +131,12 @@ export const useSubscription = () => {
     
     const handleSubscriptionChange = async () => {
       if (user?.id) {
+        console.log('🔄 Subscription change event detected, refreshing...');
         await fetchRealSubscription(user.id);
       }
     }
     
-    // Listen for subscription changes
+    // Listen for subscription changes (from successful payments)
     window.addEventListener('subscription-changed', handleSubscriptionChange)
     window.addEventListener('real-subscription-refresh', handleSubscriptionChange)
     
@@ -173,8 +152,9 @@ export const useSubscription = () => {
     status,
     info,
     isPremium: status === 'premium' || status === 'school',
-    canUseDifferentiation: status === 'premium' || status === 'school',
+    canUseDifferentiation: canUseDifferentiation(status),
     isHydrated,
+    loading,
     subscriptionData, // Real subscription data from database
     refreshSubscription: () => {
       if (user?.id) {

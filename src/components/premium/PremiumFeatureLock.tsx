@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { mockSubscription, SUBSCRIPTION_PLANS } from '../../lib/subscription'
+import { SUBSCRIPTION_PLANS, useSubscription, triggerSubscriptionRefresh } from '../../lib/subscription'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface PremiumFeatureLockProps {
   featureName?: string
@@ -13,35 +14,51 @@ const PremiumFeatureLock: React.FC<PremiumFeatureLockProps> = ({
   onUpgrade 
 }) => {
   const [isUpgrading, setIsUpgrading] = useState(false)
+  const { user } = useAuth()
+  const { refreshSubscription } = useSubscription()
   const premiumPlan = SUBSCRIPTION_PLANS.premium
 
-  const handleTryPremium = async () => {
+  const handleRealUpgrade = async () => {
     setIsUpgrading(true)
     try {
-      await mockSubscription.mockUpgrade('premium')
-      // Close the modal and let parent handle the premium access
-      onClose()
-      if (onUpgrade) onUpgrade()
+      // Redirect to actual Stripe checkout
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || 'price_1QAqIKP7VwzJtjINaEcdGGde',
+          billingPeriod: 'annual',
+          successUrl: `${window.location.origin}/dashboard?upgrade=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: window.location.href,
+          email: user?.email
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      } else {
+        console.error('No checkout URL received')
+      }
     } catch (error) {
-      console.error('Mock upgrade failed:', error)
+      console.error('Real upgrade failed:', error)
     } finally {
       setIsUpgrading(false)
     }
   }
 
-  const handleMockUpgrade = async () => {
-    setIsUpgrading(true)
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
+  const handleRefreshSubscription = async () => {
     try {
-      await mockSubscription.mockUpgrade('premium')
+      await refreshSubscription()
+      triggerSubscriptionRefresh()
       onClose()
       if (onUpgrade) onUpgrade()
     } catch (error) {
-      console.error('Mock upgrade failed:', error)
-    } finally {
-      setIsUpgrading(false)
+      console.error('Subscription refresh failed:', error)
     }
   }
 
@@ -111,7 +128,7 @@ const PremiumFeatureLock: React.FC<PremiumFeatureLockProps> = ({
           {/* Action Buttons */}
           <div className="space-y-3">
             <button
-              onClick={handleMockUpgrade}
+              onClick={handleRealUpgrade}
               disabled={isUpgrading}
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-purple-400 disabled:to-indigo-400 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
             >
@@ -129,12 +146,12 @@ const PremiumFeatureLock: React.FC<PremiumFeatureLockProps> = ({
             </button>
 
             {/* Development Testing Button */}
-            {mockSubscription.isDevelopment() && (
+            {process.env.NODE_ENV === 'development' && (
               <button
-                onClick={handleTryPremium}
+                onClick={handleRefreshSubscription}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
               >
-                🧪 Try Premium (Development)
+                🔄 Refresh Subscription Status
               </button>
             )}
 
