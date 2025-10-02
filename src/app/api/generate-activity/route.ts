@@ -116,15 +116,17 @@ function enhanceLessonFormatting(content: string): string {
   
   let formatted = content;
   
-  // Conservative approach: Only fix obvious formatting issues without breaking markdown
+  // Add line break before each boldface section header (if not already there)
+  formatted = formatted.replace(/([^\n])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  
+  // Clearly indicate Exit Ticket sections
+  formatted = formatted.replace(/(\*\*Exit Ticket[^*]*\*\*)/gi, '\n📋 $1');
+  
   // Ensure bullet points have proper spacing
   formatted = formatted.replace(/\n-\s*/g, '\n- ');
   
   // Clean up excessive line breaks (more than 3 consecutive)
   formatted = formatted.replace(/\n{4,}/g, '\n\n\n');
-  
-  // Ensure activity names are properly spaced but don't add excessive breaks
-  formatted = formatted.replace(/(\*\*ACTIVITY NAME:[^*]*\*\*)\s*\n?\s*/gi, '$1\n\n');
   
   return formatted.trim();
 }
