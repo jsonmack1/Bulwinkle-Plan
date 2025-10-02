@@ -116,30 +116,12 @@ function enhanceLessonFormatting(content: string): string {
   
   let formatted = content;
   
-  // Add line break before each section header (both single and double asterisk)
-  // Handle **Header** patterns
-  formatted = formatted.replace(/([^\n])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  // SIMPLE: Just ensure section headers have space before them (but don't break the markdown)
+  // Add line break before **text** only if there isn't already a line break
+  formatted = formatted.replace(/([^\n])\s*(\*\*[A-Z][^*]+\*\*)/g, '$1\n\n$2');
   
-  // Handle *Header* patterns (but be very specific to avoid breaking text)
-  // Only match when it looks like a section header
-  const headerPatterns = [
-    'Phase \\d+[^*]*', 'Step \\d+[^*]*', 'Part [A-Z][^*]*', 'Option [A-Z][^*]*',
-    'Activity \\d+[^*]*', 'Section \\d+[^*]*', 'Exercise \\d+[^*]*'
-  ];
-  
-  headerPatterns.forEach(pattern => {
-    const regex = new RegExp(`([^\\n])\\s*(\\*${pattern}\\*)`, 'gi');
-    formatted = formatted.replace(regex, '$1\n\n$2');
-  });
-  
-  // Clearly indicate Exit Ticket sections
-  formatted = formatted.replace(/(\*\*Exit Ticket[^*]*\*\*)/gi, '\n📋 $1');
-  
-  // Ensure bullet points have proper spacing
-  formatted = formatted.replace(/\n-\s*/g, '\n- ');
-  
-  // Clean up excessive line breaks (more than 3 consecutive)
-  formatted = formatted.replace(/\n{4,}/g, '\n\n\n');
+  // Clean up excessive line breaks
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
   
   return formatted.trim();
 }
