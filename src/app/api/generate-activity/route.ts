@@ -111,6 +111,64 @@ function sanitizeContentForNonMath(content: string): string {
   return sanitized.trim();
 }
 
+function enhanceLessonFormatting(content: string): string {
+  if (!content) return content;
+  
+  let formatted = content;
+  
+  // Ensure proper spacing around headers (markdown bold text)
+  // Add line breaks before headers that don't have them
+  formatted = formatted.replace(/([.!?:])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  
+  // Ensure headers start on new lines and have space after
+  formatted = formatted.replace(/(\*\*[^*]+\*\*)\s*/g, '$1\n\n');
+  
+  // Fix headers that appear at the end of paragraphs
+  formatted = formatted.replace(/([a-zA-Z0-9,.!?])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  
+  // Ensure consistent spacing around activity sections
+  const sectionHeaders = [
+    'Learning Objectives',
+    'Materials Needed', 
+    'Activity Instructions',
+    'Opening Hook',
+    'Main Activity',
+    'Phase 1',
+    'Phase 2', 
+    'Phase 3',
+    'Exit Ticket',
+    'Differentiation Options',
+    'Assessment Ideas',
+    'Teaching Tips',
+    'Teaching Insights',
+    'Discussion Starters'
+  ];
+  
+  sectionHeaders.forEach(header => {
+    // Ensure these headers have proper spacing
+    const headerPattern = new RegExp(`(\\*\\*${header}[^*]*\\*\\*)`, 'gi');
+    formatted = formatted.replace(headerPattern, '\n\n$1\n\n');
+  });
+  
+  // Clean up excessive line breaks (more than 3 consecutive)
+  formatted = formatted.replace(/\n{4,}/g, '\n\n\n');
+  
+  // Ensure bullet points have proper spacing
+  formatted = formatted.replace(/\n-\s*/g, '\n- ');
+  formatted = formatted.replace(/([^-\n])-\s*/g, '$1\n- ');
+  
+  // Fix paragraphs that run into headers
+  formatted = formatted.replace(/([.!?])\s*(\*\*[A-Z][^*]*\*\*)/g, '$1\n\n$2');
+  
+  // Ensure activity names are properly spaced
+  formatted = formatted.replace(/(\*\*ACTIVITY NAME:[^*]*\*\*)/gi, '\n\n$1\n\n');
+  
+  // Clean up any remaining formatting issues
+  formatted = formatted.replace(/\n\s*\n\s*\n/g, '\n\n');
+  
+  return formatted.trim();
+}
+
 function generateMathEnhancedPrompt(subject: string, gradeLevel: string, topic: string, activityType: string = ''): string {
   try {
     const gradeContent = GradeLevelMathContent.getContentForGrade(gradeLevel);
@@ -940,7 +998,16 @@ ${isAPCourse
   : `2-3 practical insights for smooth implementation.`}
 ${useCER && !isAPCourse ? 'Include specific tips for guiding students through reasoning about ' + topic + ' naturally.' : ''}
 
-Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.`;
+Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.
+
+**CRITICAL FORMATTING REQUIREMENTS:**
+- Each section header must start on a new line with proper spacing
+- Use **bold text** for all section headers (e.g., **Learning Objectives**, **Materials Needed**)
+- Ensure clear paragraph breaks between sections
+- Never place headers at the end of paragraphs
+- Always add blank lines before and after headers
+- Use consistent bullet point formatting with proper spacing
+- Create a professional, print-ready appearance that teachers can use immediately`;
 }
 
 function generateSubModePrompt(activityData: {
@@ -1103,7 +1170,16 @@ Ask 2 simple questions about ${topic} that students can answer based on today's 
 **Note for Teacher**
 [Leave space for substitute to write brief note about how the lesson went]
 
-Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.`;
+Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.
+
+**CRITICAL FORMATTING REQUIREMENTS:**
+- Each section header must start on a new line with proper spacing
+- Use **bold text** for all section headers (e.g., **Activity Instructions**, **Materials Needed**)
+- Ensure clear paragraph breaks between sections
+- Never place headers at the end of paragraphs
+- Always add blank lines before and after headers
+- Use consistent bullet point formatting with proper spacing
+- Create a professional, print-ready appearance that substitutes can use immediately`;
 }
 
 function getTopicSpecificMathContent(topic: string, subject: string, gradeLevel: string): string {
@@ -1922,6 +1998,10 @@ export async function POST(request: NextRequest) {
         console.log(`✨ Sanitization removed ${beforeLength - afterLength} characters of mathematical content from ${activityData.subject} lesson`);
       }
     }
+
+    // Apply professional formatting to all lesson plans
+    console.log('✨ Enhancing lesson formatting for professional appearance...');
+    generatedActivity = enhanceLessonFormatting(generatedActivity);
 
     // Generate unique ID
     const activityId = `activity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
