@@ -116,8 +116,21 @@ function enhanceLessonFormatting(content: string): string {
   
   let formatted = content;
   
-  // Add line break before each boldface section header (if not already there)
+  // Add line break before each section header (both single and double asterisk)
+  // Handle **Header** patterns
   formatted = formatted.replace(/([^\n])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  
+  // Handle *Header* patterns (but be very specific to avoid breaking text)
+  // Only match when it looks like a section header
+  const headerPatterns = [
+    'Phase \\d+[^*]*', 'Step \\d+[^*]*', 'Part [A-Z][^*]*', 'Option [A-Z][^*]*',
+    'Activity \\d+[^*]*', 'Section \\d+[^*]*', 'Exercise \\d+[^*]*'
+  ];
+  
+  headerPatterns.forEach(pattern => {
+    const regex = new RegExp(`([^\\n])\\s*(\\*${pattern}\\*)`, 'gi');
+    formatted = formatted.replace(regex, '$1\n\n$2');
+  });
   
   // Clearly indicate Exit Ticket sections
   formatted = formatted.replace(/(\*\*Exit Ticket[^*]*\*\*)/gi, '\n📋 $1');
