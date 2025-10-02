@@ -961,12 +961,28 @@ ${useCER && !isAPCourse ? 'Include specific tips for guiding students through re
 Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Use **bold text** for all section headers on a single line (e.g., **Learning Objectives**)
-- Place headers on their own lines with ONE blank line before and after
-- Never split **header text** across multiple lines
-- Ensure clear paragraph breaks between sections
-- Use consistent bullet point formatting with proper spacing
-- Create a professional, print-ready appearance that teachers can use immediately`;
+Follow this EXACT formatting pattern for all sections:
+
+**Learning Objectives**
+
+Students will be able to:
+- First objective here
+- Second objective here
+
+**Materials Needed**
+
+- Item 1
+- Item 2
+
+**Activity Instructions**
+
+Content here with proper spacing.
+
+**Opening Hook (X minutes)**
+
+Content here.
+
+IMPORTANT: Headers must be on single lines with exactly one blank line before and after, never split across lines.`;
 }
 
 function generateSubModePrompt(activityData: {
@@ -1132,12 +1148,26 @@ Ask 2 simple questions about ${topic} that students can answer based on today's 
 Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Use **bold text** for all section headers on a single line (e.g., **Activity Instructions**)
-- Place headers on their own lines with ONE blank line before and after
-- Never split **header text** across multiple lines
-- Ensure clear paragraph breaks between sections
-- Use consistent bullet point formatting with proper spacing
-- Create a professional, print-ready appearance that substitutes can use immediately`;
+Follow this EXACT formatting pattern for all sections:
+
+**Activity Instructions**
+
+Simple content here.
+
+**Materials Needed**
+
+- Basic supplies only
+
+**Main Activity (X minutes)**
+
+Content here.
+
+**End-of-Class Checklist**
+
+✅ Item 1
+✅ Item 2
+
+IMPORTANT: Headers must be on single lines with exactly one blank line before and after, never split across lines.`;
 }
 
 function getTopicSpecificMathContent(topic: string, subject: string, gradeLevel: string): string {
