@@ -116,15 +116,19 @@ function enhanceLessonFormatting(content: string): string {
   
   let formatted = content;
   
-  // Ensure proper spacing around headers (markdown bold text)
+  // CRITICAL FIX: Repair broken markdown patterns where headers are split across lines
+  // Pattern: **text\n\n** becomes **text**
+  formatted = formatted.replace(/\*\*([^*\n]+)\n+\*\*/g, '**$1**');
+  
+  // Ensure proper spacing around complete headers (preserve markdown syntax)
   // Add line breaks before headers that don't have them
   formatted = formatted.replace(/([.!?:])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
   
   // Ensure headers start on new lines and have space after
-  formatted = formatted.replace(/(\*\*[^*]+\*\*)\s*/g, '$1\n\n');
+  formatted = formatted.replace(/([^\n])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
   
-  // Fix headers that appear at the end of paragraphs
-  formatted = formatted.replace(/([a-zA-Z0-9,.!?])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
+  // Add space after headers
+  formatted = formatted.replace(/(\*\*[^*]+\*\*)\s*([^\n])/g, '$1\n\n$2');
   
   // Ensure consistent spacing around activity sections
   const sectionHeaders = [
@@ -145,26 +149,23 @@ function enhanceLessonFormatting(content: string): string {
   ];
   
   sectionHeaders.forEach(header => {
-    // Ensure these headers have proper spacing
+    // Ensure these headers have proper spacing while preserving markdown
     const headerPattern = new RegExp(`(\\*\\*${header}[^*]*\\*\\*)`, 'gi');
     formatted = formatted.replace(headerPattern, '\n\n$1\n\n');
   });
   
-  // Clean up excessive line breaks (more than 3 consecutive)
-  formatted = formatted.replace(/\n{4,}/g, '\n\n\n');
+  // Clean up excessive line breaks (more than 2 consecutive)
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
   
   // Ensure bullet points have proper spacing
   formatted = formatted.replace(/\n-\s*/g, '\n- ');
   formatted = formatted.replace(/([^-\n])-\s*/g, '$1\n- ');
   
-  // Fix paragraphs that run into headers
-  formatted = formatted.replace(/([.!?])\s*(\*\*[A-Z][^*]*\*\*)/g, '$1\n\n$2');
-  
   // Ensure activity names are properly spaced
   formatted = formatted.replace(/(\*\*ACTIVITY NAME:[^*]*\*\*)/gi, '\n\n$1\n\n');
   
-  // Clean up any remaining formatting issues
-  formatted = formatted.replace(/\n\s*\n\s*\n/g, '\n\n');
+  // Final cleanup of any remaining formatting issues
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
   
   return formatted.trim();
 }
