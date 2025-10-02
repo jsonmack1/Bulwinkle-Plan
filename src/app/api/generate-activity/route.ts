@@ -958,31 +958,7 @@ ${isAPCourse
   : `2-3 practical insights for smooth implementation.`}
 ${useCER && !isAPCourse ? 'Include specific tips for guiding students through reasoning about ' + topic + ' naturally.' : ''}
 
-Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.
-
-**CRITICAL FORMATTING REQUIREMENTS:**
-Follow this EXACT formatting pattern for all sections:
-
-**Learning Objectives**
-
-Students will be able to:
-- First objective here
-- Second objective here
-
-**Materials Needed**
-
-- Item 1
-- Item 2
-
-**Activity Instructions**
-
-Content here with proper spacing.
-
-**Opening Hook (X minutes)**
-
-Content here.
-
-IMPORTANT: Headers must be on single lines with exactly one blank line before and after, never split across lines.`;
+Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.`;
 }
 
 function generateSubModePrompt(activityData: {
@@ -1145,29 +1121,7 @@ Ask 2 simple questions about ${topic} that students can answer based on today's 
 **Note for Teacher**
 [Leave space for substitute to write brief note about how the lesson went]
 
-Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.
-
-**CRITICAL FORMATTING REQUIREMENTS:**
-Follow this EXACT formatting pattern for all sections:
-
-**Activity Instructions**
-
-Simple content here.
-
-**Materials Needed**
-
-- Basic supplies only
-
-**Main Activity (X minutes)**
-
-Content here.
-
-**End-of-Class Checklist**
-
-✅ Item 1
-✅ Item 2
-
-IMPORTANT: Headers must be on single lines with exactly one blank line before and after, never split across lines.`;
+Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.`;
 }
 
 function getTopicSpecificMathContent(topic: string, subject: string, gradeLevel: string): string {
