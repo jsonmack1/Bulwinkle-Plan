@@ -116,56 +116,15 @@ function enhanceLessonFormatting(content: string): string {
   
   let formatted = content;
   
-  // CRITICAL FIX: Repair broken markdown patterns where headers are split across lines
-  // Pattern: **text\n\n** becomes **text**
-  formatted = formatted.replace(/\*\*([^*\n]+)\n+\*\*/g, '**$1**');
-  
-  // Ensure proper spacing around complete headers (preserve markdown syntax)
-  // Add line breaks before headers that don't have them
-  formatted = formatted.replace(/([.!?:])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
-  
-  // Ensure headers start on new lines and have space after
-  formatted = formatted.replace(/([^\n])\s*(\*\*[^*]+\*\*)/g, '$1\n\n$2');
-  
-  // Add space after headers
-  formatted = formatted.replace(/(\*\*[^*]+\*\*)\s*([^\n])/g, '$1\n\n$2');
-  
-  // Ensure consistent spacing around activity sections
-  const sectionHeaders = [
-    'Learning Objectives',
-    'Materials Needed', 
-    'Activity Instructions',
-    'Opening Hook',
-    'Main Activity',
-    'Phase 1',
-    'Phase 2', 
-    'Phase 3',
-    'Exit Ticket',
-    'Differentiation Options',
-    'Assessment Ideas',
-    'Teaching Tips',
-    'Teaching Insights',
-    'Discussion Starters'
-  ];
-  
-  sectionHeaders.forEach(header => {
-    // Ensure these headers have proper spacing while preserving markdown
-    const headerPattern = new RegExp(`(\\*\\*${header}[^*]*\\*\\*)`, 'gi');
-    formatted = formatted.replace(headerPattern, '\n\n$1\n\n');
-  });
-  
-  // Clean up excessive line breaks (more than 2 consecutive)
-  formatted = formatted.replace(/\n{3,}/g, '\n\n');
-  
+  // Conservative approach: Only fix obvious formatting issues without breaking markdown
   // Ensure bullet points have proper spacing
   formatted = formatted.replace(/\n-\s*/g, '\n- ');
-  formatted = formatted.replace(/([^-\n])-\s*/g, '$1\n- ');
   
-  // Ensure activity names are properly spaced
-  formatted = formatted.replace(/(\*\*ACTIVITY NAME:[^*]*\*\*)/gi, '\n\n$1\n\n');
+  // Clean up excessive line breaks (more than 3 consecutive)
+  formatted = formatted.replace(/\n{4,}/g, '\n\n\n');
   
-  // Final cleanup of any remaining formatting issues
-  formatted = formatted.replace(/\n{3,}/g, '\n\n');
+  // Ensure activity names are properly spaced but don't add excessive breaks
+  formatted = formatted.replace(/(\*\*ACTIVITY NAME:[^*]*\*\*)\s*\n?\s*/gi, '$1\n\n');
   
   return formatted.trim();
 }
@@ -1002,11 +961,10 @@ ${useCER && !isAPCourse ? 'Include specific tips for guiding students through re
 Create a research-based activity that aligns with professional teaching standards and can be successfully delivered with common classroom materials. If CER is included, make it feel like a natural part of learning about ${topic}, not a separate academic exercise. Make sure the activity name is memorable and engaging for students to reference.
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Each section header must start on a new line with proper spacing
-- Use **bold text** for all section headers (e.g., **Learning Objectives**, **Materials Needed**)
+- Use **bold text** for all section headers on a single line (e.g., **Learning Objectives**)
+- Place headers on their own lines with ONE blank line before and after
+- Never split **header text** across multiple lines
 - Ensure clear paragraph breaks between sections
-- Never place headers at the end of paragraphs
-- Always add blank lines before and after headers
 - Use consistent bullet point formatting with proper spacing
 - Create a professional, print-ready appearance that teachers can use immediately`;
 }
@@ -1174,11 +1132,10 @@ Ask 2 simple questions about ${topic} that students can answer based on today's 
 Create a completely hands-off activity focused on discussion, thinking, and reflection that requires zero preparation from the substitute. Make sure the activity name is simple and memorable for students to reference.
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Each section header must start on a new line with proper spacing
-- Use **bold text** for all section headers (e.g., **Activity Instructions**, **Materials Needed**)
+- Use **bold text** for all section headers on a single line (e.g., **Activity Instructions**)
+- Place headers on their own lines with ONE blank line before and after
+- Never split **header text** across multiple lines
 - Ensure clear paragraph breaks between sections
-- Never place headers at the end of paragraphs
-- Always add blank lines before and after headers
 - Use consistent bullet point formatting with proper spacing
 - Create a professional, print-ready appearance that substitutes can use immediately`;
 }
