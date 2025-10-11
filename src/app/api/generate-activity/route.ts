@@ -1758,23 +1758,32 @@ export async function POST(request: NextRequest) {
         
         const startTime = Date.now();
         
-        response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': anthropicKey,
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5-20250929',
-            max_tokens: isSubMode ? 2000 : 3500,
-            temperature: activityData.regenerating ? 0.8 : 0.7,
-            messages: [{
-              role: 'user',
-              content: prompt
-            }]
-          })
-        });
+        // Create AbortController for timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+        
+        try {
+          response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': anthropicKey,
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-5',
+              max_tokens: isSubMode ? 2000 : 3500,
+              temperature: activityData.regenerating ? 0.8 : 0.7,
+              messages: [{
+                role: 'user',
+                content: prompt
+              }]
+            }),
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         const responseTime = Date.now() - startTime;
         console.log(`📡 API Response status: ${response.status}, Time: ${responseTime}ms`);
@@ -1852,6 +1861,22 @@ export async function POST(request: NextRequest) {
       } catch (fetchError) {
         console.error('❌ Activity generation fetch error:', fetchError);
         recordFailure();
+        
+        // Handle timeout specifically for Sonnet 4.5
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          console.warn('⏱️ API call timed out (2 minutes) - Sonnet 4.5 processing time exceeded');
+          
+          if (retryCount < maxRetries) {
+            const delay = calculateDelay(retryCount, false);
+            console.log(`🔄 Retrying in ${Math.round(delay/1000)}s due to timeout...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            retryCount++;
+            continue;
+          } else {
+            console.warn('⚠️ Timeout retries exhausted, using intelligent fallback');
+            return generateIntelligentFallbackActivity(activityData);
+          }
+        }
         
         if (retryCount < maxRetries) {
           const delay = calculateDelay(retryCount, false);

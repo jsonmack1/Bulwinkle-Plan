@@ -306,23 +306,42 @@ Each adaptation should maintain the core learning objectives while addressing sp
     console.log('📚 Creating differentiated versions for:', data.topic);
 
     // Make API call to Anthropic
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 3000,
-        temperature: 0.7,
-        messages: [{
-          role: 'user',
-          content: differentiationPrompt
-        }]
-      })
-    });
+    // Create AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+    
+    let response;
+    try {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 3000,
+          temperature: 0.7,
+          messages: [{
+            role: 'user',
+            content: differentiationPrompt
+          }]
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchError) {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error('⏱️ Differentiation API call timed out (90 seconds)');
+        return NextResponse.json(
+          { error: 'Request timed out. Please try again with a shorter lesson or simpler requirements.' }, 
+          { status: 408 }
+        );
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       console.error('❌ Anthropic API Error:', response.status, response.statusText);

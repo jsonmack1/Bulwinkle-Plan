@@ -22,8 +22,9 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Processing mathematical reasoning request')
     
+    // Set a longer timeout for Sonnet 4.5 mathematical reasoning
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-5',
       max_tokens: 2000,
       temperature: 0.1, // Low temperature for mathematical accuracy
       messages: [
