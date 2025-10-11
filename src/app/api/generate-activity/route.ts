@@ -1624,11 +1624,14 @@ function getAdvancedTopicProblems(topic: string, subject: string, gradeLevel: st
 
 export async function POST(request: NextRequest) {
   console.log('🎓 ACTIVITY NAMES & REGENERATE API: Starting generation');
+  console.log('🔍 DEBUG: POST function called, request received');
   
   let activityData;
   try {
     activityData = await request.json();
+    console.log('🔍 DEBUG: Successfully parsed JSON data');
   } catch (parseError) {
+    console.log('🔍 DEBUG: Failed to parse JSON');
     console.error('❌ Failed to parse request body:', parseError);
     return NextResponse.json(
       { 
@@ -1750,13 +1753,17 @@ export async function POST(request: NextRequest) {
     while (retryCount <= maxRetries) {
       try {
         console.log(`📡 Attempting API call ${retryCount + 1}/${maxRetries + 1}`);
+        console.log('🔍 DEBUG: About to check API key');
         
         // Use the API key from earlier check
         if (!anthropicKey) {
+          console.log('🔍 DEBUG: API key is missing!');
           throw new Error('Missing ANTHROPIC_API_KEY environment variable');
         }
+        console.log('🔍 DEBUG: API key found, length:', anthropicKey.length);
         
         const startTime = Date.now();
+        console.log('🔍 DEBUG: About to make fetch request to Anthropic API');
         
         // Create AbortController for timeout handling
         const controller = new AbortController();
@@ -1771,7 +1778,7 @@ export async function POST(request: NextRequest) {
               'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-              model: 'claude-sonnet-4-5',
+              model: 'claude-3-5-sonnet-20241022',
               max_tokens: isSubMode ? 2000 : 3500,
               temperature: activityData.regenerating ? 0.8 : 0.7,
               messages: [{
@@ -1787,9 +1794,12 @@ export async function POST(request: NextRequest) {
 
         const responseTime = Date.now() - startTime;
         console.log(`📡 API Response status: ${response.status}, Time: ${responseTime}ms`);
+        console.log('🔍 DEBUG: Received response from API, status:', response.status);
+        console.log('🔍 DEBUG: Response headers:', Object.fromEntries(response.headers.entries()));
 
         if (response.ok) {
           console.log('✅ Activity API call successful');
+          console.log('🔍 DEBUG: Response is OK, proceeding to parse JSON');
           // Reset circuit breaker on success
           if ((global as any)[circuitBreakerKey]) {
             (global as any)[circuitBreakerKey].failures = 0;
@@ -1798,8 +1808,10 @@ export async function POST(request: NextRequest) {
         }
         
         // Handle specific error cases
+        console.log('🔍 DEBUG: Response was not OK, checking error status');
         if (response.status === 529) {
           console.warn(`⚠️ API Overload (529) - attempt ${retryCount + 1}/${maxRetries + 1}`);
+          console.log('🔍 DEBUG: Got 529 error from API');
           recordFailure();
           
           if (retryCount < maxRetries) {
@@ -1817,6 +1829,7 @@ export async function POST(request: NextRequest) {
         
         if (response.status === 429) {
           console.warn(`⚠️ Rate Limited (429) - attempt ${retryCount + 1}/${maxRetries + 1}`);
+          console.log('🔍 DEBUG: Got 429 rate limit error from API');
           recordFailure();
           
           if (retryCount < maxRetries) {
