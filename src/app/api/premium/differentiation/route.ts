@@ -116,9 +116,26 @@ function isAPGrade(gradeLevel: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('🎯 DIFFERENTIATION ENDPOINT CALLED at', new Date().toISOString());
+  console.log('Request method:', request.method);
+  console.log('Request headers:', {
+    contentType: request.headers.get('content-type'),
+    contentLength: request.headers.get('content-length')
+  });
+
   try {
     const data: DifferentiationRequest = await request.json();
-    
+    console.log('📦 Request data received:', {
+      hasActivityContent: !!data.activityContent,
+      activityContentLength: data.activityContent?.length || 0,
+      gradeLevel: data.gradeLevel,
+      subject: data.subject,
+      topic: data.topic,
+      activityType: data.activityType,
+      duration: data.duration,
+      requestedTypes: data.requestedTypes || 'using smart defaults'
+    });
+
     // Check for API availability - use fallback if environment loading fails
     const envKey = process.env.ANTHROPIC_API_KEY;
     const isValidKey = envKey && envKey.length > 20 && envKey.startsWith('sk-ant-');
