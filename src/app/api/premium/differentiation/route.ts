@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Vercel serverless function configuration
+// Set maximum duration to 60 seconds (requires Pro plan, Hobby = 10s max)
+// If on Hobby plan, this will be capped at 10s
+export const maxDuration = 60;
+
 interface DifferentiationRequest {
   activityContent: string;
   gradeLevel: string;
@@ -130,9 +135,14 @@ export async function POST(request: NextRequest) {
     console.log('🔑 Differentiation API Key check:', {
       fromEnv: envKey?.substring(0, 10) + '...',
       envKeyLength: envKey?.length || 0,
+      startsWithSkAnt: envKey?.startsWith('sk-ant-'),
+      hasMinLength: (envKey?.length || 0) > 20,
       isValid: isValidKey,
       final: anthropicKey?.substring(0, 10) + '...',
-      finalLength: anthropicKey?.length || 0
+      finalLength: anthropicKey?.length || 0,
+      // Check for common issues
+      hasWhitespace: envKey?.includes(' ') || envKey?.includes('\n') || envKey?.includes('\t'),
+      hasQuotes: envKey?.includes('"') || envKey?.includes("'")
     });
 
     // Validate required fields
@@ -307,11 +317,19 @@ Each adaptation should maintain the core learning objectives while addressing sp
 
     // Make API call to Anthropic
     // Create AbortController for timeout handling
+    // Vercel Hobby plan: 10s max, Pro: 60s max, Enterprise: 300s max
+    // Set timeout slightly less than maxDuration to allow for cleanup
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
-    
+    const timeoutMs = 55000; // 55 seconds (allows 5s for response processing)
+    const timeoutId = setTimeout(() => {
+      console.error('⏱️ Aborting request after', timeoutMs/1000, 'seconds');
+      controller.abort();
+    }, timeoutMs);
+
     let response;
+    const apiStartTime = Date.now();
     try {
+      console.log('🔄 Starting Anthropic API call at', new Date().toISOString());
       response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -330,11 +348,23 @@ Each adaptation should maintain the core learning objectives while addressing sp
         }),
         signal: controller.signal
       });
+
+      const apiDuration = Date.now() - apiStartTime;
+      console.log(`✅ API responded in ${apiDuration}ms`);
+
     } catch (fetchError) {
+      const apiDuration = Date.now() - apiStartTime;
+      console.error(`❌ Fetch failed after ${apiDuration}ms:`, fetchError);
+
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('⏱️ Differentiation API call timed out (90 seconds)');
+        console.error('⏱️ Differentiation API call timed out after', apiDuration/1000, 'seconds');
+        console.error('💡 Timeout limit was:', timeoutMs/1000, 'seconds');
+        console.error('⚠️ If on Vercel Hobby plan, function is limited to 10s max execution');
         return NextResponse.json(
-          { error: 'Request timed out. Please try again with a shorter lesson or simpler requirements.' }, 
+          {
+            error: 'Request timed out. The AI response took too long. Please try again or upgrade your Vercel plan for longer timeouts.',
+            details: `Timed out after ${Math.round(apiDuration/1000)}s`
+          },
           { status: 408 }
         );
       }
@@ -344,9 +374,22 @@ Each adaptation should maintain the core learning objectives while addressing sp
     }
 
     if (!response.ok) {
-      console.error('❌ Anthropic API Error:', response.status, response.statusText);
+      const errorBody = await response.text();
+      console.error('❌ Anthropic API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody.substring(0, 500) // Log first 500 chars
+      });
+
+      // Return detailed error for debugging
       return NextResponse.json(
-        { error: `Anthropic API error: ${response.status}` }, 
+        {
+          error: `Anthropic API error: ${response.status}`,
+          details: response.statusText,
+          hint: response.status === 401 ? 'Invalid API key' :
+                response.status === 429 ? 'Rate limit exceeded' :
+                response.status === 500 ? 'Anthropic service error' : 'Unknown error'
+        },
         { status: 500 }
       );
     }
@@ -395,11 +438,39 @@ Each adaptation should maintain the core learning objectives while addressing sp
 
   } catch (error) {
     console.error('❌ Differentiation API Error:', error);
+
+    // Enhanced error logging for Vercel
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack?.substring(0, 500));
+    }
+
+    // Check if it's a Vercel timeout (different from our abort timeout)
+    const isVercelTimeout = error instanceof Error &&
+      (error.message.includes('FUNCTION_INVOCATION_TIMEOUT') ||
+       error.message.includes('Task timed out'));
+
+    if (isVercelTimeout) {
+      console.error('⚠️ VERCEL FUNCTION TIMEOUT DETECTED');
+      console.error('💡 Your Vercel plan limits function execution time');
+      console.error('💡 Hobby: 10s, Pro: 60s, Enterprise: 300s');
+      return NextResponse.json(
+        {
+          error: 'Function execution timeout',
+          details: 'The request exceeded Vercel\'s serverless function time limit. Consider upgrading your Vercel plan or optimizing the request.',
+          hint: 'Vercel Hobby plan limits functions to 10 seconds'
+        },
+        { status: 504 }
+      );
+    }
+
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to generate differentiated content',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }, 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
